@@ -1,0 +1,13 @@
+{
+  "name": "frfojo",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "pnpm -F main dev",
+    "build": "pnpm -F main build"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
