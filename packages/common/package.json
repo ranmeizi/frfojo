@@ -1,10 +1,10 @@
 {
-  "name": "frfojo",
+  "name": "@frfojo/common",
   "version": "1.0.0",
   "description": "",
+  "main": "index.js",
   "scripts": {
-    "dev": "pnpm -F main dev",
-    "build": "pnpm -F main build"
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
   "author": "",

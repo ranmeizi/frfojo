@@ -1,13 +1,91 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Vite + React + TS</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
+
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vite + React + TS</title>
+  <style>
+    .ffj-first-screen-mask {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 100vh;
+      width: 100vw;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      opacity: 1;
+    }
+
+    .ffj-first-screen-loading {
+      width: 60px;
+      aspect-ratio: 1;
+      background:
+        linear-gradient(45deg, #60B99A 50%, #0000 0),
+        linear-gradient(45deg, #0000 50%, #60B99A 0),
+        linear-gradient(-45deg, #f77825 50%, #0000 0),
+        linear-gradient(-45deg, #0000 50%, #f77825 0),
+        linear-gradient(#554236 0 0);
+      background-size: 50% 50%;
+      background-repeat: no-repeat;
+      animation: l18 1.5s infinite;
+    }
+
+    @keyframes l18 {
+      0% {
+        background-position: 50% 50%, 50% 50%, 50% 50%, 50% 50%, 50% 50%
+      }
+
+      25% {
+        background-position: 0 100%, 100% 0, 50% 50%, 50% 50%, 50% 50%
+      }
+
+      50% {
+        background-position: 0 100%, 100% 0, 100% 100%, 0 0, 50% 50%
+      }
+
+      75% {
+        background-position: 50% 50%, 50% 50%, 100% 100%, 0 0, 50% 50%
+      }
+
+      100% {
+        background-position: 50% 50%, 50% 50%, 50% 50%, 50% 50%, 50% 50%
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div id="root"></div>
+  <div class="ffj-first-screen-mask">
+    <div class="ffj-first-screen-loading"></div>
+  </div>
+  <script>
+    // 判断 dark mode
+    const darkModeMediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+
+    const loadingMask = document.querySelector('.ffj-first-screen-mask')
+
+
+    // 检查当前是否是深色模式
+    if (darkModeMediaQuery.matches) {
+      loadingMask.style.background = 'rgb(15, 18, 20)'
+    } else {
+      loadingMask.style.background = 'rgb(255, 255, 255)'
+    }
+
+    window.ffj_loaded = function () {
+      loadingMask.style.transition = '300ms'
+      loadingMask.style.opacity = 0
+      loadingMask.style.transform = 'scale(10)'
+      loadingMask.addEventListener('transitionend', () => {
+        loadingMask.parentNode.removeChild(loadingMask)
+      })
+    }
+  </script>
+  <script type="module" src="/src/main.tsx"></script>
+</body>
+
 </html>
