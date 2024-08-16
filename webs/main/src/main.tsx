@@ -11,7 +11,7 @@ const process = new AsyncProcess();
 process.use(rxdbInit);
 // 测试 loading
 process.use(async function (next: AsyncProcessFn) {
-  await sleep(5000);
+  await sleep(2000);
   await next();
 });
 // 渲染 react
@@ -20,9 +20,9 @@ process.start();
 
 function renderApp() {
   createRoot(document.getElementById("root")!).render(
-    <StrictMode>
-      <App />
-    </StrictMode>
+    // <StrictMode> // 很多库不支持 StrictMode,自己测自己写
+    <App />
+    // </StrictMode>
   );
 
   if (window.ffj_loaded) {

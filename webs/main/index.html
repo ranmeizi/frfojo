@@ -81,6 +81,9 @@
       loadingMask.style.opacity = 0
       loadingMask.style.transform = 'scale(10)'
       loadingMask.addEventListener('transitionend', () => {
+        if (!loadingMask || !loadingMask.parentNode) {
+          return
+        }
         loadingMask.parentNode.removeChild(loadingMask)
       })
     }

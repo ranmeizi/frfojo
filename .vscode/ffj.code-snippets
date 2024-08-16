@@ -1,0 +1,20 @@
+{
+  "new-component": {
+    "prefix": "new-component",
+    "body": [
+      "import { FC } from \"react\";",
+      "import { styled } from \"@mui/material\";",
+      "",
+      "const Root = styled(\"div\")(({ theme }) => ({}));",
+      "",
+      "type ${0}Props = {};",
+      "",
+      "const ${0}: FC<${0}Props> = (props) => {",
+      "  return <Root>Component ${0}</Root>;",
+      "};",
+      "",
+      "export default ${0};"
+    ],
+    "description": ""
+  }
+}

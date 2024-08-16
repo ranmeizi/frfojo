@@ -10,12 +10,16 @@ const StyledRoot = styled("div")(({ theme }) => ({
   width: "100vw",
   display: "flex",
   background: colors.grey["900"],
+  paddingLeft: "70px",
 
   ".ffj-layout-app__sidebar": {
     background: theme.palette.background.paper,
     height: "100%",
     width: "70px",
     paddingTop: (window as any).__TAURI__ ? "30px" : 0,
+    position: "fixed",
+    left: 0,
+    top: 0,
   },
 }));
 
