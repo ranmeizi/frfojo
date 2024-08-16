@@ -7,6 +7,7 @@ import { FC, useContext } from "react";
 import { styled } from "@mui/material";
 import { StorageContext } from "./context";
 import { Item } from "./Columns";
+import FolderOpenIcon from "@mui/icons-material/FolderOpen";
 
 const Root = styled("div")<{ width: number }>(({ theme, width }) => ({
   height: width + "px",
@@ -15,13 +16,27 @@ const Root = styled("div")<{ width: number }>(({ theme, width }) => ({
   background: "rgba(255,255,255,.4)",
   transition: "200ms",
   padding: "2px",
-  display: "flex",
-  flexDirection: "row",
-  flexWrap: "wrap",
-  overflow: "hidden",
+  cursor: "pointer",
 
   "&:hover": {
     background: theme.palette.primary.main,
+  },
+
+  ".active &": {
+    opacity: 0.5,
+    cursor: "grabbing",
+  },
+
+  ".ffj-folder-scroll": {
+    height: "100%",
+    width: "100%",
+    overflow: "hidden",
+  },
+
+  ".ffj-folder-content": {
+    display: "flex",
+    flexDirection: "row",
+    flexWrap: "wrap",
   },
 
   img: {
@@ -35,12 +50,15 @@ const Folder: FC<Item> = (props) => {
   const { width } = useContext(StorageContext);
   return (
     <Root width={width}>
-      {items.map((item) => (
-        <img src={item.src} />
-      ))}
+      <div className="ffj-folder-scroll">
+        <div className="ffj-folder-content">
+          {items.map((item) => (
+            <img src={item.src} />
+          ))}
+        </div>
+      </div>
     </Root>
   );
 };
 
 export default Folder;
-0;

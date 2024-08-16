@@ -37,7 +37,6 @@ impl<R: Runtime> WindowExt for Window<R> {
 
             id.setTitleVisibility_(NSWindowTitleVisibility::NSWindowTitleHidden);
             id.setTitlebarAppearsTransparent_( cocoa::base::YES);
-            id.set
         }
     }
 }

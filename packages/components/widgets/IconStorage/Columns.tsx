@@ -3,12 +3,13 @@ import { FC, useCallback, useMemo, useState } from "react";
 import createResizeElement from "../../element/createResizeElement";
 import { throttle } from "@frfojo/common";
 import { StorageContext } from "./context";
-import Icon, { IconProps } from "./Icon";
+import Icon from "./Icon";
 import Folder from "./Folder";
 import {
   DndContext,
   DragEndEvent,
   PointerSensor,
+  MouseSensor,
   useSensor,
   useSensors,
 } from "@dnd-kit/core";
@@ -18,8 +19,7 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import SortableItem from "./SortableItem";
-import { closestCenter } from "./utils";
-import DropableItem from "./DropableItem";
+import { closestCenter, reset } from "./utils";
 
 // resize div
 const ReDiv = createResizeElement("div");
@@ -61,6 +61,14 @@ export type Item = {
 const StorageColumns: FC<StorageColumnsProps> = (props) => {
   const { items, onChange } = props;
   const [width, setWidth] = useState(0);
+  const sensors = useSensors(
+    useSensor(MouseSensor, {
+      activationConstraint: {
+        delay: 250,
+        tolerance: 5,
+      },
+    })
+  );
 
   const onResize = useCallback(
     throttle((el) => {
@@ -74,7 +82,7 @@ const StorageColumns: FC<StorageColumnsProps> = (props) => {
     return items.map((item) => item.id);
   }, [items]);
 
-  function renderTreeItem(item: Item, index: number): React.ReactNode {
+  function renderTreeItem(item: Item): React.ReactNode {
     const isFolder = item.items && item.items.length > 0;
     if (isFolder) {
       return (
@@ -94,11 +102,12 @@ const StorageColumns: FC<StorageColumnsProps> = (props) => {
   function handleDragEnd(event: DragEndEvent) {
     const { active, over, collisions } = event;
     // 交换 items item
-
     const hoverEl = collisions?.find((item) => item?.data?.hovered);
 
+    reset();
+
+    // 这里代表 drop 了 放到对应的 children 里
     if (hoverEl) {
-      // 这里代表 drop 了 放到对应的 children 里
       const startIndex = items.findIndex(({ id }) => id === active.id);
       const targetIndex = items.findIndex(({ id }) => id === hoverEl.id);
 
@@ -123,17 +132,23 @@ const StorageColumns: FC<StorageColumnsProps> = (props) => {
       return;
     }
 
+    // 排序
     if (active.id !== over?.id) {
       const startIndex = items.findIndex(({ id }) => id === active.id);
       const endIndex = items.findIndex(({ id }) => id === over?.id);
-
-      onChange?.(arrayMove(items, startIndex, endIndex));
+      const newItems = arrayMove(items, startIndex, endIndex);
+      onChange?.(newItems);
+      return;
     }
   }
 
   return (
     <StorageContext.Provider value={{ width }}>
-      <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+      <DndContext
+        // sensors={sensors}
+        collisionDetection={closestCenter}
+        onDragEnd={handleDragEnd}
+      >
         <SortableContext
           items={sortItems}
           strategy={verticalListSortingStrategy}

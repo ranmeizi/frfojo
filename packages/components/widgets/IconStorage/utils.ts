@@ -70,7 +70,7 @@ const closestCenter: CollisionDetection = ({
     ? centerOfRectangle(currentRect)
     : zeroCoordinates;
 
-  const spaceSize = 16;
+  const spaceSize = 8;
   const isEnabled =
     Math.abs(centerCurrectRect.x - centerRect.x) >
       collisionRect.width + spaceSize ||
@@ -104,11 +104,18 @@ const closestCenter: CollisionDetection = ({
 
   previosValue = collisions.sort(sortCollisionsAsc);
 
-  if (initialValue.length === 0) {
+  if (
+    initialValue.length === 0 ||
+    initialValue.length !== previosValue.length
+  ) {
     initialValue = previosValue;
   }
 
   return previosValue;
 };
 
-export { closestCenter };
+function reset() {
+  initialValue = [];
+}
+
+export { closestCenter, reset };

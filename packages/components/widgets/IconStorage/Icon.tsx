@@ -11,6 +11,7 @@ const Root = styled("div")<{ width: number; background?: string }>(
     transition: "200ms",
     background: background || "rgba(66,66,66,.5)",
     overflow: "hidden",
+    cursor: "pointer",
 
     "&:hover": {
       background: theme.palette.primary.main,
@@ -18,6 +19,7 @@ const Root = styled("div")<{ width: number; background?: string }>(
 
     ".active &": {
       opacity: 0.5,
+      cursor: "grabbing",
     },
 
     img: {
