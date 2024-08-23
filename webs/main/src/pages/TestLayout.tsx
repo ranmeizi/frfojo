@@ -1,8 +1,11 @@
 import { Box, Divider } from "@mui/material";
 import { LayoutApp } from "@frfojo/components/layout";
-import IconStorageColumns, {
-  Item,
-} from "@frfojo/components/widgets/IconStorage/Columns";
+// import IconStorageColumns, {
+//   Item,
+// } from "@frfojo/components/widgets/IconStorage/Columns";
+import StorageColumns, {
+  ItemData,
+} from "@frfojo/components/widgets/Storage/Columns";
 import createResizeElement from "@frfojo/components/element/createResizeElement";
 import { useCallback, useState } from "react";
 import { throttle } from "@frfojo/common/utils/delay";
@@ -14,47 +17,72 @@ import IconMcDonalds from "@/assets/move-icons/mcdonalds.png";
 import IconReact from "@/assets/move-icons/react.png";
 import IconStarBucks from "@/assets/move-icons/starbucks.png";
 import IconVue from "@/assets/move-icons/vue.png";
-import Wu67 from "@/components/Wu67";
 import Introduce from "@/components/Intro";
 
 const ReDiv = createResizeElement("div");
 
-const items: Item[] = [
+const items: ItemData[] = [
   {
     id: "dota2",
     src: IconDota2,
+    data: {
+      src: "/",
+      tooltip: "Dota2战绩查询",
+    },
   },
   {
     id: "html",
     src: IconHTML,
+    data: {
+      src: "/",
+      tooltip: "HTML 真好学",
+    },
   },
   {
     id: "js",
     src: IconJS,
+    data: {
+      src: "/",
+      tooltip: "JS 真好学",
+    },
   },
   {
     id: "mcdonalds",
     src: IconMcDonalds,
+    data: {
+      src: "/",
+      tooltip: "麦得劳月饼",
+    },
   },
   {
     id: "react",
     src: IconReact,
+    data: {
+      src: "/",
+      tooltip: "React 真好学",
+    },
   },
   {
     id: "starbucks",
     src: IconStarBucks,
+    data: {
+      src: "/",
+      tooltip: "李大嘴还未研发出星巴克",
+    },
   },
   {
     id: "vue",
     src: IconVue,
+    data: {
+      src: "/",
+      tooltip: "Vue 真好学",
+    },
   },
 ];
 
 //
 export default function TestLayout() {
   const [list, setList] = useState(items);
-
-  console.log("bb", list);
 
   const sidebar = (
     <Box
@@ -70,7 +98,7 @@ export default function TestLayout() {
           marginBottom: spacing(1),
         })}
       />
-      <IconStorageColumns items={list} onChange={setList} />
+      <StorageColumns value={list} onChange={setList} />
     </Box>
   );
 

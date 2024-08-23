@@ -16,8 +16,12 @@ function centerOfRectangle(
   };
 }
 
-let previosValue: CollisionDescriptor[] = [];
-let initialValue: CollisionDescriptor[] = [];
+let columnsPrevios: CollisionDescriptor[] = [];
+let columnsInitial: CollisionDescriptor[] = [];
+
+let folderPrevios: CollisionDescriptor[] = [];
+let folderInitial: CollisionDescriptor[] = [];
+
 const zeroCoordinates: Coordinates = { x: 0, y: 0 };
 
 function sortCollisionsAsc(
@@ -60,10 +64,9 @@ const closestCenter: CollisionDetection = ({
     collisionRect.top
   );
 
-  const currentIndex = initialValue.findIndex((v) => v.id === active.id);
-  const currentId = previosValue[currentIndex]?.id || active.id;
+  const currentIndex = columnsInitial.findIndex((v) => v.id === active.id);
+  const currentId = columnsPrevios[currentIndex]?.id || active.id;
   let collisions: CollisionDescriptor[] = [];
-
   const currentRect = droppableRects.get(currentId);
 
   const centerCurrectRect = currentRect
@@ -88,34 +91,36 @@ const closestCenter: CollisionDetection = ({
         isEnabled ? centerRect : centerCurrectRect
       );
 
-      collisions.push({
-        id,
-        data: {
-          droppableContainer,
-          value: distBetween,
-          hovered:
-            active.id !== id
-              ? isHovered(pointerCoordinates, clientRect)
-              : false,
-        },
-      });
+      if (droppableContainer.data.current!.sortable.containerId === "columns") {
+        collisions.push({
+          id,
+          data: {
+            droppableContainer,
+            value: distBetween,
+            hovered:
+              active.id !== id
+                ? isHovered(pointerCoordinates, clientRect)
+                : false,
+          },
+        });
+      }
     }
   }
 
-  previosValue = collisions.sort(sortCollisionsAsc);
+  columnsPrevios = collisions.sort(sortCollisionsAsc);
 
   if (
-    initialValue.length === 0 ||
-    initialValue.length !== previosValue.length
+    columnsInitial.length === 0 ||
+    columnsInitial.length !== columnsPrevios.length
   ) {
-    initialValue = previosValue;
+    columnsInitial = columnsPrevios;
   }
 
-  return previosValue;
+  return columnsPrevios;
 };
 
 function reset() {
-  initialValue = [];
+  columnsInitial = [];
 }
 
 export { closestCenter, reset };
