@@ -49,7 +49,12 @@ export type ItemData<T = any> = {
 export const context = createContext<
   Omit<
     DragControl,
-    "onDragStart" | "onDragOver" | "onDragMove" | "onDragEnd" | "itemMap"
+    | "onDragStart"
+    | "onDragOver"
+    | "onDragMove"
+    | "onDragEnd"
+    | "itemMap"
+    | "collisionDetection"
   > & {
     width: number;
   }
@@ -61,7 +66,6 @@ export const context = createContext<
   width: 0,
   openId: null,
   setOpenId: () => {},
-  collisionDetection: () => [],
 });
 
 /**
@@ -75,7 +79,7 @@ const Columns: FC<ColumnsProps> = ({ value, onChange }) => {
   const sensors = useSensors(
     useSensor(MouseSensor, {
       activationConstraint: {
-        delay: 250,
+        delay: 600,
         tolerance: 5,
       },
     })

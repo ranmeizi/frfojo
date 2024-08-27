@@ -21,6 +21,7 @@ tauri = { version = "1.7.0", features = [ "shell-open", "dialog-all", "os-all", 
 tokio = {version = "1.35.0", features = ["full"] }
 open = "5"
 chrono = "0.4.38"
+libloading = "0.8.5"
 
 [target.'cfg(target_os = "macos")'.dependencies]
 # 这些依赖仅在macOS系统上生效

@@ -73,7 +73,7 @@ type FolderProps = {
 const Folder: FC<PropsWithChildren<FolderProps>> = (props) => {
   const { id, items = [] } = props;
 
-  const { width, openId, setOpenId } = useContext(context);
+  const { width, openId, setOpenId, listLv2 } = useContext(context);
 
   const isOpen = id === openId;
 
@@ -87,14 +87,16 @@ const Folder: FC<PropsWithChildren<FolderProps>> = (props) => {
 
   const sortItems = useMemo(() => {
     return items.map((item) => item.id);
-  }, [items]);
+  }, [listLv2]);
+
+  console.log("嘿", listLv2);
 
   return (
     <Root
       className="ffj-folder-collapse"
       open={id === openId}
       width={width}
-      length={items.length}
+      length={listLv2.length}
     >
       {/* header */}
       <div
@@ -117,7 +119,7 @@ const Folder: FC<PropsWithChildren<FolderProps>> = (props) => {
         strategy={verticalListSortingStrategy}
       >
         <div className="ffj-folder-collapse__body">
-          {items.map((item) => (
+          {listLv2.map((item) => (
             <SortableItem key={item.id} id={item.id} className="drag-outer">
               <Item {...item} />
             </SortableItem>

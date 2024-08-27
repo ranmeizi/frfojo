@@ -5,12 +5,16 @@ use tokio;
 
 mod handlers;
 mod setups;
+mod discord_helper;
 
 pub const INIT_SCRIPT: &str = r#"
   console.log("hi, use WindowBuilder.initialization_script to inject javascript in your html")
 "#;
 
 fn main() {
+
+    discord_helper::t();
+
     // 这里 `"quit".to_string()` 定义菜单项 ID，第二个参数是菜单项标签。
     let quit = CustomMenuItem::new("x".to_string(), "Quit");
     let close = CustomMenuItem::new("close".to_string(), "Close");

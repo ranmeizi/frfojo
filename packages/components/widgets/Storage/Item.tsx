@@ -44,7 +44,7 @@ const Root = styled("div")<{
 
 const Item: FC<ItemData> = (props) => {
   const { id, src } = props;
-  const { width, hoverId } = useContext(context);
+  const { width, hoverId, activeId } = useContext(context);
 
   const isHover = id === hoverId;
 
