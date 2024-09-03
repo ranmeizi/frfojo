@@ -222,9 +222,9 @@ export function useDragControl({
         }
 
         // 排序时无效
-        if (_overId === _activeId) {
-          return;
-        }
+        // if (_overId === _activeId) {
+        //   return;
+        // }
 
         console.log("sort", _activeId, _overId);
         sortItem(_activeId.toString(), _overId.toString());
@@ -354,6 +354,8 @@ export function useDragControl({
       }
       return node;
     });
+
+    console.log("onChange", res);
 
     onChange(res);
   }
