@@ -2,6 +2,7 @@ import { styled } from "@mui/material";
 import { FC, useContext } from "react";
 import type { ItemData } from "./Columns";
 import { context } from "./Columns";
+import { green } from "@mui/material/colors";
 
 const Root = styled("div")<{
   width: number;
@@ -16,12 +17,12 @@ const Root = styled("div")<{
   cursor: "pointer",
 
   "&:hover": {
-    background: theme.palette.primary.main,
+    // transform: "scale(1.1)",
   },
 
   ".active &": {
     opacity: 0.5,
-    cursor: "grabbing",
+    border: `4px dashed ${green["300"]}`,
   },
 
   img: {
@@ -34,6 +35,7 @@ const Root = styled("div")<{
     background: "rgba(255,255,255,.4)",
     padding: "2px",
     transform: "scale(1.1)",
+    opacity: "0.8",
 
     img: {
       height: "50%",
@@ -47,9 +49,15 @@ const Item: FC<ItemData> = (props) => {
   const { width, hoverId, activeId } = useContext(context);
 
   const isHover = id === hoverId;
+  const isActive = id === activeId;
 
   return (
-    <Root width={width} className={isHover ? "mimicry" : ""}>
+    <Root
+      width={width}
+      className={`storage-item ${isHover ? "mimicry" : ""} ${
+        isActive ? "active" : ""
+      }`}
+    >
       <img src={src} />
     </Root>
   );

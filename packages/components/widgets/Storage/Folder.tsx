@@ -1,7 +1,6 @@
 import { FC, PropsWithChildren, useContext, useMemo } from "react";
 import { styled } from "@mui/material";
 import { context } from "./Columns";
-import type { ItemData } from "./Columns";
 import {
   SortableContext,
   verticalListSortingStrategy,
@@ -9,6 +8,8 @@ import {
 import SortableItem from "./SortableItem";
 import Item from "./Item";
 import FolderIcon from "@mui/icons-material/Folder";
+import { FlatTreeItem } from "./useDragControl";
+import { green } from "@mui/material/colors";
 
 const Root = styled("div")<{ open: boolean; width: number; length: number }>(
   ({ theme, open, width, length }) => ({
@@ -18,14 +19,24 @@ const Root = styled("div")<{ open: boolean; width: number; length: number }>(
     transition: "200ms",
     cursor: "pointer",
     overflow: open ? "initial" : "hidden",
+    boxSizing: "border-box",
+
+    "&.can-combine": {
+      opacity: "0.8",
+      transform: open ? "" : "scale(1.1)",
+    },
 
     "&:hover": {
-      background: open ? "rgba(255,255,255,.4)" : theme.palette.primary.main,
+      // background: open ? "rgba(255,255,255,.4)" : theme.palette.primary.main,
+      // transform: open ? "" : "scale(1.1)",
     },
 
     ".active &": {
       opacity: 0.5,
-      cursor: "grabbing",
+
+      ".ffj-folder-collapse__header": {
+        border: `5px dashed ${green["300"]}`,
+      },
     },
 
     ".folder-thumbnail": {
@@ -40,6 +51,7 @@ const Root = styled("div")<{ open: boolean; width: number; length: number }>(
     },
 
     ".ffj-folder-collapse__header": {
+      width: "100%",
       height: width + "px",
       overflow: "hidden",
       ".MuiSvgIcon-root": {
@@ -62,45 +74,61 @@ const Root = styled("div")<{ open: boolean; width: number; length: number }>(
     ".ffj-folder-collapse__body": {
       transition: "200ms",
       height: open ? width * length + 8 * length - 4 + "px" : "0px",
+
+      ".ffj-folder-collapse__body-inner": {
+        transition: "200ms",
+        transform: open ? `scale(1)` : `scale(50%)`,
+        transformOrigin: "top left",
+        opacity: open ? 1 : 0,
+      },
     },
   })
 );
 
 type FolderProps = {
-  onChange?: (items: ItemData[]) => void; // 改变
-} & ItemData;
+  onChange?: (items: FlatTreeItem[]) => void; // 改变
+} & FlatTreeItem;
 
 const Folder: FC<PropsWithChildren<FolderProps>> = (props) => {
-  const { id, items = [] } = props;
+  const { id } = props;
 
-  const { width, openId, setOpenId, listLv2 } = useContext(context);
+  const { width, openId, setOpenId, flatTree, hoverId } = useContext(context);
 
   const isOpen = id === openId;
 
-  const header = (
-    <>
-      {items.map((item) => (
-        <img src={item.src} />
-      ))}
-    </>
+  const isHover = id === hoverId;
+
+  const items = useMemo(
+    () => flatTree.filter((item) => item.parentId === openId),
+    [flatTree, openId]
   );
 
   const sortItems = useMemo(() => {
     return items.map((item) => item.id);
-  }, [listLv2]);
+  }, [items]);
 
-  console.log("嘿", listLv2);
+  const header = (
+    <>
+      {flatTree
+        .filter((item) => item.parentId === id)
+        .map((item) => (
+          <img src={item.src} />
+        ))}
+    </>
+  );
 
   return (
     <Root
-      className="ffj-folder-collapse"
+      className={`storage-item ffj-folder-collapse ${
+        isHover && !isOpen ? "can-combine" : ""
+      }`}
       open={id === openId}
       width={width}
-      length={listLv2.length}
+      length={items.length}
     >
       {/* header */}
       <div
-        className="ffj-folder-collapse__header"
+        className={`ffj-folder-collapse__header`}
         onClick={() => {
           setOpenId(isOpen ? null : id);
         }}
@@ -119,11 +147,13 @@ const Folder: FC<PropsWithChildren<FolderProps>> = (props) => {
         strategy={verticalListSortingStrategy}
       >
         <div className="ffj-folder-collapse__body">
-          {listLv2.map((item) => (
-            <SortableItem key={item.id} id={item.id} className="drag-outer">
-              <Item {...item} />
-            </SortableItem>
-          ))}
+          <div className="ffj-folder-collapse__body-inner">
+            {items.map((item) => (
+              <SortableItem key={item.id} id={item.id} className="drag-outer">
+                <Item {...item} />
+              </SortableItem>
+            ))}
+          </div>
         </div>
       </SortableContext>
       {/* </DndContext> */}

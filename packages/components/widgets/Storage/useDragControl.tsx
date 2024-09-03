@@ -1,30 +1,26 @@
-import {
-  createContext,
-  PropsWithChildren,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import { useEffect, useRef, useState } from "react";
 import { ItemData } from "./Columns";
 import {
   CollisionDetection,
   DndContextProps,
+  DragEndEvent,
   DragMoveEvent,
   DragOverEvent,
   DragStartEvent,
 } from "@dnd-kit/core";
 import { useClosestCenter } from "./useClosestCenter";
+import { useInvoker } from "@frfojo/common/hooks/useInvoker";
 
 type UseDragControlParams = {
   value: ItemData[]; // 值
   onChange: (value: ItemData[]) => void; // 修改
 };
 
+export type FlatTreeItem = Omit<ItemData, "items">;
+
 export interface DragControl {
-  listLv1: ItemData[];
-  listLv2: ItemData[];
+  flatTree: FlatTreeItem[];
+  itemMap: React.MutableRefObject<Record<string, ItemData>>;
   activeId: string | null;
   hoverId: string | null;
   openId: string | null;
@@ -33,7 +29,6 @@ export interface DragControl {
   onDragMove: DndContextProps["onDragMove"];
   onDragOver: DndContextProps["onDragOver"];
   onDragEnd: DndContextProps["onDragEnd"];
-  itemMap: React.MutableRefObject<Record<string, ItemData>>;
   collisionDetection: CollisionDetection;
 }
 
@@ -68,201 +63,173 @@ export function useDragControl({
   onChange,
 }: UseDragControlParams): DragControl {
   // 临时数据
-  const [listLv1, setListLv1] = useState<ItemData[]>([]);
-  const [listLv2, setListLv2] = useState<ItemData[]>([]);
+
+  const [flatTree, setFlatTree] = useState<FlatTreeItem[]>([]);
+  const itemMap = useRef<Record<string, FlatTreeItem>>({});
 
   const [activeId, setActiveId] = useState<string | null>(null);
   const [hoverId, setHoverId] = useState<string | null>(null);
-
   const [openId, setOpenId] = useState<string | null>(null);
-
-  const itemMap = useRef<Record<string, ItemData>>({});
 
   const { collisionDetection, reset } = useClosestCenter({ itemMap });
 
-  // 更新list1
-  function updateList1ByValue(newValue: ItemData[]) {
-    setListLv1(newValue);
-  }
+  // 数据初始化
+  function updateItemMap(value: ItemData[]) {
+    const flat: FlatTreeItem[] = [];
+    const map: Record<string, FlatTreeItem> = {};
 
-  // 更新list2
-  function updateList2ByValue(id: string | null) {
-    if (!id) {
-      setListLv2([]);
-    } else {
-      const items = itemMap.current[id].items || [];
-      setListLv2(items);
-    }
-  }
+    function eachItem(item: ItemData, parentId?: string) {
+      const node: FlatTreeItem = {
+        id: item.id,
+        parentId,
+        src: item.src,
+        onClick: item.onClick,
+        data: item.data,
+      };
 
-  // 更新map
-  function updateItemMap(items: ItemData[]) {
-    const map: Record<string, ItemData> = {};
-    function eachItem(node: ItemData, parentId?: string) {
-      map[node.id] = { ...node };
-      map[node.id].parentId = parentId;
-      node.items && node.items.forEach((item) => eachItem(item, node.id));
+      map[item.id] = node;
+      flat.push(node);
+
+      if (item.items) {
+        item.items.forEach((child) => eachItem(child, item.id));
+      }
     }
 
-    items.forEach((item) => eachItem(item, undefined));
+    value.forEach((item) => eachItem(item, undefined));
 
+    setFlatTree(flat);
     itemMap.current = map;
   }
 
   useEffect(() => {
     // 更新 ItemMap
     updateItemMap(value);
-
-    // 计算lv1
-    updateList1ByValue(value);
   }, [value]);
 
-  useEffect(() => {
-    // 计算lv2
-    updateList2ByValue(openId);
-  }, [openId, value]);
+  // 判断一个item是不是文件夹
+  function isFolder(id: string): boolean {
+    return Object.values(itemMap.current).some((item) => item.parentId === id);
+  }
 
-  const onDragStart = useCallback((event: DragStartEvent) => {
-    const activeId = event.active.id;
-    // 记录 activeId
-    setActiveId(activeId ? String(activeId) : null);
-    // 关闭所有 folder
-    const active = itemMap.current[activeId];
+  const onDragStart = useInvoker(
+    () =>
+      function (event: DragStartEvent) {
+        const _activeId = event.active.id;
 
-    // 根节点的文件夹移动，关闭一下，但其实不关闭也可以，但目前的检测算法用正方形移动比较舒服
-    if (!active.parentId && active.items && active.items.length > 0) {
-      setOpenId(null);
-    }
-  }, []);
+        // 记录 activeId
+        setActiveId(_activeId.toString());
 
-  const onDragOver = useCallback(
-    (event: DragOverEvent) => {
-      // 判断 lv1 lv2 交换元素吗？
-      const activeId = event.active.id;
-      const overId = event.over?.id;
-
-      const overItem = overId ? itemMap.current[overId] : null;
-      const activeItem =
-        listLv2.find((item) => item.id === activeId) ||
-        listLv1.find((item) => item.id === activeId)!;
-
-      console.log(`dragover`, activeItem, overItem);
-
-      // 或许应该过滤 overId 是 folder 的？
-      if (activeItem.parentId && overItem && isFolder(overItem)) {
-        return;
-      }
-
-      if (activeId === overId) {
-        return;
-      }
-
-      const [activeList, setActiveList] =
-        listLv2.findIndex((item) => item.id === activeId) >= 0
-          ? [listLv2, setListLv2]
-          : [listLv1, setListLv1];
-
-      const [overList, setOverList] =
-        listLv2.findIndex((item) => item.id === overId) >= 0
-          ? [listLv2, setListLv2]
-          : [listLv1, setListLv1];
-
-      const inSameArr = activeList === overList;
-
-      if (!inSameArr) {
-        // active 从 activeList 移出 加入 overlist
-        const activeIndex = activeList.findIndex(
-          (item) => item.id === activeId
-        );
-        const overIndex = overList.findIndex((item) => item.id === overId);
-
-        const activeItem = activeList.splice(activeIndex, 1);
-
-        // 要判断移入 移出喽
-        if (activeList === listLv1) {
-          //移入
-          overList.splice(overIndex, 0, {
-            ...activeItem[0],
-            parentId: overItem!.parentId,
-          });
-        } else {
-          //移出
-          overList.splice(overIndex, 0, {
-            ...activeItem[0],
-            parentId: undefined,
-          });
+        // 移动正在打开的文件夹时,关闭文件夹
+        if (openId && openId === _activeId) {
+          setOpenId(null);
         }
-
-        setActiveList([...activeList]);
-        setOverList([...overList]);
-
-        reset(); // 重置高度
-      }
-    },
-    [listLv1, listLv2]
+      },
+    [openId] // 这些值改变时,更新内部函数
   );
 
-  const onDragMove = useCallback((event: DragMoveEvent) => {
-    // 记录 hoverId
-    const hoverEl = event.collisions?.find((item) => item?.data?.hovered);
+  const onDragOver = useInvoker(
+    () =>
+      function (event: DragOverEvent) {
+        const _activeId = event.active.id;
+        const activeItem = itemMap.current[_activeId];
+        const _overId = event.over?.id;
+        const overItem = _overId ? itemMap.current[_overId] : null;
 
-    console.log("hoverEl", hoverEl);
+        console.log("over", _activeId, _overId);
 
-    // 不允许合并文件夹
-    const activeId = event.active.id;
-    const activeItem = itemMap.current[activeId];
+        // 是否要交换元素
 
-    let canHover = true;
-    if (!hoverEl?.id) {
-      canHover = false;
-    }
-    // 文件夹不允许合并
-    if (activeItem.items && activeItem.items.length > 0) {
-      canHover = false;
-    }
+        // 无效id
+        if (_activeId === _overId) {
+          return;
+        }
 
-    // hoverItem 在文件夹里不允许合并
-    if (hoverEl?.id && itemMap.current[hoverEl.id].parentId) {
-      canHover = false;
-    }
+        // 打开的文件夹不用交换
+        if (_overId === openId) {
+          return;
+        }
 
-    setHoverId(canHover ? String(hoverEl!.id) : null);
-  }, []);
+        // 在同一个文件夹？
+        if (activeItem.parentId === overItem?.parentId) {
+          return;
+        }
+        // 重置高度
+        reset();
 
-  const onDragEnd = useCallback(
-    (event: DragMoveEvent) => {
-      const activeId = String(event.active.id);
-      const overId = event.over?.id;
+        // 把 over 的 parentId 赋值给 active
+        activeItem.parentId = overItem?.parentId;
 
-      reset();
+        // 更新
+        setFlatTree((v) => [...v]);
+      },
+    [openId]
+  );
 
-      // 清空
-      setActiveId(null);
-      setHoverId(null);
+  const onDragMove = useInvoker(
+    () =>
+      function (event: DragMoveEvent) {
+        const _hoverId = event.collisions?.find(
+          (item) => item?.data?.hovered
+        )?.id;
+        const hoverItem = _hoverId ? itemMap.current[_hoverId] : null;
+        const _activeId = event.active.id;
 
-      let hoverId =
-        event.collisions?.find((item) => item?.data?.hovered)?.id || null;
+        // 判断是否可 hover(可合并动画)
+        let canHover = true;
 
-      // 没有变化
-      if (!overId) {
-        return;
-      }
+        if (!_hoverId) {
+          canHover = false;
+        } else if (hoverItem && hoverItem.parentId) {
+          // hoverItem 在文件夹中，不可合并
+          canHover = false;
+        } else if (isFolder(_activeId.toString())) {
+          // active 是一个文件夹，不可合并
+          canHover = false;
+        }
 
-      // 优先处理合并
-      if (hoverId && tryCombine(activeId, String(hoverId))) {
-        console.log("conbine", activeId, hoverId);
-        return;
-      }
+        setHoverId(canHover ? String(_hoverId) : null);
+      },
+    []
+  );
 
-      if (overId === activeId) {
-        // 无效
-        return;
-      }
-      // 排序
-      console.log("sort", activeId, overId);
-      sortItem(activeId, String(overId));
-    },
-    [listLv1, listLv2]
+  const onDragEnd = useInvoker(
+    () =>
+      function (event: DragEndEvent) {
+        const _activeId = event.active.id;
+        const _overId = event.over?.id;
+        const _hoverId = event.collisions?.find(
+          (item) => item?.data?.hovered
+        )?.id;
+
+        console.log(
+          `end! active=${_activeId} over=${_overId} hover=${_hoverId}`
+        );
+
+        // 重置一些值
+        reset();
+        setActiveId(null);
+        setHoverId(null);
+
+        // 没有变化
+        if (!_overId) {
+          return;
+        }
+
+        // 优先处理合并
+        if (_hoverId && tryCombine(_activeId.toString(), _hoverId.toString())) {
+          console.log("conbine", _activeId, _hoverId);
+          return;
+        }
+
+        // 排序时无效
+        if (_overId === _activeId) {
+          return;
+        }
+
+        console.log("sort", _activeId, _overId);
+        sortItem(_activeId.toString(), _overId.toString());
+      },
+    [flatTree]
   );
 
   // 尝试处理合并
@@ -273,13 +240,13 @@ export function useDragControl({
     console.log("in combine", activeItem, targetItem);
 
     // 1. active 是文件夹绝对不能合并直接返回
-    if (isFolder(activeItem)) {
+    if (isFolder(activeId)) {
       console.log("tryCombine 1");
       return false;
     }
 
     // 2. target 是文件夹 并且 active 本身不在 target 里
-    if (isFolder(targetItem) && activeItem.parentId !== targetId) {
+    if (isFolder(targetId) && activeItem.parentId !== targetId) {
       console.log("tryCombine 2");
       // 没问题，此时 a 不是文件夹，t 是，使用 joinFolder
       // 但 joinFolder 需要判断 a 是在 顶层还是在文件夹中，这是不同的数据处理逻辑
@@ -307,97 +274,93 @@ export function useDragControl({
   function joinFolder(activeId: string, targetId: string) {
     console.log(`joinFolder, activeId=${activeId} targetId=${targetId}`);
     const activeItem = itemMap.current[activeId];
-    const targetItem = value.find((item) => item.id === targetId);
 
-    if (!isFolder(targetItem!)) {
+    if (!isFolder(targetId!)) {
       // 不行 一定是你调用的有问题 joinFolder 对象是 target 一定是 folder，但在这里防御一下
       return;
     }
 
-    if (activeItem.parentId) {
-      // a 在文件夹里
-      const folderItem = itemMap.current[activeItem.parentId];
+    activeItem.parentId = targetId;
 
-      // 删除 active
-      const list = folderItem.items!;
-      list.splice(list.findIndex((item) => item.id === activeId));
-
-      // 加入 target 的 items
-      targetItem!.items!.push(activeItem);
-
-      // 更新数据
-      setListLv2([...value]);
-      onChange([...value]);
-    } else {
-      // a 不再文件夹中
-
-      // 删除 active
-      value.splice(
-        value.findIndex((item) => item.id === activeId),
-        1
-      );
-
-      // 加入 target 的 items
-
-      targetItem!.items!.push(activeItem);
-      setListLv1([...value]);
-      onChange([...value]);
-    }
+    // 更新数据
+    updateTree();
   }
 
   // 创建文件夹
   function createFolder(activeId: string, targetId: string) {
-    const targetIndex = value.findIndex((item) => item.id === targetId);
-    const target = value[targetIndex];
-    const active = value.find((item) => item.id === activeId)!;
+    const targetItem = itemMap.current[targetId];
+    const activeItem = itemMap.current[activeId];
+
+    const newId = `folder_created_by_${targetId}`;
     const folder: ItemData = {
-      id: `folder_created_by_${targetId}`,
+      id: newId,
       src: "",
-      items: [target, active],
     };
-    value.splice(targetIndex, 1, folder);
 
-    value = value.filter((item) => item.id !== activeId);
+    targetItem.parentId = newId;
+    activeItem.parentId = newId;
 
-    onChange([...value]);
-    setListLv1([...value]);
+    // 用 floder 替换 target 在 flat 中的位置，并把 target 与 active 排列到 flattree 最后
+    const targetIndex = flatTree.findIndex((item) => item.id === targetId);
+    flatTree.splice(targetIndex, 1, folder);
 
-    // setOpenId(`folder_created_by_${targetId}`);
+    const activeIndex = flatTree.findIndex((item) => item.id === activeId);
+    flatTree.splice(activeIndex, 1);
+
+    flatTree.push(targetItem);
+    flatTree.push(activeItem);
+
+    // 更新数据
+    updateTree();
   }
 
   // 触发排序
   function sortItem(activeId: string, targetId: string) {
-    const isTier2 = !value.find((item) => item.id === targetId);
+    const startIndex = flatTree.findIndex((item) => item.id === activeId);
+    const endIndex = flatTree.findIndex((item) => item.id === targetId);
+    flatTree.splice(endIndex, 0, ...flatTree.splice(startIndex, 1));
 
-    if (isTier2) {
-      console.log("sort tier2");
-      const target = itemMap.current[targetId];
-      const folder = value.find((item) => item.id === target.parentId);
+    // 更新数据
+    updateTree();
+  }
 
-      const listRef = folder!.items!;
+  function updateTree() {
+    // 先更新ui
+    setFlatTree((v) => [...v]);
 
-      const startIndex = listRef.findIndex((item) => item.id === activeId);
-      const endIndex = listRef.findIndex((item) => item.id === targetId);
-
-      listRef.splice(endIndex, 0, ...listRef.splice(startIndex, 1));
-
-      onChange([...value]);
-      setListLv2([...listRef]);
-    } else {
-      console.log("sort tier1");
-      const startIndex = value.findIndex((item) => item.id === activeId);
-      const endIndex = value.findIndex((item) => item.id === targetId);
-
-      value.splice(endIndex, 0, ...value.splice(startIndex, 1));
-
-      onChange([...value]);
-      setListLv1([...value]);
+    let res: ItemData[] = [];
+    const toBeTree = [...flatTree];
+    for (let node of toBeTree) {
+      if (!node.parentId) {
+        res.push(node);
+      }
     }
+
+    for (let node of toBeTree) {
+      if (node.parentId) {
+        const folder = res.find((item) => item.id === node.parentId)!;
+        if (folder.items) {
+          folder.items.push(node);
+        } else {
+          folder.items = [node];
+        }
+      }
+    }
+
+    // 检查 长度为1的items
+    res = res.map((node) => {
+      if (node.items?.length === 1) {
+        return node.items[0];
+      }
+      return node;
+    });
+
+    onChange(res);
   }
 
   return {
-    listLv1,
-    listLv2,
+    flatTree,
+    itemMap,
     activeId,
     hoverId,
     openId,
@@ -406,12 +369,6 @@ export function useDragControl({
     onDragOver,
     onDragMove,
     onDragEnd,
-    itemMap,
     collisionDetection,
   };
-}
-
-// 判断一个item是不是文件夹
-function isFolder(item: ItemData): boolean {
-  return !!item.items && item.items.length > 0;
 }

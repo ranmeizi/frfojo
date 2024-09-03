@@ -1,6 +1,6 @@
 import { createContext, FC, useCallback, useMemo, useState } from "react";
 import { styled } from "@mui/material";
-import { useDragControl, DragControl } from "./useDragControl";
+import { useDragControl, DragControl, FlatTreeItem } from "./useDragControl";
 import {
   DndContext,
   DragOverlay,
@@ -17,6 +17,7 @@ import createResizeElement from "../../element/createResizeElement";
 import Item from "./Item";
 import Folder from "./Folder";
 import { throttle } from "@frfojo/common";
+import { green, yellow } from "@mui/material/colors";
 
 // resize div
 const ReDiv = createResizeElement("div");
@@ -28,6 +29,10 @@ const Root = styled(ReDiv)(({ theme }) => ({
 
   ".drag-outer": {
     padding: "4px 0",
+  },
+
+  ".my-drag-overlay .storage-item": {
+    cursor: "grabbing",
   },
 }));
 
@@ -59,8 +64,7 @@ export const context = createContext<
     width: number;
   }
 >({
-  listLv1: [],
-  listLv2: [],
+  flatTree: [],
   activeId: null,
   hoverId: null,
   width: 0,
@@ -79,15 +83,14 @@ const Columns: FC<ColumnsProps> = ({ value, onChange }) => {
   const sensors = useSensors(
     useSensor(MouseSensor, {
       activationConstraint: {
-        delay: 600,
+        delay: 300,
         tolerance: 5,
       },
     })
   );
 
   const {
-    listLv1,
-    listLv2,
+    flatTree,
     activeId,
     hoverId,
     onDragEnd,
@@ -100,7 +103,12 @@ const Columns: FC<ColumnsProps> = ({ value, onChange }) => {
     collisionDetection,
   } = useDragControl({ value, onChange });
 
-  const items = useMemo(() => listLv1.map((item) => item.id), [listLv1]);
+  const items = useMemo(
+    () => flatTree.filter((item) => !item.parentId),
+    [flatTree]
+  );
+
+  const sortItems = items.map((item) => item.id);
 
   // 列表宽度
   const onResize = useCallback(
@@ -111,9 +119,13 @@ const Columns: FC<ColumnsProps> = ({ value, onChange }) => {
     []
   );
 
-  function renderTreeItem(item: ItemData): React.ReactNode {
-    const isFolder = item.items && item.items.length > 0;
-    if (isFolder) {
+  // 判断一个item是不是文件夹
+  function isFolder(id: string): boolean {
+    return Object.values(itemMap.current).some((item) => item.parentId === id);
+  }
+
+  function renderTreeItem(item: FlatTreeItem): React.ReactNode {
+    if (isFolder(item.id)) {
       return (
         <SortableItem key={item.id} id={item.id} className="drag-outer">
           <Folder {...item} />
@@ -132,8 +144,7 @@ const Columns: FC<ColumnsProps> = ({ value, onChange }) => {
     <context.Provider
       value={{
         width,
-        listLv1,
-        listLv2,
+        flatTree,
         activeId,
         hoverId,
         openId,
@@ -151,12 +162,12 @@ const Columns: FC<ColumnsProps> = ({ value, onChange }) => {
         <Root onResize={onResize}>
           <SortableContext
             id="columns"
-            items={items}
+            items={sortItems}
             strategy={verticalListSortingStrategy}
           >
-            {listLv1.map(renderTreeItem)}
+            {items.map(renderTreeItem)}
           </SortableContext>
-          <DragOverlay>
+          <DragOverlay className="my-drag-overlay">
             {activeId ? renderTreeItem(itemMap.current[activeId]) : null}
           </DragOverlay>
         </Root>
