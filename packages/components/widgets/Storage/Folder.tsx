@@ -6,10 +6,11 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import SortableItem from "./SortableItem";
-import Item from "./Item";
+import Item, { transtion } from "./Item";
 import FolderIcon from "@mui/icons-material/Folder";
 import { FlatTreeItem } from "./useDragControl";
 import { green } from "@mui/material/colors";
+import { motion, AnimatePresence } from "framer-motion";
 
 const Root = styled("div")<{ open: boolean; width: number; length: number }>(
   ({ theme, open, width, length }) => ({
@@ -24,11 +25,6 @@ const Root = styled("div")<{ open: boolean; width: number; length: number }>(
     "&.can-combine": {
       opacity: "0.8",
       transform: open ? "" : "scale(1.1)",
-    },
-
-    "&:hover": {
-      // background: open ? "rgba(255,255,255,.4)" : theme.palette.primary.main,
-      // transform: open ? "" : "scale(1.1)",
     },
 
     ".active &": {
@@ -69,17 +65,6 @@ const Root = styled("div")<{ open: boolean; width: number; length: number }>(
         height: 2 * width + "px",
         transition: "200ms",
         transform: open ? `translateY(0px)` : `translateY(${-width}px)`,
-      },
-    },
-    ".ffj-folder-collapse__body": {
-      transition: "200ms",
-      height: open ? width * length + 8 * length - 4 + "px" : "0px",
-
-      ".ffj-folder-collapse__body-inner": {
-        transition: "200ms",
-        transform: open ? `scale(1)` : `scale(50%)`,
-        transformOrigin: "top left",
-        opacity: open ? 1 : 0,
       },
     },
   })
@@ -141,29 +126,38 @@ const Folder: FC<PropsWithChildren<FolderProps>> = (props) => {
         </div>
       </div>
       {/* body */}
-      <Collapse in={isOpen} timeout={200}>
+      <AnimatePresence>
         {isOpen ? (
-          <SortableContext
-            id="folder"
-            items={sortItems}
-            strategy={verticalListSortingStrategy}
+          <motion.div
+            initial={{ height: 0 }}
+            animate={{
+              height: width * items.length + 8 * items.length,
+            }}
+            exit={{ height: 0 }}
+            transition={transtion}
           >
-            <div className="ffj-folder-collapse__body">
-              <div className="ffj-folder-collapse__body-inner">
-                {items.map((item) => (
-                  <SortableItem
-                    key={item.id}
-                    id={item.id}
-                    className="drag-outer"
-                  >
-                    <Item {...item} />
-                  </SortableItem>
-                ))}
+            <SortableContext
+              id="folder"
+              items={sortItems}
+              strategy={verticalListSortingStrategy}
+            >
+              <div className="ffj-folder-collapse__body">
+                <div className="ffj-folder-collapse__body-inner">
+                  {items.map((item) => (
+                    <SortableItem
+                      key={item.id}
+                      id={item.id}
+                      className="drag-outer"
+                    >
+                      <Item {...item} />
+                    </SortableItem>
+                  ))}
+                </div>
               </div>
-            </div>
-          </SortableContext>
+            </SortableContext>
+          </motion.div>
         ) : null}
-      </Collapse>
+      </AnimatePresence>
     </Root>
   );
 };

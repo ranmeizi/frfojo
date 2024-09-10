@@ -3,6 +3,11 @@ import { FC, useContext } from "react";
 import type { ItemData } from "./Columns";
 import { context } from "./Columns";
 import { green } from "@mui/material/colors";
+import { motion, AnimatePresence, MotionProps } from "framer-motion";
+
+export const transtion: MotionProps["transition"] = {
+  duration: 0.2,
+};
 
 const Root = styled("div")<{
   width: number;
@@ -15,10 +20,6 @@ const Root = styled("div")<{
   background: background || "rgba(66,66,66,.5)",
   overflow: "hidden",
   cursor: "pointer",
-
-  "&:hover": {
-    // transform: "scale(1.1)",
-  },
 
   ".active &": {
     opacity: 0.5,
@@ -52,16 +53,23 @@ const Item: FC<ItemData> = (props) => {
   const isActive = id === activeId;
 
   return (
-    <Zoom in timeout={200}>
-      <Root
-        width={width}
-        className={`storage-item ${isHover ? "mimicry" : ""} ${
-          isActive ? "active" : ""
-        }`}
+    <AnimatePresence>
+      <motion.div
+        initial={{ transform: "scale(0)" }}
+        animate={{ transform: "scale(1)" }}
+        exit={{ transform: "scale(0)" }}
+        transition={transtion}
       >
-        <img src={src} />
-      </Root>
-    </Zoom>
+        <Root
+          width={width}
+          className={`storage-item ${isHover ? "mimicry" : ""} ${
+            isActive ? "active" : ""
+          }`}
+        >
+          <img src={src} />
+        </Root>
+      </motion.div>
+    </AnimatePresence>
   );
 };
 

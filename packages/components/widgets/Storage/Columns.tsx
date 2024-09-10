@@ -28,7 +28,8 @@ const Root = styled(ReDiv)(({ theme }) => ({
   width: "100%",
 
   ".drag-outer": {
-    padding: "4px 0",
+    // padding: "4px 0",
+    paddingTop: "8px",
   },
 
   ".my-drag-overlay .storage-item": {
