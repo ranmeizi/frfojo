@@ -1,5 +1,5 @@
 import { FC, PropsWithChildren, useContext, useMemo } from "react";
-import { styled } from "@mui/material";
+import { Collapse, styled } from "@mui/material";
 import { context } from "./Columns";
 import {
   SortableContext,
@@ -122,7 +122,7 @@ const Folder: FC<PropsWithChildren<FolderProps>> = (props) => {
       className={`storage-item ffj-folder-collapse ${
         isHover && !isOpen ? "can-combine" : ""
       }`}
-      open={id === openId}
+      open={isOpen}
       width={width}
       length={items.length}
     >
@@ -141,22 +141,29 @@ const Folder: FC<PropsWithChildren<FolderProps>> = (props) => {
         </div>
       </div>
       {/* body */}
-      <SortableContext
-        id="folder"
-        items={sortItems}
-        strategy={verticalListSortingStrategy}
-      >
-        <div className="ffj-folder-collapse__body">
-          <div className="ffj-folder-collapse__body-inner">
-            {items.map((item) => (
-              <SortableItem key={item.id} id={item.id} className="drag-outer">
-                <Item {...item} />
-              </SortableItem>
-            ))}
-          </div>
-        </div>
-      </SortableContext>
-      {/* </DndContext> */}
+      <Collapse in={isOpen} timeout={200}>
+        {isOpen ? (
+          <SortableContext
+            id="folder"
+            items={sortItems}
+            strategy={verticalListSortingStrategy}
+          >
+            <div className="ffj-folder-collapse__body">
+              <div className="ffj-folder-collapse__body-inner">
+                {items.map((item) => (
+                  <SortableItem
+                    key={item.id}
+                    id={item.id}
+                    className="drag-outer"
+                  >
+                    <Item {...item} />
+                  </SortableItem>
+                ))}
+              </div>
+            </div>
+          </SortableContext>
+        ) : null}
+      </Collapse>
     </Root>
   );
 };

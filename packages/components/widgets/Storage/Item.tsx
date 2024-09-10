@@ -1,4 +1,4 @@
-import { styled } from "@mui/material";
+import { styled, Zoom } from "@mui/material";
 import { FC, useContext } from "react";
 import type { ItemData } from "./Columns";
 import { context } from "./Columns";
@@ -52,14 +52,16 @@ const Item: FC<ItemData> = (props) => {
   const isActive = id === activeId;
 
   return (
-    <Root
-      width={width}
-      className={`storage-item ${isHover ? "mimicry" : ""} ${
-        isActive ? "active" : ""
-      }`}
-    >
-      <img src={src} />
-    </Root>
+    <Zoom in timeout={200}>
+      <Root
+        width={width}
+        className={`storage-item ${isHover ? "mimicry" : ""} ${
+          isActive ? "active" : ""
+        }`}
+      >
+        <img src={src} />
+      </Root>
+    </Zoom>
   );
 };
 

@@ -350,6 +350,8 @@ export function useDragControl({
     // 检查 长度为1的items
     res = res.map((node) => {
       if (node.items?.length === 1) {
+        // 嘿嘿
+        setOpenId(null);
         return node.items[0];
       }
       return node;
