@@ -1,6 +1,6 @@
 import { RxDatabase, createRxDatabase } from "rxdb";
 import { getRxStorageDexie } from "rxdb/plugins/storage-dexie";
-import SchemaAppConfig from "./schema/AppConfig";
+import AppConfigSchema from "./schema/AppConfig.schema";
 
 export let db: RxDatabase;
 
@@ -17,7 +17,7 @@ export async function init(next: AsyncProcessFn) {
 
   await db.addCollections({
     appConfig: {
-      schema: SchemaAppConfig,
+      schema: AppConfigSchema,
     },
   });
 

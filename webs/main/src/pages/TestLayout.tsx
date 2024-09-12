@@ -1,4 +1,4 @@
-import { Box, Divider } from "@mui/material";
+import { Box, Divider, Button } from "@mui/material";
 import { LayoutApp } from "@frfojo/components/layout";
 // import IconStorageColumns, {
 //   Item,
@@ -7,7 +7,7 @@ import StorageColumns, {
   ItemData,
 } from "@frfojo/components/widgets/Storage/Columns";
 import createResizeElement from "@frfojo/components/element/createResizeElement";
-import { useCallback, useState } from "react";
+import { useCallback, useContext, useState } from "react";
 import { throttle } from "@frfojo/common/utils/delay";
 
 import IconDota2 from "@/assets/move-icons/dota2.png";
@@ -18,6 +18,9 @@ import IconReact from "@/assets/move-icons/react.png";
 import IconStarBucks from "@/assets/move-icons/starbucks.png";
 import IconVue from "@/assets/move-icons/vue.png";
 import Introduce from "@/components/Intro";
+import * as AppConfigService from "@/db/services/AppConfig.service";
+import { APP_CONFIG_STORAGE_KEY_MODE } from "@/utils/CONSTANTS";
+import { context } from "@/contexts/AppConfig";
 
 const ReDiv = createResizeElement("div");
 
@@ -84,6 +87,10 @@ const items: ItemData[] = [
 export default function TestLayout() {
   const [list, setList] = useState(items);
 
+  const config = useContext(context);
+
+  console.log("heihie", config);
+
   const sidebar = (
     <Box
       sx={(theme) => ({
@@ -119,6 +126,26 @@ export default function TestLayout() {
         content
         <ReDiv onResize={onResize}>
           <textarea name="" id=""></textarea>
+          <Button
+            onClick={() => {
+              AppConfigService.services.setConfig(
+                APP_CONFIG_STORAGE_KEY_MODE,
+                "light"
+              );
+            }}
+          >
+            set light
+          </Button>
+          <Button
+            onClick={() => {
+              AppConfigService.services.setConfig(
+                APP_CONFIG_STORAGE_KEY_MODE,
+                "dark"
+              );
+            }}
+          >
+            set dark
+          </Button>
         </ReDiv>
       </Box>
     </LayoutApp>

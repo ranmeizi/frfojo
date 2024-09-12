@@ -1,10 +1,11 @@
 import { colors, ThemeOptions, useMediaQuery } from "@mui/material";
-import * as DaoAppConfig from "@/db/dao/AppConfig";
-import { useRxState } from "@/db/hook/useRxState";
 import { useMemo } from "react";
 import * as C from "@/utils/CONSTANTS";
+import { useRxQuery } from "@/db/hook/useRxQuery";
+import * as AppConfigService from "@/db/services/AppConfig.service";
+import { AppConfigDocType } from "@/db/schema/AppConfig.schema";
 
-const colorObj = {
+const colorObj: Record<string, any> = {
   amber: colors["amber"],
   blue: colors["blue"],
   blueGrey: colors["blueGrey"],
@@ -28,20 +29,39 @@ const colorObj = {
 
 export function useCreateTheme(): ThemeOptions {
   const prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)");
-  const primary = useRxState(
-    DaoAppConfig.Observers.get_config(C.APP_CONFIG_STORAGE_KEY_PRIMARY)
-  ) as unknown as { value: keyof typeof colorObj };
-  const mode = useRxState(
-    DaoAppConfig.Observers.get_config(C.APP_CONFIG_STORAGE_KEY_MODE)
+
+  // 主题色
+  const primary = useRxQuery<AppConfigDocType>(
+    useMemo(
+      () => AppConfigService.querys.one(C.APP_CONFIG_STORAGE_KEY_PRIMARY),
+      []
+    )
   );
+
+  // 模式
+  const mode = useRxQuery<AppConfigDocType>(
+    useMemo(
+      () => AppConfigService.querys.one(C.APP_CONFIG_STORAGE_KEY_MODE),
+      []
+    )
+  );
+
+  const calcMode = useMemo(() => {
+    if (mode) {
+      return mode.value === "dark" ? "dark" : "light";
+    }
+
+    return prefersDarkMode ? "dark" : "light";
+  }, [mode, prefersDarkMode]);
 
   const theme = useMemo<ThemeOptions>(() => {
     return {
       palette: {
-        mode: mode ? mode.value : prefersDarkMode ? "dark" : "light",
-        ...(primary ? { primary: colorObj[primary?.value || "blue"] } : {}),
+        mode: calcMode,
+        ...(primary ? { primary: colorObj[primary.value || "blue"] } : {}),
       },
     };
-  }, [primary, mode, prefersDarkMode]);
+  }, [primary, calcMode]);
+
   return theme;
 }
