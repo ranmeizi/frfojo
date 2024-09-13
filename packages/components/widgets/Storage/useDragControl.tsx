@@ -16,10 +16,8 @@ type UseDragControlParams = {
   onChange: (value: ItemData[]) => void; // 修改
 };
 
-export type FlatTreeItem = Omit<ItemData, "items">;
-
 export interface DragControl {
-  flatTree: FlatTreeItem[];
+  flatTree: ItemData[];
   itemMap: React.MutableRefObject<Record<string, ItemData>>;
   activeId: string | null;
   hoverId: string | null;
@@ -64,8 +62,8 @@ export function useDragControl({
 }: UseDragControlParams): DragControl {
   // 临时数据
 
-  const [flatTree, setFlatTree] = useState<FlatTreeItem[]>([]);
-  const itemMap = useRef<Record<string, FlatTreeItem>>({});
+  const [flatTree, setFlatTree] = useState<ItemData[]>([]);
+  const itemMap = useRef<Record<string, ItemData>>({});
 
   const [activeId, setActiveId] = useState<string | null>(null);
   const [hoverId, setHoverId] = useState<string | null>(null);
@@ -75,29 +73,11 @@ export function useDragControl({
 
   // 数据初始化
   function updateItemMap(value: ItemData[]) {
-    const flat: FlatTreeItem[] = [];
-    const map: Record<string, FlatTreeItem> = {};
+    const map: Record<string, ItemData> = {};
 
-    function eachItem(item: ItemData, parentId?: string) {
-      const node: FlatTreeItem = {
-        id: item.id,
-        parentId,
-        src: item.src,
-        onClick: item.onClick,
-        data: item.data,
-      };
+    value.forEach((item) => (map[item.id] = item));
 
-      map[item.id] = node;
-      flat.push(node);
-
-      if (item.items) {
-        item.items.forEach((child) => eachItem(child, item.id));
-      }
-    }
-
-    value.forEach((item) => eachItem(item, undefined));
-
-    setFlatTree(flat);
+    setFlatTree([...value]);
     itemMap.current = map;
   }
 
@@ -294,7 +274,11 @@ export function useDragControl({
     const newId = `folder_created_by_${targetId}`;
     const folder: ItemData = {
       id: newId,
+      parentId: undefined,
+      order: 0,
+      type: "folder",
       src: "",
+      tooltip: "",
     };
 
     targetItem.parentId = newId;
@@ -328,36 +312,15 @@ export function useDragControl({
     // 先更新ui
     setFlatTree((v) => [...v]);
 
-    let res: ItemData[] = [];
-    const toBeTree = [...flatTree];
-    for (let node of toBeTree) {
-      if (!node.parentId) {
-        res.push(node);
-      }
-    }
-
-    for (let node of toBeTree) {
-      if (node.parentId) {
-        const folder = res.find((item) => item.id === node.parentId)!;
-        if (folder.items) {
-          folder.items.push(node);
-        } else {
-          folder.items = [node];
-        }
-      }
-    }
-
     // 检查 长度为1的items
-    res = res.map((node) => {
-      if (node.items?.length === 1) {
-        // 嘿嘿
-        setOpenId(null);
-        return node.items[0];
-      }
+    const res = flatTree.map((node) => {
+      // if (node.items?.length === 1) {
+      //   // 嘿嘿
+      //   setOpenId(null);
+      //   return node.items[0];
+      // }
       return node;
     });
-
-    console.log("onChange", res);
 
     onChange(res);
   }

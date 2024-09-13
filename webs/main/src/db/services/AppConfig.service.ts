@@ -2,7 +2,7 @@ import { db } from "..";
 
 const name = "appConfig";
 
-type AllAppConfigKeys = "cust_theme_primary" | "theme_mode";
+type AllAppConfigKeys = "cust_theme_primary" | "theme_mode" | "is_first";
 
 export const querys = {
   /** 按 Key 查询一行配置 */

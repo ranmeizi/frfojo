@@ -43,13 +43,14 @@ type ColumnsProps = {
 };
 
 // 元素
-export type ItemData<T = any> = {
+export type ItemData = {
   id: string;
   parentId?: string;
-  src: string; // cover src
-  onClick?: any;
-  data?: T; // 附带的data
-  items?: ItemData<T>[];
+  order?: number;
+  type: "item" | "folder" | "item_sub-app";
+  src?: string;
+  path?: string;
+  tooltip?: string;
 };
 
 export const context = createContext<

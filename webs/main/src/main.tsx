@@ -9,6 +9,7 @@ const process = new AsyncProcess();
 
 // 异步初始化 rxdb
 process.use(rxdbInit);
+
 // 测试 loading
 process.use(async function (next: AsyncProcessFn) {
   await sleep(2000);

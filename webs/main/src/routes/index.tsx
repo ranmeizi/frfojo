@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { RouteObject, useNavigate } from "react-router-dom";
 import TestLayout from "@/pages/TestLayout";
 import TestTheme from "@/pages/TestTheme";
+import MainApp from "@/layouts/MainApp";
 
 function Redirect({ to }: any) {
   const navigate = useNavigate();
@@ -14,15 +15,21 @@ function Redirect({ to }: any) {
 const routes: RouteObject[] = [
   {
     path: "/",
-    element: <Redirect to="/layout" />,
+    element: <Redirect to="/m/layout" />,
   },
   {
-    path: "/layout",
-    element: <TestLayout />,
-  },
-  {
-    path: "/theme",
-    element: <TestTheme></TestTheme>,
+    path: "/m",
+    element: <MainApp />,
+    children: [
+      {
+        path: "/m/layout",
+        element: <TestLayout />,
+      },
+      {
+        path: "/m/theme",
+        element: <TestTheme></TestTheme>,
+      },
+    ],
   },
 ];
 

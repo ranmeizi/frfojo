@@ -15,6 +15,7 @@ export function useRxQuery<
       return undefined;
     }
     const subscription = rxQuery.$.subscribe((v) => {
+      console.log("hey", v);
       if (v instanceof Array) {
         setState(v.map((item) => item.toJSON()) as any);
       } else {
