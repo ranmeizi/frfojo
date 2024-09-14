@@ -16,11 +16,8 @@ function centerOfRectangle(
   };
 }
 
-let columnsPrevios: CollisionDescriptor[] = [];
-let columnsInitial: CollisionDescriptor[] = [];
-
-let folderPrevios: CollisionDescriptor[] = [];
-let folderInitial: CollisionDescriptor[] = [];
+let previos: CollisionDescriptor[] = [];
+let initial: CollisionDescriptor[] = [];
 
 const zeroCoordinates: Coordinates = { x: 0, y: 0 };
 
@@ -64,8 +61,8 @@ const closestCenter: CollisionDetection = ({
     collisionRect.top
   );
 
-  const currentIndex = columnsInitial.findIndex((v) => v.id === active.id);
-  const currentId = columnsPrevios[currentIndex]?.id || active.id;
+  const currentIndex = initial.findIndex((v) => v.id === active.id);
+  const currentId = previos[currentIndex]?.id || active.id;
   let collisions: CollisionDescriptor[] = [];
   const currentRect = droppableRects.get(currentId);
 
@@ -107,20 +104,17 @@ const closestCenter: CollisionDetection = ({
     }
   }
 
-  columnsPrevios = collisions.sort(sortCollisionsAsc);
+  previos = collisions.sort(sortCollisionsAsc);
 
-  if (
-    columnsInitial.length === 0 ||
-    columnsInitial.length !== columnsPrevios.length
-  ) {
-    columnsInitial = columnsPrevios;
+  if (initial.length === 0 || initial.length !== previos.length) {
+    initial = previos;
   }
 
-  return columnsPrevios;
+  return previos;
 };
 
 function reset() {
-  columnsInitial = [];
+  initial = [];
 }
 
 export { closestCenter, reset };

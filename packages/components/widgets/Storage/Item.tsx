@@ -65,6 +65,7 @@ const Item: FC<ItemData> = (props) => {
           className={`storage-item ${isHover ? "mimicry" : ""} ${
             isActive ? "active" : ""
           }`}
+          data-id={id}
         >
           <img src={src} />
         </Root>

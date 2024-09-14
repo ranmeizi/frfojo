@@ -79,7 +79,9 @@ function useClosestCenter({ itemMap }: UseClosestCenterParams) {
       );
       const currentId = columnsPrevios.current[currentIndex]?.id || active.id;
 
-      const isFolder = !!itemMap.current[currentId].parentId;
+      const isFolder = Object.values(itemMap.current).some(
+        (item) => item.parentId === currentId
+      );
 
       const previos = isFolder ? folderPrevios : columnsPrevios;
       const initial = isFolder ? folderInitial : columnsInitial;

@@ -1,6 +1,6 @@
 import { FC, PropsWithChildren, useContext, useMemo } from "react";
 import { Collapse, styled } from "@mui/material";
-import { context } from "./Columns";
+import { context, ItemData } from "./Columns";
 import {
   SortableContext,
   verticalListSortingStrategy,
@@ -8,7 +8,6 @@ import {
 import SortableItem from "./SortableItem";
 import Item, { transtion } from "./Item";
 import FolderIcon from "@mui/icons-material/Folder";
-import { FlatTreeItem } from "./useDragControl";
 import { green } from "@mui/material/colors";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -71,11 +70,12 @@ const Root = styled("div")<{ open: boolean; width: number; length: number }>(
 );
 
 type FolderProps = {
-  onChange?: (items: FlatTreeItem[]) => void; // 改变
-} & FlatTreeItem;
+  onChange?: (items: ItemData[]) => void; // 改变
+  renderWrapper?(item: ItemData, dom: React.ReactNode): React.ReactNode;
+} & ItemData;
 
 const Folder: FC<PropsWithChildren<FolderProps>> = (props) => {
-  const { id } = props;
+  const { id, renderWrapper } = props;
 
   const { width, openId, setOpenId, flatTree, hoverId } = useContext(context);
 
@@ -110,6 +110,7 @@ const Folder: FC<PropsWithChildren<FolderProps>> = (props) => {
       open={isOpen}
       width={width}
       length={items.length}
+      data-id={id}
     >
       {/* header */}
       <div
@@ -149,7 +150,11 @@ const Folder: FC<PropsWithChildren<FolderProps>> = (props) => {
                       id={item.id}
                       className="drag-outer"
                     >
-                      <Item {...item} />
+                      {renderWrapper ? (
+                        renderWrapper(item, <Item {...item} />)
+                      ) : (
+                        <Item {...item} />
+                      )}
                     </SortableItem>
                   ))}
                 </div>

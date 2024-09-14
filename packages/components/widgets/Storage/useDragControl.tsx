@@ -312,15 +312,44 @@ export function useDragControl({
     // 先更新ui
     setFlatTree((v) => [...v]);
 
-    // 检查 长度为1的items
-    const res = flatTree.map((node) => {
-      // if (node.items?.length === 1) {
-      //   // 嘿嘿
-      //   setOpenId(null);
-      //   return node.items[0];
-      // }
-      return node;
+    const folderChildrenCount: Record<string, number> = {};
+
+    flatTree.forEach((item) => {
+      if (item.parentId) {
+        if (folderChildrenCount[item.parentId]) {
+          folderChildrenCount[item.parentId] += 1;
+        } else {
+          folderChildrenCount[item.parentId] = 1;
+        }
+      }
     });
+
+    let res = [...flatTree];
+
+    // 检查 长度为1的items
+    const len1Index = flatTree.findIndex(
+      (item) => folderChildrenCount[item.id] === 1
+    );
+
+    if (len1Index >= 0) {
+      // 处理一下 res
+      const len1Item = flatTree[len1Index];
+
+      // 找到 len1Item 的唯一元素
+      const childIndex = flatTree.findIndex(
+        (item) => item.parentId === len1Item.id
+      )!;
+      // 给他放到外面
+      const child = flatTree[childIndex];
+      const cpchild = { ...child };
+      cpchild.parentId = undefined;
+
+      // 放到 len1Index 位置，并且移除 len1Item
+      res.splice(len1Index, 1, cpchild);
+
+      // 删除原来child
+      res = res.filter((item) => item !== child);
+    }
 
     onChange(res);
   }

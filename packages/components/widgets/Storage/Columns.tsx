@@ -1,6 +1,6 @@
 import { createContext, FC, useCallback, useMemo, useState } from "react";
 import { styled } from "@mui/material";
-import { useDragControl, DragControl, FlatTreeItem } from "./useDragControl";
+import { useDragControl, DragControl } from "./useDragControl";
 import {
   DndContext,
   DragOverlay,
@@ -40,6 +40,7 @@ const Root = styled(ReDiv)(({ theme }) => ({
 type ColumnsProps = {
   value: ItemData[];
   onChange(value: ItemData[]): void;
+  renderWrapper?(item: ItemData, dom: React.ReactNode): React.ReactNode;
 };
 
 // 元素
@@ -79,7 +80,7 @@ export const context = createContext<
  * @param props
  * @returns
  */
-const Columns: FC<ColumnsProps> = ({ value, onChange }) => {
+const Columns: FC<ColumnsProps> = ({ value, onChange, renderWrapper }) => {
   const [width, setWidth] = useState(0);
 
   const sensors = useSensors(
@@ -126,17 +127,28 @@ const Columns: FC<ColumnsProps> = ({ value, onChange }) => {
     return Object.values(itemMap.current).some((item) => item.parentId === id);
   }
 
-  function renderTreeItem(item: FlatTreeItem): React.ReactNode {
+  function renderTreeItem(item: ItemData): React.ReactNode {
     if (isFolder(item.id)) {
       return (
         <SortableItem key={item.id} id={item.id} className="drag-outer">
-          <Folder {...item} />
+          {renderWrapper ? (
+            renderWrapper(
+              item,
+              <Folder {...item} renderWrapper={renderWrapper} />
+            )
+          ) : (
+            <Folder {...item} renderWrapper={renderWrapper} />
+          )}
         </SortableItem>
       );
     } else {
       return (
         <SortableItem key={item.id} id={item.id} className="drag-outer">
-          <Item {...item} />
+          {renderWrapper ? (
+            renderWrapper(item, <Item {...item} />)
+          ) : (
+            <Item {...item} />
+          )}
         </SortableItem>
       );
     }

@@ -9,6 +9,9 @@ const BootstrapTooltip = styled(({ className, ...props }: TooltipProps) => (
   [`& .${tooltipClasses.tooltip}`]: {
     backgroundColor: theme.palette.background.paper,
   },
+  [`& .${tooltipClasses.arrow}`]: {
+    color: theme.palette.background.paper,
+  },
 }));
 
 const StyledIntro = styled("div")(({ theme }) => ({
