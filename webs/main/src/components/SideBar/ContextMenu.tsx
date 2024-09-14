@@ -16,7 +16,7 @@ const ContextMenu: FC<PropsWithChildren<ContextMenuProps>> = ({ children }) => {
     itemId: string;
   } | null>(null);
 
-  const delDialog = useRef<DeleteConfirmApi>();
+  const delDialog = useRef<DeleteConfirmApi>(null);
 
   // menu 数据
   const menu =

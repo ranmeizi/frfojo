@@ -1,7 +1,63 @@
 import { FC, forwardRef } from "react";
-import { Tooltip, styled, tooltipClasses, TooltipProps } from "@mui/material";
-import Wu67 from "../Wu67";
+import {
+  Tooltip,
+  styled,
+  tooltipClasses,
+  TooltipProps,
+  keyframes,
+  alpha,
+} from "@mui/material";
 import Logo from "../Logo";
+import IconCode from "@/assets/web-command.png";
+
+const action = keyframes({
+  "0%": {
+    transform: "translateY(0)",
+  },
+  "100%": {
+    transform: "translateY(-4px)",
+  },
+});
+
+const Root = styled("div")(({ theme }) => ({
+  padding: 0,
+  margin: 0,
+
+  ".icon": {
+    borderRadius: "50%",
+    background: "rgba(66, 66, 66, 0.5)",
+    overflow: "hidden",
+    width: "52px",
+    height: "52px",
+    transition: "0.2s",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+
+    "&:hover": {
+      overflow: "visible",
+      borderRadius: "8px",
+      background: alpha(theme.palette.primary.main, 0.5),
+
+      // 动一动
+      img: {
+        height: "110%",
+        width: "110%",
+        animationName: action,
+        animationDuration: "1.5s",
+        animationDirection: "alternate",
+        animationTimingFunction: "cubic-bezier(0.42, 0, 0.58, 1)",
+        animationIterationCount: "infinite",
+      },
+    },
+
+    img: {
+      width: "100%",
+      height: "100%",
+      transition: "0.2s",
+    },
+  },
+}));
 
 const BootstrapTooltip = styled(({ className, ...props }: TooltipProps) => (
   <Tooltip {...props} arrow classes={{ popper: className }} />
@@ -58,9 +114,11 @@ const Introduce: FC = () => {
 
 const FakeBtn = forwardRef((props, ref: any) => {
   return (
-    <div {...props} style={{ padding: 0, margin: 0 }} ref={ref}>
-      <Wu67></Wu67>
-    </div>
+    <Root {...props} style={{ padding: 0, margin: 0 }} ref={ref}>
+      <div className="icon">
+        <img src={IconCode} />
+      </div>
+    </Root>
   );
 });
 

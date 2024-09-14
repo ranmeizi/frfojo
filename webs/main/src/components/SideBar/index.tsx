@@ -47,8 +47,6 @@ const SideBar: FC = () => {
       50
     ) || [];
 
-  console.log("update", list);
-
   return (
     <Box
       sx={(theme) => ({

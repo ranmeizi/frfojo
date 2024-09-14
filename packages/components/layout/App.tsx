@@ -2,6 +2,7 @@ import { colors, styled, Box } from "@mui/material";
 import React, { PropsWithChildren } from "react";
 
 type AppLayoutProps = {
+  header?: React.ReactNode;
   sidebar: React.ReactNode;
 };
 
@@ -9,8 +10,13 @@ const StyledRoot = styled("div")(({ theme }) => ({
   height: "100vh",
   width: "100vw",
   display: "flex",
+  flexDirection: "column",
   background: colors.grey["900"],
-  paddingLeft: "70px",
+
+  ".ffj-layout-app": {
+    paddingLeft: "70px",
+    display: "flex",
+  },
 
   ".ffj-layout-app__sidebar": {
     background: theme.palette.background.paper,
@@ -25,16 +31,21 @@ const StyledRoot = styled("div")(({ theme }) => ({
 
 export function LayoutApp({
   sidebar,
+  header,
   children,
 }: PropsWithChildren<AppLayoutProps>) {
   return (
-    <StyledRoot className="ffj-layout-app">
-      {/* 左边栏 */}
-      <div className="ffj-layout-app__sidebar" data-tauri-drag-region="">
-        {sidebar}
+    <StyledRoot>
+      {/* 头部 */}
+      {header}
+      <div className="ffj-layout-app">
+        {/* 左边栏 */}
+        <div className="ffj-layout-app__sidebar" data-tauri-drag-region>
+          {sidebar}
+        </div>
+        {/* 右边 */}
+        <div className="ffj-layout-app__content">{children}</div>
       </div>
-      {/* 右边 */}
-      <div className="ffj-layout-app__content">{children}</div>
     </StyledRoot>
   );
 }
