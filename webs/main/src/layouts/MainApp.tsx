@@ -10,7 +10,7 @@ const MainApp: FC = () => {
       sidebar={<SideBar />}
       header={window.__TAURI__ ? <Header /> : null}
     >
-      <Outlet></Outlet>
+      <Outlet />
     </LayoutApp>
   );
 };

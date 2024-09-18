@@ -34,7 +34,7 @@ const Root = styled("div")(({ theme }) => ({
     justifyContent: "center",
     alignItems: "center",
 
-    "&:hover": {
+    "&.hover": {
       overflow: "visible",
       borderRadius: "8px",
       background: alpha(theme.palette.primary.main, 0.5),
@@ -104,18 +104,17 @@ const Introduce: FC = () => {
     </StyledIntro>
   );
   return (
-    <div>
-      <BootstrapTooltip title={intro} placement="right-start">
-        <FakeBtn />
-      </BootstrapTooltip>
-    </div>
+    <BootstrapTooltip title={intro} placement="right-start">
+      <FakeBtn />
+    </BootstrapTooltip>
   );
 };
 
-const FakeBtn = forwardRef((props, ref: any) => {
+const FakeBtn = forwardRef((props: any, ref: any) => {
+  const isHover = !!props["aria-labelledby"];
   return (
     <Root {...props} style={{ padding: 0, margin: 0 }} ref={ref}>
-      <div className="icon">
+      <div className={`icon ${isHover ? "hover" : ""}`}>
         <img src={IconCode} />
       </div>
     </Root>

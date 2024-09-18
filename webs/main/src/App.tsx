@@ -1,13 +1,13 @@
 import { CssBaseline, ThemeProvider, createTheme } from "@mui/material";
 import { AppConfigProvider } from "./contexts/AppConfig";
-import { useCreateTheme } from "./theme";
+import { useAppTheme } from "./theme";
 import routes from "./routes";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 
 const router = createBrowserRouter(routes);
 
 function App() {
-  const theme = useCreateTheme();
+  const theme = useAppTheme();
 
   return (
     <ThemeProvider theme={createTheme(theme)}>

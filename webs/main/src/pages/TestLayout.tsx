@@ -4,6 +4,7 @@ import { useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { throttle } from "@frfojo/common/utils/delay";
 import * as AppConfigService from "@/db/services/AppConfig.service";
 import { APP_CONFIG_STORAGE_KEY_MODE } from "@/utils/CONSTANTS";
+import MenuLayout from "@frfojo/components/layout/Menu";
 
 const ReDiv = createResizeElement("div");
 
@@ -15,8 +16,7 @@ export default function TestLayout() {
     }, 50),
     []
   );
-
-  return (
+  const content = (
     <Box
       sx={(theme) => ({
         padding: theme.spacing(2),
@@ -48,4 +48,5 @@ export default function TestLayout() {
       </ReDiv>
     </Box>
   );
+  return <MenuLayout content={content} sideTransition />;
 }

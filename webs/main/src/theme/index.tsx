@@ -1,33 +1,12 @@
-import { colors, ThemeOptions, useMediaQuery } from "@mui/material";
+import { useMediaQuery } from "@mui/material";
 import { useMemo } from "react";
 import * as C from "@/utils/CONSTANTS";
 import { useRxQuery } from "@/db/hook/useRxQuery";
 import * as AppConfigService from "@/db/services/AppConfig.service";
 import { AppConfigDocType } from "@/db/schema/AppConfig.schema";
+import { useCreateTheme } from "@frfojo/common/theme";
 
-const colorObj: Record<string, any> = {
-  amber: colors["amber"],
-  blue: colors["blue"],
-  blueGrey: colors["blueGrey"],
-  brown: colors["brown"],
-  cyan: colors["cyan"],
-  deepOrange: colors["deepOrange"],
-  deepPurple: colors["deepPurple"],
-  green: colors["green"],
-  grey: colors["grey"],
-  indigo: colors["indigo"],
-  lightBlue: colors["lightBlue"],
-  lightGreen: colors["lightGreen"],
-  lime: colors["lime"],
-  orange: colors["orange"],
-  pink: colors["pink"],
-  purple: colors["purple"],
-  red: colors["red"],
-  teal: colors["teal"],
-  yellow: colors["yellow"],
-};
-
-export function useCreateTheme(): ThemeOptions {
+export function useAppTheme() {
   const prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)");
 
   // 主题色
@@ -54,14 +33,5 @@ export function useCreateTheme(): ThemeOptions {
     return prefersDarkMode ? "dark" : "light";
   }, [mode, prefersDarkMode]);
 
-  const theme = useMemo<ThemeOptions>(() => {
-    return {
-      palette: {
-        mode: calcMode,
-        ...(primary ? { primary: colorObj[primary.value || "blue"] } : {}),
-      },
-    };
-  }, [primary, calcMode]);
-
-  return theme;
+  return useCreateTheme({ primary: primary?.value || "", mode: calcMode });
 }

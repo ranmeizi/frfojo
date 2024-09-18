@@ -54,7 +54,7 @@ const INIT_DATA: MenuDocType[] = [
     order: 0,
     type: "item",
     src: IconDota2,
-    path: "/",
+    path: "/m/subapp-dota2",
     tooltip: "Dota2战绩查询",
   },
   {
@@ -63,7 +63,7 @@ const INIT_DATA: MenuDocType[] = [
     order: 1,
     type: "item",
     src: IconHTML,
-    path: "/",
+    path: "/m/topic?topicId=html",
     tooltip: "HTML 真好学",
   },
   {
@@ -72,7 +72,7 @@ const INIT_DATA: MenuDocType[] = [
     order: 2,
     type: "item",
     src: IconJS,
-    path: "/",
+    path: "/m/topic?topicId=js",
     tooltip: "JS 真好学",
   },
   {
@@ -81,7 +81,7 @@ const INIT_DATA: MenuDocType[] = [
     order: 3,
     type: "item",
     src: IconMcDonalds,
-    path: "/",
+    path: "/m/topic?topicId=mcdonalds",
     tooltip: "麦得劳月饼",
   },
   {
@@ -90,7 +90,7 @@ const INIT_DATA: MenuDocType[] = [
     order: 4,
     type: "item",
     src: IconReact,
-    path: "/",
+    path: "/m/topic?topicId=react",
     tooltip: "React 真好学",
   },
   {
@@ -99,7 +99,7 @@ const INIT_DATA: MenuDocType[] = [
     order: 5,
     type: "item",
     src: IconStarBucks,
-    path: "/",
+    path: "/m/topic?topicId=starbucks",
     tooltip: "李大嘴还未研发出星巴克",
   },
   {
@@ -108,7 +108,7 @@ const INIT_DATA: MenuDocType[] = [
     order: 6,
     type: "item",
     src: IconVue,
-    path: "/",
+    path: "/m/topic?topicId=vue",
     tooltip: "Vue 真好学",
   },
 ];

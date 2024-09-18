@@ -4,3 +4,6 @@
   -ms-user-select: none; /* IE/Edge */
   user-select: none; /* 标准语法 */
 }
+body{
+  overflow: hidden;
+}

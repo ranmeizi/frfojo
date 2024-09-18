@@ -1,4 +1,6 @@
 import { colors, styled, Box } from "@mui/material";
+import zIndex from "@mui/material/styles/zIndex";
+import { AnimatePresence } from "framer-motion";
 import React, { PropsWithChildren } from "react";
 
 type AppLayoutProps = {
@@ -11,21 +13,28 @@ const StyledRoot = styled("div")(({ theme }) => ({
   width: "100vw",
   display: "flex",
   flexDirection: "column",
-  background: colors.grey["900"],
 
   ".ffj-layout-app": {
     paddingLeft: "70px",
     display: "flex",
+    flex: 1,
   },
 
   ".ffj-layout-app__sidebar": {
-    background: theme.palette.background.paper,
+    background: theme.palette.app.app_paper_sidebar,
     height: "100%",
     width: "70px",
     paddingTop: (window as any).__TAURI__ ? "30px" : 0,
     position: "fixed",
     left: 0,
     top: 0,
+    zIndex: 1000,
+  },
+
+  ".ffj-layout-app__content": {
+    background: theme.palette.app.app_paper_content,
+    flex: 1,
+    display: "flex",
   },
 }));
 

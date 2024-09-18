@@ -15,6 +15,7 @@ import { useRxQuery } from "@/db/hook/useRxQuery";
 import * as MenuService from "@/db/services/Menu.service";
 import { MenuDocType } from "@/db/schema/Menu.schema";
 import ContextMenu from "./ContextMenu";
+import { useNavigate } from "react-router-dom";
 
 const BootstrapTooltip = styled(({ className, ...props }: TooltipProps) => (
   <Tooltip {...props} arrow classes={{ popper: className }} />
@@ -23,6 +24,7 @@ const BootstrapTooltip = styled(({ className, ...props }: TooltipProps) => (
     backgroundColor: theme.palette.background.paper,
     fontSize: "16px",
     padding: "16px 24px",
+    color: theme.palette.text.primary,
   },
   [`& .${tooltipClasses.arrow}`]: {
     color: theme.palette.background.paper,
@@ -39,6 +41,8 @@ const StyledBadge = styled(Badge)<BadgeProps>(({ theme }) => ({
 }));
 
 const SideBar: FC = () => {
+  const navigate = useNavigate();
+
   const list =
     useRxQuery<MenuDocType, "list">(
       useMemo(() => {
@@ -54,7 +58,10 @@ const SideBar: FC = () => {
         height: "100%",
       })}
     >
-      <Introduce />
+      <a onClick={() => navigate("/m/homepage")}>
+        <Introduce />
+      </a>
+
       <Divider
         sx={({ spacing }) => ({
           marginTop: spacing(1),
@@ -68,8 +75,13 @@ const SideBar: FC = () => {
           onChange={MenuService.services.resetMenu}
           renderWrapper={(item, dom) => {
             let child: React.ReactNode = dom;
+
+            // 添加点击
+            if (item.path) {
+              child = <a onClick={() => navigate(item.path!)}>{child}</a>;
+            }
+
             // 添加 tooltip
-            console.log(item.tooltip);
             if (item.tooltip) {
               child = (
                 <BootstrapTooltip title={item.tooltip} placement="right-start">
