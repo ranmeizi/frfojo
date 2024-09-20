@@ -26,7 +26,7 @@ export const services = {
   /**
    * 根据id findOne
    */
-  async getMenuById(id: string) {
+  async getMenuById(id: string): Promise<MenuDocType> {
     const res = await db.collections[name]
       .findOne({
         selector: { id },

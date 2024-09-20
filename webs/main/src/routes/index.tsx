@@ -32,12 +32,15 @@ const routes: RouteObject[] = [
         element: <TestLayout />,
       },
       {
-        path: "/m/topic",
+        path: "/m/topic/:topicId",
         element: <Topic />,
       },
       {
         path: "/m/theme",
         element: <TestTheme></TestTheme>,
+      },
+      {
+        path: "*",
       },
     ],
   },

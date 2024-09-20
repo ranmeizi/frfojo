@@ -16,6 +16,7 @@ import * as MenuService from "@/db/services/Menu.service";
 import { MenuDocType } from "@/db/schema/Menu.schema";
 import ContextMenu from "./ContextMenu";
 import { useNavigate } from "react-router-dom";
+import UserSetting from "./UserSetting";
 
 const BootstrapTooltip = styled(({ className, ...props }: TooltipProps) => (
   <Tooltip {...props} arrow classes={{ popper: className }} />
@@ -56,52 +57,67 @@ const SideBar: FC = () => {
       sx={(theme) => ({
         padding: theme.spacing(1),
         height: "100%",
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "space-between",
       })}
     >
-      <a onClick={() => navigate("/m/homepage")}>
-        <Introduce />
-      </a>
+      <Box>
+        <a onClick={() => navigate("/m/homepage")}>
+          <Introduce />
+        </a>
 
-      <Divider
-        sx={({ spacing }) => ({
-          marginTop: spacing(1),
-          marginBottom: spacing(1),
-        })}
-      />
-
-      <ContextMenu>
-        <StorageColumns
-          value={list}
-          onChange={MenuService.services.resetMenu}
-          renderWrapper={(item, dom) => {
-            let child: React.ReactNode = dom;
-
-            // 添加点击
-            if (item.path) {
-              child = <a onClick={() => navigate(item.path!)}>{child}</a>;
-            }
-
-            // 添加 tooltip
-            if (item.tooltip) {
-              child = (
-                <BootstrapTooltip title={item.tooltip} placement="right-start">
-                  <div>{child}</div>
-                </BootstrapTooltip>
-              );
-            }
-
-            // barge
-            if (item.id === "dota2") {
-              child = (
-                <StyledBadge badgeContent={1} color="error">
-                  {child}
-                </StyledBadge>
-              );
-            }
-            return child;
-          }}
+        <Divider
+          sx={({ spacing }) => ({
+            marginTop: spacing(1),
+            marginBottom: spacing(1),
+          })}
         />
-      </ContextMenu>
+
+        <ContextMenu>
+          <StorageColumns
+            value={list}
+            onChange={MenuService.services.resetMenu}
+            renderWrapper={(item, dom) => {
+              let child: React.ReactNode = dom;
+
+              // 添加点击
+              if (item.path) {
+                child = <a onClick={() => navigate(item.path!)}>{child}</a>;
+              }
+
+              // 添加 tooltip
+              if (item.tooltip) {
+                child = (
+                  <BootstrapTooltip
+                    title={item.tooltip}
+                    placement="right-start"
+                  >
+                    <div>{child}</div>
+                  </BootstrapTooltip>
+                );
+              }
+
+              // barge
+              if (item.id === "dota2") {
+                child = (
+                  <StyledBadge badgeContent={1} color="error">
+                    {child}
+                  </StyledBadge>
+                );
+              }
+              return child;
+            }}
+          />
+        </ContextMenu>
+        <Divider
+          sx={({ spacing }) => ({
+            marginTop: spacing(2),
+            marginBottom: spacing(1),
+          })}
+        />
+      </Box>
+      <UserSetting />
     </Box>
   );
 };

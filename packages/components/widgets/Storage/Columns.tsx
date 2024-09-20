@@ -17,14 +17,13 @@ import createResizeElement from "../../element/createResizeElement";
 import Item from "./Item";
 import Folder from "./Folder";
 import { throttle } from "@frfojo/common";
-import { green, yellow } from "@mui/material/colors";
 
 // resize div
 const ReDiv = createResizeElement("div");
 
 // styled div
 const Root = styled(ReDiv)(({ theme }) => ({
-  height: "100%",
+  maxHeight: "100%",
   width: "100%",
 
   ".drag-outer": {

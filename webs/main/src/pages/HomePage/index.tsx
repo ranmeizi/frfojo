@@ -1,6 +1,6 @@
 import { FC } from "react";
 import { styled } from "@mui/material";
-import MenuLayout from "@frfojo/components/layout/Menu";
+import { LayoutMenu } from "@frfojo/components/layout";
 
 const Root = styled("div")(({ theme }) => ({}));
 
@@ -8,9 +8,9 @@ type HomePageProps = {};
 
 const HomePage: FC<HomePageProps> = (props) => {
   return (
-    <MenuLayout>
+    <LayoutMenu>
       <div>hello world</div>
-    </MenuLayout>
+    </LayoutMenu>
   );
 };
 

@@ -5,6 +5,26 @@ import { MotionProps } from "framer-motion";
 const HEADER_HEIGHT = 48;
 const SIDEBAR_WIDTH = 235;
 
+function topShadow(): {
+  "&::after": React.CSSProperties;
+  position: "relative";
+  overflow: "auto";
+} {
+  return {
+    position: "relative",
+    overflow: "auto",
+    "&::after": {
+      position: "absolute",
+      left: 0,
+      top: 0,
+      height: 0,
+      width: "100%",
+      content: '""',
+      boxShadow: "0px 0px 5px 1px #000",
+    },
+  };
+}
+
 const Root = styled("div")(({ theme }) => ({
   display: "flex",
   flexDirection: "row",
@@ -15,14 +35,14 @@ const Root = styled("div")(({ theme }) => ({
     display: "flex",
     flexDirection: "column",
     background: theme.palette.app.app_pager_menu,
-    // borderRight: `1px solid ${theme.palette.divider}`,
 
     ".ffj-layout-menu__logo": {
       height: HEADER_HEIGHT + "px",
-      borderBottom: `1px solid ${theme.palette.divider}`,
+      // borderBottom: `1px solid ${theme.palette.divider}`,
     },
     ".ffj-layout-menu__menu": {
       flex: 1,
+      ...topShadow(),
     },
   },
 
@@ -33,10 +53,11 @@ const Root = styled("div")(({ theme }) => ({
 
     ".ffj-layout-menu__header": {
       height: HEADER_HEIGHT + "px",
-      borderBottom: `1px solid ${theme.palette.divider}`,
+      // borderBottom: `1px solid ${theme.palette.divider}`,
     },
     ".ffj-layout-menu__view": {
       flex: 1,
+      ...topShadow(),
     },
   },
 }));

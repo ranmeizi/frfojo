@@ -1,16 +1,20 @@
 import { FC } from "react";
-import { styled } from "@mui/material";
-import MenuLayout from "@frfojo/components/layout/Menu";
+import { LayoutMenu } from "@frfojo/components/layout";
+import LogoComp from "./Logo";
+import Sidebar from "./Sidebar";
+import { useParams } from "react-router-dom";
 
-type TopicProps = {};
+const Topic: FC = () => {
+  const params = useParams<{ topicId: string }>();
 
-const Topic: FC<TopicProps> = (props) => {
-  const logo = <div></div>;
-  const sidebar = <div></div>;
+  console.log("params", params);
+
+  const logo = <LogoComp />;
+  const sidebar = <Sidebar topicId={params.topicId} />;
   const header = <div></div>;
   const content = <div></div>;
   return (
-    <MenuLayout
+    <LayoutMenu
       logo={logo}
       sidebar={sidebar}
       header={header}

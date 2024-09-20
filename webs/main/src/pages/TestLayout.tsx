@@ -48,5 +48,6 @@ export default function TestLayout() {
       </ReDiv>
     </Box>
   );
-  return <MenuLayout content={content} sideTransition />;
+  return <MenuLayout content={content} />;
 }
+
