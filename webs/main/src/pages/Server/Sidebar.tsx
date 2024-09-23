@@ -1,5 +1,5 @@
 import { FC, forwardRef, useEffect, useState } from "react";
-import { Box, Divider, styled, alpha, keyframes } from "@mui/material";
+import { Box, Divider, styled, alpha } from "@mui/material";
 import { RichTreeView } from "@mui/x-tree-view/RichTreeView";
 import { TreeViewBaseItem } from "@mui/x-tree-view/models";
 import {
@@ -19,6 +19,8 @@ import NumbersIcon from "@mui/icons-material/Numbers";
 import ImageBlackboard from "@/assets/blackboard.jpg";
 import { services } from "@/db/services/Menu.service";
 import { motion } from "framer-motion";
+import { yellow } from "@mui/material/colors";
+import { useNavigate } from "react-router-dom";
 
 const MUI_X_PRODUCTS: TreeViewBaseItem[] = [
   {
@@ -63,6 +65,20 @@ const MUI_X_PRODUCTS: TreeViewBaseItem[] = [
     children: [{ id: "4-1", label: "〔🚫〕投诉本" }],
   },
 ];
+
+export const flatTree: TreeViewBaseItem[] = [];
+
+function handleFlatTree(list: TreeViewBaseItem[]) {
+  for (const item of list) {
+    flatTree.push(item);
+
+    if (item.children) {
+      handleFlatTree(item.children);
+    }
+  }
+}
+
+handleFlatTree(MUI_X_PRODUCTS);
 
 const Root = styled("div")(({ theme }) => ({
   // padding: theme.spacing(1),
@@ -114,18 +130,21 @@ const CustomTreeItem = forwardRef(
 );
 
 type SidebarProps = {
-  topicId: string;
+  serverId?: string;
+  topic?: string;
 };
 const Sidebar: FC<SidebarProps> = (props) => {
   const [icon, setIcon] = useState<string | undefined>(undefined);
 
+  const navigate = useNavigate();
+
   useEffect(() => {
-    if (props.topicId) {
-      getIcon(props.topicId);
+    if (props.serverId) {
+      getIcon(props.serverId);
     } else {
       setIcon(undefined);
     }
-  }, [props.topicId]);
+  }, [props.serverId]);
 
   async function getIcon(id: string) {
     const doc = await services.getMenuById(id);
@@ -133,6 +152,10 @@ const Sidebar: FC<SidebarProps> = (props) => {
     if (doc) {
       setIcon(doc.src);
     }
+  }
+
+  function gotoTopic(topic: string) {
+    navigate(`/m/server/${props.serverId}/${topic}`);
   }
 
   return (
@@ -175,40 +198,42 @@ const Sidebar: FC<SidebarProps> = (props) => {
               <motion.div
                 transition={{
                   duration: 15,
-                  ease: "easeInOut",
+                  ease: "backInOut",
                   times: [0, 0.25, 0.5, 0.75, 1],
                   repeat: Infinity,
                 }}
                 animate={{
                   transform: [
                     "rotateZ(0)",
-                    "rotateZ(6deg)",
+                    "rotateZ(8deg)",
                     "rotateZ(0)",
-                    "rotateZ(-6deg)",
+                    "rotateZ(-8deg)",
                     "rotateZ(0)",
                   ],
                 }}
               >
                 <Box
                   sx={(theme) => {
-                    const color = alpha(theme.palette.primary.dark, 0.9);
+                    const color = alpha(theme.palette.primary.dark, 0.6);
+                    const shadow = alpha(yellow["400"], 0.5);
                     return {
                       position: "absolute",
                       top: "15px",
                       left: "28px",
                       borderRadius: "25px",
-                      height: "54px",
-                      width: "54px",
+                      height: "56px",
+                      width: "50px",
                       backgroundImage: `url(${icon})`,
                       backgroundColor: color,
-                      backgroundSize: "44px 44px",
-                      backgroundPosition: "5px 5px",
+                      backgroundSize: "40px 40px",
+                      backgroundPosition: "5px 8px",
                       backgroundRepeat: "no-repeat",
+                      boxShadow: `0 0 5px 2px ${shadow}`,
                       "::after": {
                         content: "''",
                         position: "absolute",
                         bottom: "-6px",
-                        left: "22px",
+                        left: "20px",
                         height: 0,
                         width: 0,
                         borderTop: `6px solid transparent`,
@@ -296,9 +321,16 @@ const Sidebar: FC<SidebarProps> = (props) => {
       >
         <RichTreeView
           defaultExpandedItems={MUI_X_PRODUCTS.map((item) => item.id)}
+          selectedItems={props.topic}
           items={MUI_X_PRODUCTS}
           slots={{ item: CustomTreeItem }}
           isItemDisabled={(item) => item.id === "4-1"}
+          onSelectedItemsChange={(event, itemIds) => {
+            console.log(event, "event");
+            if (itemIds && itemIds?.includes("-")) {
+              gotoTopic(itemIds);
+            }
+          }}
         />
       </Box>
     </Root>

@@ -4,7 +4,7 @@ import TestLayout from "@/pages/TestLayout";
 import TestTheme from "@/pages/TestTheme";
 import MainApp from "@/layouts/MainApp";
 import HomePage from "@/pages/HomePage";
-import Topic from "@/pages/Topic";
+import Server from "@/pages/Server";
 
 function Redirect({ to }: any) {
   const navigate = useNavigate();
@@ -32,8 +32,12 @@ const routes: RouteObject[] = [
         element: <TestLayout />,
       },
       {
-        path: "/m/topic/:topicId",
-        element: <Topic />,
+        path: "/m/server/:serverId",
+        element: <Server />,
+      },
+      {
+        path: "/m/server/:serverId/:topic",
+        element: <Server />,
       },
       {
         path: "/m/theme",

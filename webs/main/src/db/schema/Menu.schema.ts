@@ -63,7 +63,7 @@ const INIT_DATA: MenuDocType[] = [
     order: 1,
     type: "item",
     src: IconHTML,
-    path: "/m/topic/html",
+    path: "/m/server/html",
     tooltip: "HTML 真好学",
   },
   {
@@ -72,7 +72,7 @@ const INIT_DATA: MenuDocType[] = [
     order: 2,
     type: "item",
     src: IconJS,
-    path: "/m/topic/js",
+    path: "/m/server/js",
     tooltip: "JS 真好学",
   },
   {
@@ -81,7 +81,7 @@ const INIT_DATA: MenuDocType[] = [
     order: 3,
     type: "item",
     src: IconMcDonalds,
-    path: "/m/topic/mcdonalds",
+    path: "/m/server/mcdonalds",
     tooltip: "麦得劳月饼",
   },
   {
@@ -90,7 +90,7 @@ const INIT_DATA: MenuDocType[] = [
     order: 4,
     type: "item",
     src: IconReact,
-    path: "/m/topic/react",
+    path: "/m/server/react",
     tooltip: "React 真好学",
   },
   {
@@ -99,7 +99,7 @@ const INIT_DATA: MenuDocType[] = [
     order: 5,
     type: "item",
     src: IconStarBucks,
-    path: "/m/topic/starbucks",
+    path: "/m/server/starbucks",
     tooltip: "李大嘴还未研发出星巴克",
   },
   {
@@ -108,7 +108,7 @@ const INIT_DATA: MenuDocType[] = [
     order: 6,
     type: "item",
     src: IconVue,
-    path: "/m/topic/vue",
+    path: "/m/server/vue",
     tooltip: "Vue 真好学",
   },
 ];

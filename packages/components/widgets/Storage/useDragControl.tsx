@@ -349,6 +349,9 @@ export function useDragControl({
 
       // 删除原来child
       res = res.filter((item) => item !== child);
+
+      // 清空一下 openId
+      setOpenId(null);
     }
 
     onChange(res);

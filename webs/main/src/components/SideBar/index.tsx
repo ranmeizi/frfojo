@@ -8,6 +8,7 @@ import {
   Tooltip,
   TooltipProps,
   tooltipClasses,
+  alpha,
 } from "@mui/material";
 import Introduce from "../Intro";
 import StorageColumns from "@frfojo/components/widgets/Storage/Columns";
@@ -15,8 +16,19 @@ import { useRxQuery } from "@/db/hook/useRxQuery";
 import * as MenuService from "@/db/services/Menu.service";
 import { MenuDocType } from "@/db/schema/Menu.schema";
 import ContextMenu from "./ContextMenu";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import UserSetting from "./UserSetting";
+
+const WrapActiveRoute = styled(Box)<{ isActive: boolean }>(
+  ({ theme, isActive }) =>
+    isActive
+      ? {
+          ".storage-item": {
+            background: alpha(theme.palette.primary.main, 0.5),
+          },
+        }
+      : {}
+);
 
 const BootstrapTooltip = styled(({ className, ...props }: TooltipProps) => (
   <Tooltip {...props} arrow classes={{ popper: className }} />
@@ -44,6 +56,8 @@ const StyledBadge = styled(Badge)<BadgeProps>(({ theme }) => ({
 const SideBar: FC = () => {
   const navigate = useNavigate();
 
+  const { pathname } = useLocation();
+
   const list =
     useRxQuery<MenuDocType, "list">(
       useMemo(() => {
@@ -51,6 +65,20 @@ const SideBar: FC = () => {
       }, []),
       50
     ) || [];
+
+  const activeId = useMemo(() => {
+    if (!pathname || list.length === 0) {
+      return "";
+    }
+
+    const id = list.find(
+      (item) => item.path && pathname.startsWith(item.path)
+    )?.id;
+
+    return id;
+  }, [pathname, list]);
+
+  console.log("sssssaaaaa", activeId);
 
   return (
     <Box
@@ -80,6 +108,13 @@ const SideBar: FC = () => {
             onChange={MenuService.services.resetMenu}
             renderWrapper={(item, dom) => {
               let child: React.ReactNode = dom;
+
+              // 判断是活动路由？
+              child = (
+                <WrapActiveRoute isActive={item.id === activeId}>
+                  {child}
+                </WrapActiveRoute>
+              );
 
               // 添加点击
               if (item.path) {
