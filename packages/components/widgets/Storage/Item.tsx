@@ -1,4 +1,4 @@
-import { styled, Zoom } from "@mui/material";
+import { styled } from "@mui/material";
 import { FC, useContext } from "react";
 import type { ItemData } from "./Columns";
 import { context } from "./Columns";
@@ -12,7 +12,7 @@ export const transtion: MotionProps["transition"] = {
 const Root = styled("div")<{
   width: number;
   background?: string;
-}>(({ theme, width, background }) => ({
+}>(({ width, background }) => ({
   height: width + "px",
   width: width + "px",
   borderRadius: "8px",

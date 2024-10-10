@@ -1,6 +1,6 @@
-import { Box, Divider, Button } from "@mui/material";
+import { Box, Button } from "@mui/material";
 import createResizeElement from "@frfojo/components/element/createResizeElement";
-import { useCallback, useContext, useEffect, useMemo, useState } from "react";
+import { useCallback } from "react";
 import { throttle } from "@frfojo/common/utils/delay";
 import * as AppConfigService from "@/db/services/AppConfig.service";
 import { APP_CONFIG_STORAGE_KEY_MODE } from "@/utils/CONSTANTS";
@@ -50,4 +50,3 @@ export default function TestLayout() {
   );
   return <MenuLayout content={content} />;
 }
-

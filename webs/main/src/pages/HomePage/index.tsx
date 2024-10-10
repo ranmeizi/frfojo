@@ -1,12 +1,9 @@
 import { FC } from "react";
-import { styled } from "@mui/material";
 import { LayoutMenu } from "@frfojo/components/layout";
-
-const Root = styled("div")(({ theme }) => ({}));
 
 type HomePageProps = {};
 
-const HomePage: FC<HomePageProps> = (props) => {
+const HomePage: FC<HomePageProps> = () => {
   return (
     <LayoutMenu>
       <div>hello world</div>

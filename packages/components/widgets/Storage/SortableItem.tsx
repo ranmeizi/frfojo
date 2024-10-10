@@ -1,7 +1,7 @@
 import { useSortable } from "@dnd-kit/sortable";
 import React, { FC, PropsWithChildren } from "react";
 import { CSS } from "@dnd-kit/utilities";
-import { useDndContext, DragOverlay, useDroppable } from "@dnd-kit/core";
+import { useDndContext } from "@dnd-kit/core";
 
 type SortableItemProps = {
   id: string;

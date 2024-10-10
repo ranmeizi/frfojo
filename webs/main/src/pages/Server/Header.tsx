@@ -4,7 +4,7 @@ import NumbersIcon from "@mui/icons-material/Numbers";
 import { useParams } from "react-router-dom";
 import { flatTree } from "./Sidebar";
 
-const Root = styled("div")(({ theme }) => ({
+const Root = styled("div")(() => ({
   display: "flex",
   alignItems: "center",
   height: "100%",

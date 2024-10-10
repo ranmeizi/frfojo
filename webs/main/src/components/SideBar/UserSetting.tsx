@@ -1,7 +1,7 @@
 import { FC } from "react";
 import { Avatar, Badge, IconButton, styled } from "@mui/material";
 
-const Root = styled(IconButton)(({ theme }) => ({}));
+const Root = styled(IconButton)(() => ({}));
 
 const StyledBadge = styled(Badge)(({ theme }) => ({
   "& .MuiBadge-badge": {
@@ -34,7 +34,7 @@ const StyledBadge = styled(Badge)(({ theme }) => ({
 
 type UserSettingProps = {};
 
-const UserSetting: FC<UserSettingProps> = (props) => {
+const UserSetting: FC<UserSettingProps> = () => {
   return (
     <Root>
       <StyledBadge

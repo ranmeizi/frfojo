@@ -17,7 +17,7 @@ export type DeleteConfirmApi = {
 };
 
 const DeleteConfirm = forwardRef<DeleteConfirmApi, DeleteConfirmProps>(
-  (props, ref) => {
+  (_, ref) => {
     const [open, setOpen] = useState(false);
     const [data, setData] = useState<MenuDocType>();
 

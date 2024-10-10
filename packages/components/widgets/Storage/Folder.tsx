@@ -1,5 +1,5 @@
 import { FC, PropsWithChildren, useContext, useMemo } from "react";
-import { Collapse, styled } from "@mui/material";
+import { styled } from "@mui/material";
 import { context, ItemData } from "./Columns";
 import {
   SortableContext,
@@ -11,8 +11,8 @@ import FolderIcon from "@mui/icons-material/Folder";
 import { green } from "@mui/material/colors";
 import { motion, AnimatePresence } from "framer-motion";
 
-const Root = styled("div")<{ open: boolean; width: number; length: number }>(
-  ({ theme, open, width, length }) => ({
+const Root = styled("div")<{ open: boolean; width: number }>(
+  ({ theme, open, width }) => ({
     width: width + "px",
     borderRadius: "8px",
     background: "rgba(255,255,255,.4)",
@@ -109,7 +109,6 @@ const Folder: FC<PropsWithChildren<FolderProps>> = (props) => {
       }`}
       open={isOpen}
       width={width}
-      length={items.length}
       data-id={id}
     >
       {/* header */}

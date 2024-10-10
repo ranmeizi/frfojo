@@ -16,7 +16,7 @@ import {
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import CloseIcon from "@mui/icons-material/Close";
 
-const Root = styled("div")(({ theme }) => ({
+const Root = styled("div")(() => ({
   height: "100%",
   [`.${listClasses.root}`]: {
     paddingTop: 0,
@@ -41,7 +41,7 @@ const options = [
   "红豆沙",
 ];
 
-const LogoComp: FC<LogoCompProps> = (props) => {
+const LogoComp: FC<LogoCompProps> = () => {
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const [selectedIndex, setSelectedIndex] = React.useState(1);
   const open = Boolean(anchorEl);
@@ -53,6 +53,7 @@ const LogoComp: FC<LogoCompProps> = (props) => {
     event: React.MouseEvent<HTMLElement>,
     index: number
   ) => {
+    console.log(event);
     setSelectedIndex(index);
     setAnchorEl(null);
   };
@@ -130,7 +131,7 @@ const LogoComp: FC<LogoCompProps> = (props) => {
         <Divider />
 
         <MenuItem
-          onClick={(event) => alert("啊?")}
+          onClick={() => alert("啊?")}
           sx={(theme) => ({ color: theme.palette.error.main })}
         >
           不好吃,差评

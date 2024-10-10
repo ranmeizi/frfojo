@@ -29,12 +29,14 @@ const Root = styled("div")(({ theme }) => ({
   display: "flex",
   flexDirection: "row",
   flex: 1,
+  height: "100%",
+  width: "100%",
 
   ".ffj-layout-menu__sidebar": {
     width: SIDEBAR_WIDTH + "px",
     display: "flex",
     flexDirection: "column",
-    background: theme.palette.app.app_pager_menu,
+    background: theme.palette.app?.app_pager_menu,
 
     ".ffj-layout-menu__logo": {
       height: HEADER_HEIGHT + "px",
@@ -50,6 +52,7 @@ const Root = styled("div")(({ theme }) => ({
     flex: 1,
     display: "flex",
     flexDirection: "column",
+    background: theme.palette.app.app_paper_content,
 
     ".ffj-layout-menu__header": {
       height: HEADER_HEIGHT + "px",

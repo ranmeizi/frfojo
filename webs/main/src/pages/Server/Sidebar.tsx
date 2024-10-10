@@ -80,7 +80,7 @@ function handleFlatTree(list: TreeViewBaseItem[]) {
 
 handleFlatTree(MUI_X_PRODUCTS);
 
-const Root = styled("div")(({ theme }) => ({
+const Root = styled("div")(() => ({
   // padding: theme.spacing(1),
 }));
 
@@ -99,9 +99,11 @@ const CustomTreeItem = forwardRef(
       status,
     } = useTreeItem2({ id, itemId, children, label, disabled, rootRef: ref });
 
+    const treeItemPrope = getRootProps(other) as any;
+
     return (
       <TreeItem2Provider itemId={itemId}>
-        <TreeItem2Root {...getRootProps(other)}>
+        <TreeItem2Root {...treeItemPrope}>
           <TreeItem2Content {...getContentProps()} sx={{ padding: "4px" }}>
             <TreeItem2IconContainer {...getIconContainerProps()}>
               <TreeItem2Icon status={status} />
@@ -161,7 +163,7 @@ const Sidebar: FC<SidebarProps> = (props) => {
   return (
     <Root>
       <Box
-        sx={(theme) => ({
+        sx={() => ({
           // padding: theme.spacing(2),
           background: `url(${ImageBlackboard})`,
           height: "80px",

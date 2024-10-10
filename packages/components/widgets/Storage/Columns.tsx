@@ -22,7 +22,7 @@ import { throttle } from "@frfojo/common";
 const ReDiv = createResizeElement("div");
 
 // styled div
-const Root = styled(ReDiv)(({ theme }) => ({
+const Root = styled(ReDiv)(() => ({
   maxHeight: "100%",
   width: "100%",
 

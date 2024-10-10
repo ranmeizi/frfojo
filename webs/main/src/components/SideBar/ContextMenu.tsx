@@ -5,7 +5,7 @@ import { useRxQuery } from "@/db/hook/useRxQuery";
 import * as MenuService from "@/db/services/Menu.service";
 import DeleteConfirm, { DeleteConfirmApi } from "./DeleteConfirm";
 
-const Root = styled("div")(({ theme }) => ({}));
+const Root = styled("div")(() => ({}));
 
 type ContextMenuProps = {};
 

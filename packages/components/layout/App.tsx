@@ -1,6 +1,4 @@
-import { colors, styled, Box } from "@mui/material";
-import zIndex from "@mui/material/styles/zIndex";
-import { AnimatePresence } from "framer-motion";
+import { styled } from "@mui/material";
 import React, { PropsWithChildren } from "react";
 
 type AppLayoutProps = {
