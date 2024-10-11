@@ -1,0 +1,26 @@
+{
+  "project-typedef": {
+    "prefix": "typedef",
+    "body": [
+      "// request 请求参数类型",
+      "declare namespace Params {",
+      "    export namespace ${0} {",
+      "",
+      "    }",
+      "}",
+      "// response 传输对象类型",
+      "declare namespace DTOs {",
+      "    export namespace ${0} {",
+      "",
+      "    }",
+      "}",
+      "// 公共类型",
+      "declare namespace Types {",
+      "    export namespace ${0} {",
+      "",
+      "    }",
+      "}"
+    ],
+    "description": "d.ts 类型定义 ${0} 输入你的命名空间 \n 使用非模块化的d.ts 定义类型，js也可以用 \n typescript 声明合并的特点，定义了3个默认的命名空间，请在这底下你自己定义你自己的命名空间"
+  },
+}

@@ -5,4 +5,8 @@
 
 type AsyncProcessFn = (next?: () => void) => Promise<void>;
 
-declare module "redux-persist-indexeddb-storage" {}
+declare module "redux-persist-indexeddb-storage" {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const bb: any;
+  export default bb;
+}

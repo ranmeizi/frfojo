@@ -1,28 +1,52 @@
-import { configureStore, combineSlices } from "@reduxjs/toolkit";
+import { combineReducers, configureStore } from "@reduxjs/toolkit";
 import storage from "redux-persist-indexeddb-storage";
-import { initialDataSlice } from "./initialDataSlice";
-import { persistReducer, persistStore } from "redux-persist";
+import {
+  FLUSH,
+  PAUSE,
+  PERSIST,
+  persistReducer,
+  persistStore,
+  PURGE,
+  REGISTER,
+  REHYDRATE,
+} from "redux-persist";
+import { opendotaApi } from "./queryApis/opendota";
+import { sleep } from "@frfojo/common";
 
 const persistConfig = {
   key: "opendota",
   version: 1,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  storage: storage as any,
+  storage: storage("od-redux-persist-storage"),
 };
 
-const rootReducer = combineSlices(initialDataSlice);
-
-const persistedReducer = persistReducer(persistConfig, rootReducer);
+const persistedReducer = persistReducer(
+  persistConfig,
+  combineReducers({
+    [opendotaApi.reducerPath]: opendotaApi.reducer,
+  })
+);
 
 // 创建 store
 const store = configureStore({
   reducer: persistedReducer,
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware().concat(opendotaApi.middleware),
 });
 
 async function initialize(next: AsyncProcessFn) {
   // 初始化数据是异步的
 
   await persistStore(store);
+
+  await sleep(2000);
+
+  const rootState = store.getState();
+
+  const heroes = opendotaApi.endpoints.constantsHeroes.select()(rootState);
+
+  if (!heroes.data) {
+    await store.dispatch(opendotaApi.endpoints.constantsHeroes.initiate());
+  }
 
   await next();
 }
