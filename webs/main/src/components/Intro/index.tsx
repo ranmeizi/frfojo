@@ -7,7 +7,7 @@ import {
   keyframes,
   alpha,
 } from "@mui/material";
-import Logo from "../Logo";
+import { Logo } from "@frfojo/components/widgets";
 import IconCode from "@/assets/web-command.png";
 
 const action = keyframes({

@@ -1,10 +1,12 @@
 import { defineConfig } from "vite";
-import react from "@vitejs/plugin-react-swc";
+// import react from "@vitejs/plugin-react-swc";
+import react from "@vitejs/plugin-react";
 import path from "path";
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [react()],
+  plugins: [react({ jsxRuntime: "automatic" })],
+  // plugins: [react()],
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "src"),
@@ -12,5 +14,6 @@ export default defineConfig({
   },
   server: {
     port: 5181,
+    cors: true,
   },
 });

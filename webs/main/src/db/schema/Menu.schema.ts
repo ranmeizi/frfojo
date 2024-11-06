@@ -54,7 +54,7 @@ const INIT_DATA: MenuDocType[] = [
     order: 0,
     type: "item",
     src: IconDota2,
-    path: "/m/subapp-dota2",
+    path: "/m/sub/opendota",
     tooltip: "Dota2战绩查询",
   },
   {

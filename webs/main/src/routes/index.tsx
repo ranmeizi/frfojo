@@ -5,6 +5,7 @@ import TestTheme from "@/pages/TestTheme";
 import MainApp from "@/layouts/MainApp";
 import HomePage from "@/pages/HomePage";
 import Server from "@/pages/Server";
+import Opendota from "@/pages/SubApps/Opendota";
 
 function Redirect({ to }: any) {
   const navigate = useNavigate();
@@ -42,6 +43,10 @@ const routes: RouteObject[] = [
       {
         path: "/m/theme",
         element: <TestTheme></TestTheme>,
+      },
+      {
+        path: "/m/sub/opendota*",
+        element: <Opendota />,
       },
       {
         path: "*",

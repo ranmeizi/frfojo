@@ -1,17 +1,9 @@
 import { combineReducers, configureStore } from "@reduxjs/toolkit";
 import storage from "redux-persist-indexeddb-storage";
-import {
-  FLUSH,
-  PAUSE,
-  PERSIST,
-  persistReducer,
-  persistStore,
-  PURGE,
-  REGISTER,
-  REHYDRATE,
-} from "redux-persist";
+import { persistReducer, persistStore } from "redux-persist";
 import { opendotaApi } from "./queryApis/opendota";
 import { sleep } from "@frfojo/common";
+import userMemoSlice from "./slices/UserMemo";
 
 const persistConfig = {
   key: "opendota",
@@ -23,6 +15,7 @@ const persistedReducer = persistReducer(
   persistConfig,
   combineReducers({
     [opendotaApi.reducerPath]: opendotaApi.reducer,
+    [userMemoSlice.reducerPath]: userMemoSlice.reducer,
   })
 );
 

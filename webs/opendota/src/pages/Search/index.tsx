@@ -1,6 +1,11 @@
-import { FC, useState } from "react";
-import { Button, styled, Switch, TextField } from "@mui/material";
+import React, { FC, useState } from "react";
+import { Box, Button, styled, Switch, TextField } from "@mui/material";
 import { opendotaApi } from "@/redux/queryApis/opendota";
+import { LayoutMenu } from "@frfojo/components/layout";
+import NavBar from "@/components/NavBar";
+import LogoMenu from "@/components/LogoMenu";
+import Avatar from "@/components/Widgets/Avatar";
+import RankItem from "@/components/Widgets/Rank";
 
 const Root = styled("div")(({ theme }) => ({}));
 
@@ -16,14 +21,50 @@ const Search: FC<SearchProps> = (props) => {
   const [show, setShow] = useState(true);
 
   return (
-    <Root>
-      HI
-      <div>
-        模拟路由卸载
-        <Switch checked={show} onChange={(e) => setShow(e.target.checked)} />
-        {show ? <TMD></TMD> : null}
-      </div>
-    </Root>
+    <LayoutMenu
+      sidebar={
+        <Box sx={{ padding: "20px" }}>
+          <Box sx={{ width: "100%" }}>
+            <Avatar avatar="https://avatars.steamstatic.com/5c9c619ca4928f57b9022c7a2687576045d21161_full.jpg" />
+          </Box>
+          <Box sx={{ width: "100%", marginTop: "24px" }}>
+            <Avatar
+              vip={1}
+              avatar="https://avatars.steamstatic.com/fef49e7fa7e1997310d705b2a6158ff8dc1cdfeb_full.jpg"
+            />
+          </Box>
+
+          <Box sx={{ width: "100%", marginTop: "24px" }}>
+            <Avatar
+              vip={2}
+              avatar="https://avatars.steamstatic.com/14f1a9927382fa8dea134a0f3ca6f17e6938e131_full.jpg"
+            />
+          </Box>
+
+          <Box sx={{ width: "100%", marginTop: "24px" }}>
+            <Avatar
+              vip={1}
+              avatar="https://avatars.steamstatic.com/c46fdd211b79d396a4ac833a5990a2fde7070df6_full.jpg"
+            />
+          </Box>
+
+          <Box sx={{ width: "100%", transform: "translate(140px,-40px)" }}>
+            <RankItem rank_tier={72}></RankItem>
+          </Box>
+        </Box>
+      }
+      logo={<LogoMenu />}
+      header={<NavBar />}
+    >
+      <Root>
+        HI
+        <div>
+          模拟路由卸载
+          <Switch checked={show} onChange={(e) => setShow(e.target.checked)} />
+          {show ? <TMD></TMD> : null}
+        </div>
+      </Root>
+    </LayoutMenu>
   );
 };
 
