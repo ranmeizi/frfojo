@@ -34,8 +34,6 @@ const withInitGuard: HOC_Expand<any> = (Component) => (props) => {
 
   const subProps = props.props;
 
-  console.log("biubiu", subProps);
-
   useEffect(() => {
     // 启动 promise
     bootstrap.finally(() => setLoading(false));
@@ -57,7 +55,7 @@ const withInitGuard: HOC_Expand<any> = (Component) => (props) => {
   );
 };
 
-export const SubApp = withInitGuard(function (props: any) {
+export const SubApp = function (props: any) {
   const theme = useAppTheme();
   const [height, setHeight] = useState(0);
   const [width, setWidth] = useState(0);
@@ -89,6 +87,6 @@ export const SubApp = withInitGuard(function (props: any) {
       </Provider>
     </Box>
   );
-});
+};
 
 export default App;

@@ -60,7 +60,21 @@ export const opendotaApi = createApi({
       Params.Opendota.SearchParams
     >({
       query: (params) => ({ url: "/search", params }),
-      keepUnusedDataFor: 5,
+      keepUnusedDataFor: 60 * 30,
+    }),
+
+    /**
+     *
+     */
+    playerMatches: builder.query<
+      DTOs.Opendota.PlayerMatches[],
+      Params.Opendota.PlayerMatchesParams
+    >({
+      query: ({ account_id, ...params }) => ({
+        url: `/players/${account_id}/matches`,
+        params,
+      }),
+      keepUnusedDataFor: 60 * 30,
     }),
   }),
 });

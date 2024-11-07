@@ -31,8 +31,6 @@ async function initialize(next: AsyncProcessFn) {
 
   await persistStore(store);
 
-  await sleep(2000);
-
   const rootState = store.getState();
 
   const heroes = opendotaApi.endpoints.constantsHeroes.select()(rootState);

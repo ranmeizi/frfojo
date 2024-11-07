@@ -1,8 +1,7 @@
 import { RouteObject } from "react-router-dom";
-import FFJLayout from "../layouts/FFJLayout";
 import Profile from "../pages/Profile";
 import Search from "../pages/Search";
-import React from "react";
+import { LayoutMenu } from "@frfojo/components/layout";
 
 const routes: RouteObject[] = [
   {
@@ -13,12 +12,12 @@ const routes: RouteObject[] = [
         element: <Search />,
       },
       {
-        path: "/ffj/profile",
+        path: "/ffj/profile/:account_id",
         element: <Profile />,
       },
       {
         path: "/ffj/*",
-        element: <div>没有这个路由</div>,
+        element: <LayoutMenu>没有这个路由</LayoutMenu>,
       },
     ],
   },

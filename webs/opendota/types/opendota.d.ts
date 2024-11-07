@@ -4,6 +4,87 @@ declare namespace Params {
     type SearchParams = {
       q: string;
     };
+    /** 查询玩家比赛数据 */
+    type PlayerMatchesParams = {
+      account_id: number;
+      /**
+       * Hero IDs against the player's team (array)
+       */
+      against_hero_id?: number;
+      /**
+       * Days previous
+       */
+      date?: number;
+      /**
+       * Account IDs not in the match (array)
+       */
+      excluded_account_id?: number;
+      /**
+       * Game Mode ID
+       */
+      game_mode?: number;
+      /**
+       * The minimum number of games played, for filtering hero stats
+       */
+      having?: number;
+      /**
+       * Hero ID
+       */
+      hero_id?: number;
+      /**
+       * Account IDs in the match (array)
+       */
+      included_account_id?: number;
+      /**
+       * Whether the player was radiant
+       */
+      is_radiant?: number;
+      /**
+       * Lane Role ID
+       */
+      lane_role?: number;
+      /**
+       * Number of matches to limit to
+       */
+      limit?: number;
+      /**
+       * Lobby type ID
+       */
+      lobby_type?: number;
+      /**
+       * Number of matches to offset start by
+       */
+      offset?: number;
+      /**
+       * Patch ID, from dotaconstants
+       */
+      patch?: number;
+      /**
+       * Fields to project (array)
+       */
+      project?: string;
+      /**
+       * Region ID
+       */
+      region?: number;
+      /**
+       * Whether the match was significant for aggregation purposes. Defaults to 1 (true), set
+       * this to 0 to return data for non-standard modes/matches.
+       */
+      significant?: number;
+      /**
+       * The field to return matches sorted by in descending order
+       */
+      sort?: string;
+      /**
+       * Whether the player won
+       */
+      win?: number;
+      /**
+       * Hero IDs on the player's team (array)
+       */
+      with_hero_id?: number;
+    };
   }
 }
 // response 传输对象类型
@@ -185,6 +266,82 @@ declare namespace DTOs {
        * similarity
        */
       similarity?: number;
+    };
+
+    /** 查询玩家比赛数据 - 好像是简易版 */
+    type PlayerMatches = {
+      /**
+       * Total assists the player had at the end of the game
+       */
+      assists?: number;
+      /**
+       * Average rank of players with public match data
+       */
+      average_rank?: number | null;
+      /**
+       * Total deaths the player had at the end of the game
+       */
+      deaths?: number;
+      /**
+       * Duration of the game in seconds
+       */
+      duration?: number;
+      /**
+       * Integer corresponding to game mode played. List of constants can be found here:
+       * https://github.com/odota/dotaconstants/blob/master/json/game_mode.json
+       */
+      game_mode?: number;
+      /**
+       * The ID value of the hero played
+       */
+      hero_id?: number;
+      /**
+       * 1-indexed facet, see
+       * https://github.com/odota/dotaconstants/blob/master/build/hero_abilities.json
+       */
+      hero_variant?: number;
+      /**
+       * Total kills the player had at the end of the game
+       */
+      kills?: number;
+      /**
+       * Integer describing whether or not the player left the game. 0: didn't leave. 1: left
+       * safely. 2+: Abandoned
+       */
+      leaver_status?: number;
+      /**
+       * Integer corresponding to lobby type of match. List of constants can be found here:
+       * https://github.com/odota/dotaconstants/blob/master/json/lobby_type.json
+       */
+      lobby_type?: number;
+      /**
+       * The ID number of the match assigned by Valve
+       */
+      match_id?: number;
+      /**
+       * Size of the player's party
+       */
+      party_size?: number | null;
+      /**
+       * Which slot the player is in. 0-127 are Radiant, 128-255 are Dire
+       */
+      player_slot?: number | null;
+      /**
+       * Boolean indicating whether Radiant won the match
+       */
+      radiant_win?: boolean | null;
+      /**
+       * Skill bracket assigned by Valve (Normal, High, Very High)
+       */
+      skill?: number | null;
+      /**
+       * The Unix timestamp at which the game started
+       */
+      start_time?: number;
+      /**
+       * version
+       */
+      version?: number | null;
     };
   }
 }
