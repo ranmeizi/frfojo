@@ -99,6 +99,13 @@ const Search: FC<SearchProps> = (props) => {
           >
             小连接
           </a>
+          <a
+            onClick={() => {
+              navigate("/ffj/profile/137129583");
+            }}
+          >
+            看看你的
+          </a>
         </div>
       </Root>
     </LayoutMenu>

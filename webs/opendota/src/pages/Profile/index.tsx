@@ -4,6 +4,7 @@ import { LayoutMenu } from "@frfojo/components/layout";
 import LogoMenu from "@/components/LogoMenu";
 import NavBar from "@/components/NavBar";
 import { useParams } from "react-router-dom";
+import LastMonthHeatMap from "./components/LastMonthHeatmap";
 
 const Root = styled("div")(({ theme }) => ({}));
 
@@ -15,10 +16,15 @@ const Profile: FC<ProfileProps> = (props) => {
   console.log("kanwo yixia,", params);
 
   const sidebar = <SideSkeleton />;
+  // const sidebar = <LastMonthHeatMap account_id={Number(params.account_id)} />;
 
   return (
     <LayoutMenu logo={<LogoMenu />} header={<NavBar />} sidebar={sidebar}>
-      <Root>Component Profile</Root>
+      <Root>
+        <Box sx={{ width: "500px", padding: "24px", background: "#111" }}>
+          <LastMonthHeatMap account_id={Number(params.account_id)} />
+        </Box>
+      </Root>
     </LayoutMenu>
   );
 };
@@ -26,6 +32,7 @@ const Profile: FC<ProfileProps> = (props) => {
 export default Profile;
 
 function SideSkeleton() {
+  const params = useParams<{ account_id: string }>();
   return (
     <Box sx={{ padding: "20px" }}>
       <Skeleton variant="rounded" width={195} height={195} />
@@ -51,6 +58,9 @@ function SideSkeleton() {
         </Box>
       </Box>
       <Divider sx={{ margin: "4px 0" }} />
+      <Box sx={{ marginTop: "8px" }}>
+        <LastMonthHeatMap account_id={Number(params.account_id)} />
+      </Box>
     </Box>
   );
 }

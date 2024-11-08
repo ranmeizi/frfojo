@@ -2,37 +2,95 @@
 import {
   FC,
   PropsWithChildren,
+  ReactNode,
   useEffect,
   useMemo,
   useRef,
   useState,
 } from "react";
-import { Box, styled } from "@mui/material";
+import { Box, BoxProps, styled, Tooltip } from "@mui/material";
 import dayjs from "dayjs";
 import useRefState from "@frfojo/common/hooks/useRefState";
+import localeData from "dayjs/plugin/localeData";
 
+dayjs.extend(localeData);
+/** gap 倍率 */
 const GAP_K = 4;
 
-const Root = styled("div")<{ width: number }>(({ theme, width }) => {
-  const gap = Math.floor(width / GAP_K);
-  return {
-    width: "100%",
-    display: "flex",
-    gap,
+const Root = styled("div")<{ width: number; xAxis: boolean; yAxis: boolean }>(
+  ({ theme, width, xAxis, yAxis }) => {
+    const gap = Math.floor(width / GAP_K);
 
-    ".heatmap-col": {
+    const cssYAxis = yAxis
+      ? {
+          ".heatmap-col:first-child": {
+            ".heatmap-item": {
+              position: "relative",
+              display: "flex",
+              alignItems: "center",
+            },
+
+            // 第二个 标 Mon day =1
+            ".heatmap-item:nth-child(2)": {
+              "&::before": {
+                position: "absolute",
+                content: '"Mon"',
+                fontSize: "10px",
+                left: "-24px",
+              },
+            },
+            // 第4个 标 Wed day =3
+            ".heatmap-item:nth-child(4)": {
+              "&::before": {
+                position: "absolute",
+                content: '"Wed"',
+                fontSize: "10px",
+                left: "-24px",
+              },
+            },
+
+            // 第6个 标 Fri day =5
+            ".heatmap-item:nth-child(6)": {
+              "&::before": {
+                position: "absolute",
+                content: '"Fri"',
+                fontSize: "10px",
+                left: "-24px",
+              },
+            },
+          },
+        }
+      : {};
+
+    return {
+      width: "100%",
       display: "flex",
-      flexDirection: "column",
-      gap,
-    },
+      justifyContent: "center",
+      // 给坐标轴让出空间
+      paddingTop: xAxis ? "18px" : "",
+      paddingLeft: yAxis ? "24px" : "",
 
-    ".heatmap-item": {
-      height: width + "px",
-      width: width + "px",
-      borderRadius: "2px",
-    },
-  };
-});
+      ".heatmap-chart-container": {
+        display: "flex",
+        gap,
+        flex: 1,
+      },
+
+      ".heatmap-col": {
+        display: "flex",
+        flexDirection: "column",
+        gap,
+      },
+
+      ".heatmap-item": {
+        height: width + "px",
+        width: width + "px",
+        borderRadius: "2px",
+      },
+      ...cssYAxis,
+    };
+  }
+);
 
 type SizeProps = {
   size?: "small" | "middle" | "large";
@@ -44,8 +102,11 @@ export type ItemData = {
   payload: any;
 };
 
-type ChartProps = {
+export type ChartProps = {
   values: ItemData[];
+  xAxis?: boolean; // 显示 X 轴月份
+  yAxis?: boolean; // 显示 Y 轴周
+  renderTooltip?: (item: ItemData) => ReactNode;
 } & SizeProps;
 
 export enum EnumItemType {
@@ -66,13 +127,19 @@ export const colors = {
   [EnumItemType.假的]: "linear-gradient(to right, #cccccc, #eeeeee)", // 在数据 start - end 之外的格子，就是 L9 空数据
 };
 
-const sizes = {
+export const sizes = {
   small: 12,
   middle: 18,
   large: 24,
 };
 
-const Chart: FC<ChartProps> = ({ size = "small", values = [] }) => {
+const Chart: FC<ChartProps> = ({
+  size = "small",
+  values = [],
+  xAxis = false,
+  yAxis = false,
+  renderTooltip,
+}) => {
   const Grid = useGridData({ size });
   const width = sizes[size];
 
@@ -92,11 +159,12 @@ const Chart: FC<ChartProps> = ({ size = "small", values = [] }) => {
     //   init();
     // }, 50);
   }, []);
+  console.log("看一眼", Grid.dateIndex);
 
   // 分段
   const range = useMemo(() => {
     if (values.length === 0) {
-      return [0, 0, 0, 0] as const;
+      return [0, 0, 0, 0, 0] as const;
     }
 
     const max = Math.max(...values.map((item) => item.value));
@@ -111,17 +179,46 @@ const Chart: FC<ChartProps> = ({ size = "small", values = [] }) => {
   }, [values]);
 
   return (
-    <Root width={width} ref={el}>
-      {Grid.grid
-        ? Grid.grid.map((col) => (
-            <WeekCol>
-              {col.map((item) => {
-                // 使用最大值判断类型
-                return <Item range={range} item={item} />;
-              })}
-            </WeekCol>
-          ))
-        : null}
+    <Root width={width} xAxis={xAxis} yAxis={yAxis}>
+      <Box className="heatmap-chart-container" ref={el}>
+        {Grid.grid
+          ? Grid.grid.map((col) => (
+              <WeekCol>
+                {col.map((item) => {
+                  const [_, rIndex] = Grid.dateIndex[item.date] || [];
+                  // 如果是 row === 0 ，并且 取到的 date <= 7 (1~7) 前 7 天
+                  const d = dayjs(item.date);
+                  const isTheFirstCol = rIndex === 0 && d.date() <= 7;
+
+                  return isTheFirstCol ? (
+                    <Item
+                      range={range}
+                      item={item}
+                      renderTooltip={renderTooltip}
+                      sx={() => {
+                        return {
+                          position: "relative",
+                          "&:before": {
+                            position: "absolute",
+                            top: "-14px",
+                            content: `"${dayjs.monthsShort()[d.month()]}"`,
+                            fontSize: "10px",
+                          },
+                        };
+                      }}
+                    />
+                  ) : (
+                    <Item
+                      range={range}
+                      item={item}
+                      renderTooltip={renderTooltip}
+                    />
+                  );
+                })}
+              </WeekCol>
+            ))
+          : null}
+      </Box>
     </Root>
   );
 };
@@ -133,9 +230,10 @@ export function WeekCol({ children }: PropsWithChildren) {
 type ItemProps = {
   range: readonly [0, number, number, number, number];
   item: ItemData;
-};
+  renderTooltip?: (item: ItemData) => ReactNode;
+} & BoxProps;
 
-export function Item({ range, item }: ItemProps) {
+export function Item({ range, item, renderTooltip, ...props }: ItemProps) {
   const type = useMemo(() => {
     const value = item.value;
 
@@ -163,11 +261,17 @@ export function Item({ range, item }: ItemProps) {
     return EnumItemType.假的;
   }, [range, item]);
 
-  console.log("item", item, "type", type);
-
   const color = colors[type];
-
-  return <Box className="heatmap-item" sx={{ background: color }} />;
+  console.log("???", item);
+  return (
+    <Box className="heatmap-item" bgcolor={color} {...props}>
+      {renderTooltip ? (
+        <Tooltip title={renderTooltip(item)} placement="top" enterDelay={0}>
+          <Box sx={{ height: "100%", width: "100%" }}></Box>
+        </Tooltip>
+      ) : null}
+    </Box>
+  );
 }
 
 export default Chart;
@@ -193,8 +297,6 @@ function useGridData({ size = "small" }: SizeProps) {
   function init(maxWidth: number) {
     const width = sizes[size];
     const gap = Math.floor(width / GAP_K);
-
-    console.log("maxWidth", maxWidth);
 
     if (!maxWidth) {
       return;
@@ -233,6 +335,7 @@ function useGridData({ size = "small" }: SizeProps) {
 
       const dateString = date.format("YYYY-MM-DD");
 
+      console.log("dateString", dateString);
       const col = Math.floor(i / 7);
       const row = i % 7;
 
