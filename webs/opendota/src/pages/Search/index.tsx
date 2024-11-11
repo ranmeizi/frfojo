@@ -7,7 +7,7 @@ import LogoMenu from "@/components/LogoMenu";
 import Avatar from "@/components/Widgets/Avatar";
 import RankItem from "@/components/Widgets/Rank";
 import { useNavigate } from "react-router-dom";
-import HeatMapChart, { ItemData } from "@/components/HeatMap/chart";
+import HeatMapChart, { ItemData } from "@/components/HeatMap/Chart";
 import dayjs from "dayjs";
 
 const Root = styled("div")(({ theme }) => ({}));
