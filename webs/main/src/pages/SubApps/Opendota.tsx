@@ -22,7 +22,7 @@ const Opendota: FC<OpendotaProps> = (props) => {
 
     const app = await Garfish.loadApp("sub-opendota-app", {
       domGetter: selector,
-      entry: `http://${location.hostname}:5181`,
+      entry: `http://${location.hostname}:5081`,
       sandbox: false,
       props: {
         width: rect?.width,
