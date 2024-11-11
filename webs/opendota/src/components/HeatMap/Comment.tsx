@@ -1,6 +1,6 @@
 import { FC, ReactNode } from "react";
 import { Box, styled } from "@mui/material";
-import { Item, sizes } from "./chart";
+import { Item, sizes } from "./Chart";
 
 const Root = styled("div")<{ width: number }>(({ theme, width }) => ({
   display: "flex",
