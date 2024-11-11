@@ -2,6 +2,7 @@
 import { FC, useCallback, useMemo, useState } from "react";
 import {
   Box,
+  Skeleton,
   styled,
   ToggleButton,
   ToggleButtonGroup,
@@ -25,7 +26,7 @@ type LastMonthHeatMapProps = {
 const LastMonthHeatMap: FC<LastMonthHeatMapProps> = ({ account_id }) => {
   const { data, isFetching } = opendotaApi.usePlayerMatchesQuery({
     account_id,
-    date: 90, // 搜3个月的
+    date: 365, // 搜3个月的
     significant: 0,
   });
 
@@ -167,7 +168,7 @@ function isMatchWin(match: RowItem) {
 }
 
 function MySkeleton() {
-  return <Box sx={{ padding: "20px" }}></Box>;
+  return <Skeleton sx={{ height: "120px" }}></Skeleton>;
 }
 
 export default LastMonthHeatMap;

@@ -262,7 +262,7 @@ export function Item({ range, item, renderTooltip, ...props }: ItemProps) {
   }, [range, item]);
 
   const color = colors[type];
-  console.log("???", item);
+
   return (
     <Box className="heatmap-item" bgcolor={color} {...props}>
       {renderTooltip ? (

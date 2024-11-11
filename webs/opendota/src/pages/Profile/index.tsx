@@ -34,33 +34,37 @@ export default Profile;
 function SideSkeleton() {
   const params = useParams<{ account_id: string }>();
   return (
-    <Box sx={{ padding: "20px" }}>
-      <Skeleton variant="rounded" width={195} height={195} />
-      {/* 名字 */}
-      <Box sx={{ display: "flex", justifyContent: "space-between", mt: "8px" }}>
-        <Skeleton variant="text" width={140} sx={{ fontSize: "24px" }} />
-        <Skeleton variant="text" width={30} sx={{ fontSize: "24px" }} />
+    <>
+      <Box sx={{ padding: "20px" }}>
+        <Skeleton variant="rounded" width={195} height={195} />
+        {/* 名字 */}
+        <Box
+          sx={{ display: "flex", justifyContent: "space-between", mt: "8px" }}
+        >
+          <Skeleton variant="text" width={140} sx={{ fontSize: "24px" }} />
+          <Skeleton variant="text" width={30} sx={{ fontSize: "24px" }} />
+        </Box>
+        <Divider sx={{ margin: "4px 0" }} />
+        {/* 胜率 */}
+        <Box sx={{ display: "flex", justifyContent: "space-around" }}>
+          <Box>
+            <Skeleton variant="text" width={60} sx={{ fontSize: "24px" }} />
+            <Skeleton variant="text" width={60} sx={{ fontSize: "24px" }} />
+          </Box>
+          <Box>
+            <Skeleton variant="text" width={60} sx={{ fontSize: "24px" }} />
+            <Skeleton variant="text" width={60} sx={{ fontSize: "24px" }} />
+          </Box>
+          <Box>
+            <Skeleton variant="text" width={60} sx={{ fontSize: "24px" }} />
+            <Skeleton variant="text" width={60} sx={{ fontSize: "24px" }} />
+          </Box>
+        </Box>
+        <Divider sx={{ margin: "4px 0" }} />
       </Box>
-      <Divider sx={{ margin: "4px 0" }} />
-      {/* 胜率 */}
-      <Box sx={{ display: "flex", justifyContent: "space-around" }}>
-        <Box>
-          <Skeleton variant="text" width={60} sx={{ fontSize: "24px" }} />
-          <Skeleton variant="text" width={60} sx={{ fontSize: "24px" }} />
-        </Box>
-        <Box>
-          <Skeleton variant="text" width={60} sx={{ fontSize: "24px" }} />
-          <Skeleton variant="text" width={60} sx={{ fontSize: "24px" }} />
-        </Box>
-        <Box>
-          <Skeleton variant="text" width={60} sx={{ fontSize: "24px" }} />
-          <Skeleton variant="text" width={60} sx={{ fontSize: "24px" }} />
-        </Box>
-      </Box>
-      <Divider sx={{ margin: "4px 0" }} />
-      <Box sx={{ marginTop: "8px" }}>
+      <Box sx={{ padding: "8px", background: "#111" }}>
         <LastMonthHeatMap account_id={Number(params.account_id)} />
       </Box>
-    </Box>
+    </>
   );
 }
