@@ -1,4 +1,4 @@
-import HeatMapChart from "./chart";
+import HeatMapChart from "./Chart";
 import HeatMapComment from "./Comment";
 
 export { HeatMapChart, HeatMapComment };
