@@ -8,7 +8,7 @@ import {
   ToggleButtonGroup,
   Typography,
 } from "@mui/material";
-import HeatMapChart, { ItemData, ChartProps } from "@/components/HeatMap/chart";
+import HeatMapChart, { ItemData, ChartProps } from "@/components/HeatMap/Chart";
 import { opendotaApi } from "@/redux/queryApis/opendota";
 import dayjs from "dayjs";
 import { HeatMapComment } from "@/components/HeatMap";
