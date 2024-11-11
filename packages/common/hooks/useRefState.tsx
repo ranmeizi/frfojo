@@ -4,7 +4,7 @@ export default function useRefState<T>(initialValue?: T) {
   const [v, setV] = useState<T | undefined>(initialValue);
   const refV = useRef(initialValue);
 
-  const set: typeof setV = function (v: T) {
+  const set = function (v: T) {
     refV.current = v;
     setV(v);
   };

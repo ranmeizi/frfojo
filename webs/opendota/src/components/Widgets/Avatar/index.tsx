@@ -1,10 +1,10 @@
-import { FC, useMemo } from "react";
+import { FC } from "react";
 import { styled } from "@mui/material";
 import BorderNormal from "./borders/Normal";
 import BorderGolden from "./borders/Golden";
 import BorderSilver from "./borders/Silver";
 
-const Root = styled("div")<{ avatar: string }>(({ theme, avatar }) => ({
+const Root = styled("div")<{ avatar: string }>(({ avatar }) => ({
   width: "100%",
   paddingTop: "100%",
   boxSizing: "border-box",

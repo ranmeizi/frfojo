@@ -11,7 +11,7 @@ const Root = styled("div")(({ theme }) => ({
 
 type SearchBarProps = {};
 
-const SearchBar: FC<SearchBarProps> = (props) => {
+const SearchBar: FC<SearchBarProps> = () => {
   return (
     <Root>
       <InputBase

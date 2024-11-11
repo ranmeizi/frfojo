@@ -1,20 +1,18 @@
-import React, { FC, useMemo, useState } from "react";
+import { FC, useMemo, useState } from "react";
 import { Box, Button, styled, Switch, TextField } from "@mui/material";
 import { opendotaApi } from "@/redux/queryApis/opendota";
 import { LayoutMenu } from "@frfojo/components/layout";
 import NavBar from "@/components/NavBar";
 import LogoMenu from "@/components/LogoMenu";
-import Avatar from "@/components/Widgets/Avatar";
-import RankItem from "@/components/Widgets/Rank";
 import { useNavigate } from "react-router-dom";
 import HeatMapChart, { ItemData } from "@/components/HeatMap/Chart";
 import dayjs from "dayjs";
 
-const Root = styled("div")(({ theme }) => ({}));
+const Root = styled("div")(() => ({}));
 
 type SearchProps = {};
 
-const Search: FC<SearchProps> = (props) => {
+const Search: FC<SearchProps> = () => {
   const navigate = useNavigate();
   // const { data, refetch } = useGetConstantsHeroesQuery();
 
@@ -27,7 +25,7 @@ const Search: FC<SearchProps> = (props) => {
   const values = useMemo<ItemData[]>(() => {
     const memo: Record<string, ItemData> = {};
     data?.forEach((item) => {
-      const date = dayjs(item.start_time * 1000).format("YYYY-MM-DD");
+      const date = dayjs((item?.start_time || 0) * 1000).format("YYYY-MM-DD");
       if (!memo[date]) {
         memo[date] = {
           date,

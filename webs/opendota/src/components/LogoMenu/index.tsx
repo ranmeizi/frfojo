@@ -16,7 +16,7 @@ import { useSelector } from "react-redux";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import CloseIcon from "@mui/icons-material/Close";
 
-const Root = styled("div")(({ theme }) => ({
+const Root = styled("div")(() => ({
   height: "100%",
   width: "100%",
   display: "flex",
@@ -37,7 +37,7 @@ const Root = styled("div")(({ theme }) => ({
 
 type LogoMenuProps = {};
 
-const LogoMenu: FC<LogoMenuProps> = (props) => {
+const LogoMenu: FC<LogoMenuProps> = () => {
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
 
   // 用户数据
@@ -50,7 +50,6 @@ const LogoMenu: FC<LogoMenuProps> = (props) => {
 
   const handleSetAccount = (event: React.MouseEvent<HTMLElement>) => {
     console.log(event);
-    alert(index);
     setAnchorEl(null);
   };
 
@@ -58,7 +57,7 @@ const LogoMenu: FC<LogoMenuProps> = (props) => {
     setAnchorEl(null);
   };
 
-  console.log("userState", userState);
+  console.log("userState", userState, handleSetAccount);
 
   return (
     <Root>
@@ -113,14 +112,16 @@ function InnerMenu({ onClose }: InnerMenuProps) {
 
   const hasAccount = userState.accountId;
 
+  console.log(onClose);
+
   return (
     <>
-      <MenuItem onClick={(event) => {}}>数据来源opdndota</MenuItem>
+      <MenuItem onClick={() => {}}>数据来源opdndota</MenuItem>
       <Divider />
       {hasAccount ? (
-        <MenuItem onClick={(event) => {}}>Set AccountId</MenuItem>
+        <MenuItem onClick={() => {}}>Set AccountId</MenuItem>
       ) : (
-        <MenuItem onClick={(event) => {}}>Change AccountId</MenuItem>
+        <MenuItem onClick={() => {}}>Change AccountId</MenuItem>
       )}
     </>
   );

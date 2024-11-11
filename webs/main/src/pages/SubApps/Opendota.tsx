@@ -3,7 +3,7 @@ import { FC, useEffect } from "react";
 import { styled } from "@mui/material";
 import Garfish from "garfish";
 
-const Root = styled("div")(({ theme }) => ({
+const Root = styled("div")(() => ({
   position: "relative",
   height: "100%",
   width: "100%",
@@ -11,7 +11,7 @@ const Root = styled("div")(({ theme }) => ({
 
 type OpendotaProps = {};
 
-const Opendota: FC<OpendotaProps> = (props) => {
+const Opendota: FC<OpendotaProps> = () => {
   useEffect(() => {
     init();
   }, []);

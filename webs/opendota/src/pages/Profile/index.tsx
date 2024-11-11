@@ -6,11 +6,11 @@ import NavBar from "@/components/NavBar";
 import { useParams } from "react-router-dom";
 import LastMonthHeatMap from "./components/LastMonthHeatmap";
 
-const Root = styled("div")(({ theme }) => ({}));
+const Root = styled("div")(() => ({}));
 
 type ProfileProps = {};
 
-const Profile: FC<ProfileProps> = (props) => {
+const Profile: FC<ProfileProps> = () => {
   const params = useParams<{ account_id: string }>();
 
   console.log("kanwo yixia,", params);

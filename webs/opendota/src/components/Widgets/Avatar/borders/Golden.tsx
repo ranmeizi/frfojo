@@ -7,7 +7,7 @@ const rotate = keyframes({
   },
 });
 
-const Root = styled("div")(({ theme }) => ({
+const Root = styled("div")(() => ({
   padding: "6px",
   position: "relative",
   zIndex: 0,

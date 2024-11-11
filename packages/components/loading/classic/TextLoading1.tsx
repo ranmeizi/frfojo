@@ -1,4 +1,4 @@
-import React, { FC } from "react";
+import { FC } from "react";
 import { keyframes, styled } from "@mui/material";
 
 const Root = styled("div")(({ theme }) => {

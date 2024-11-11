@@ -15,7 +15,7 @@ import { HeatMapComment } from "@/components/HeatMap";
 
 type RowItem = DTOs.Opendota.PlayerMatches;
 
-const Root = styled("div")(({ theme }) => ({
+const Root = styled("div")(() => ({
   width: "100%",
 }));
 
@@ -124,7 +124,7 @@ function useClassToggle() {
       color="primary"
       value={type}
       exclusive
-      onChange={(e, v) => setType(v)}
+      onChange={(_, v) => setType(v)}
       aria-label="Platform"
     >
       <ToggleButton value="frequency">Freq</ToggleButton>

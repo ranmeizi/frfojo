@@ -30,7 +30,7 @@ const navList = [
 
 type NavBarProps = {};
 
-const NavBar: FC<NavBarProps> = (props) => {
+const NavBar: FC<NavBarProps> = () => {
   const navigate = useNavigate();
 
   return (

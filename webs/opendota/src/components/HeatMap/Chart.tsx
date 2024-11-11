@@ -18,7 +18,7 @@ dayjs.extend(localeData);
 const GAP_K = 4;
 
 const Root = styled("div")<{ width: number; xAxis: boolean; yAxis: boolean }>(
-  ({ theme, width, xAxis, yAxis }) => {
+  ({ width, xAxis, yAxis }) => {
     const gap = Math.floor(width / GAP_K);
 
     const cssYAxis = yAxis

@@ -2,7 +2,6 @@ import { combineReducers, configureStore } from "@reduxjs/toolkit";
 import storage from "redux-persist-indexeddb-storage";
 import { persistReducer, persistStore } from "redux-persist";
 import { opendotaApi } from "./queryApis/opendota";
-import { sleep } from "@frfojo/common";
 import userMemoSlice from "./slices/UserMemo";
 
 const persistConfig = {

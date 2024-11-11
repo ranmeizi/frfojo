@@ -1,8 +1,7 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { createRoot } from "react-dom/client";
 import App, { SubApp } from "./App.tsx";
 import "./index.css";
-import { AsyncProcess, sleep } from "@frfojo/common/utils/delay.ts";
+import { AsyncProcess } from "@frfojo/common/utils/delay.ts";
 import { initialize as initializeStore } from "./redux/store.ts";
 import { reactBridge } from "@garfish/bridge-react-v18";
 import { Box } from "@mui/material";
@@ -32,5 +31,5 @@ function renderApp() {
 export const provider = reactBridge({
   el: "#root",
   rootComponent: SubApp,
-  errorBoundary: (e: any) => <Box>有问题</Box>,
+  errorBoundary: () => <Box>有问题</Box>,
 });

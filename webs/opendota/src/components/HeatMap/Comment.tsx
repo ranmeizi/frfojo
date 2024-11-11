@@ -2,7 +2,7 @@ import { FC, ReactNode } from "react";
 import { Box, styled } from "@mui/material";
 import { Item, sizes } from "./Chart";
 
-const Root = styled("div")<{ width: number }>(({ theme, width }) => ({
+const Root = styled("div")<{ width: number }>(({ width }) => ({
   display: "flex",
   alignItems: "center",
   gap: "4px",
