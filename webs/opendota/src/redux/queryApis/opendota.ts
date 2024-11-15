@@ -64,7 +64,7 @@ export const opendotaApi = createApi({
     }),
 
     /**
-     *
+     * 查询玩家比赛数据
      */
     playerMatches: builder.query<
       DTOs.Opendota.PlayerMatches[],

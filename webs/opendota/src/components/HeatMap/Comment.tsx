@@ -20,25 +20,47 @@ type CommentProps = {
   lessText?: ReactNode;
   moreText?: ReactNode;
   emptyText?: ReactNode;
+  colors: any;
 };
 
-const range = [0, 2, 4, 6, 8] as const;
+const range = [0, 1 / 4, 2 / 4, 3 / 4, 1] as const;
 
 const Comment: FC<CommentProps> = ({
   size = "small",
   lessText = "Less",
   moreText = "More",
+  colors,
 }) => {
   const width = sizes[size];
   return (
     <Root width={width}>
       <Box>{lessText}</Box>
       <Box sx={{ display: "flex", gap: "3px" }}>
-        <Item range={range} item={{ date: "", value: 1, payload: undefined }} />
-        <Item range={range} item={{ date: "", value: 3, payload: undefined }} />
-        <Item range={range} item={{ date: "", value: 5, payload: undefined }} />
-        <Item range={range} item={{ date: "", value: 7, payload: undefined }} />
-        <Item range={range} item={{ date: "", value: 8, payload: undefined }} />
+        <Item
+          range={range}
+          colors={colors}
+          item={{ date: "", value: 0, payload: undefined }}
+        />
+        <Item
+          range={range}
+          colors={colors}
+          item={{ date: "", value: 0.25, payload: undefined }}
+        />
+        <Item
+          range={range}
+          colors={colors}
+          item={{ date: "", value: 0.5, payload: undefined }}
+        />
+        <Item
+          range={range}
+          colors={colors}
+          item={{ date: "", value: 0.75, payload: undefined }}
+        />
+        <Item
+          range={range}
+          colors={colors}
+          item={{ date: "", value: 1, payload: undefined }}
+        />
       </Box>
       <Box>{moreText}</Box>
     </Root>

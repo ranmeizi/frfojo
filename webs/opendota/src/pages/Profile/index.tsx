@@ -22,7 +22,11 @@ const Profile: FC<ProfileProps> = () => {
     <LayoutMenu logo={<LogoMenu />} header={<NavBar />} sidebar={sidebar}>
       <Root>
         <Box sx={{ width: "500px", padding: "24px", background: "#111" }}>
-          <LastMonthHeatMap account_id={Number(params.account_id)} />
+          <LastMonthHeatMap
+            xAxis
+            yAxis
+            account_id={Number(params.account_id)}
+          />
         </Box>
       </Root>
     </LayoutMenu>
@@ -62,7 +66,7 @@ function SideSkeleton() {
         </Box>
         <Divider sx={{ margin: "4px 0" }} />
       </Box>
-      <Box sx={{ padding: "8px", background: "#111" }}>
+      <Box sx={{ padding: "8px", background: "#111", minHeight: "185px" }}>
         <LastMonthHeatMap account_id={Number(params.account_id)} />
       </Box>
     </>

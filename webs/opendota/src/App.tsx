@@ -57,8 +57,8 @@ const withInitGuard: HOC_Expand<any> = (Component) => (props) => {
 
 export const SubApp = withInitGuard(function () {
   const theme = useAppTheme();
-  const [height, setHeight] = useState(0);
-  const [width, setWidth] = useState(0);
+  const [height, setHeight] = useState(window.innerHeight);
+  const [width, setWidth] = useState(window.innerWidth - 70);
 
   useEffect(() => {
     function onResize() {

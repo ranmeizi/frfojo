@@ -75,10 +75,6 @@ const Search: FC<SearchProps> = () => {
           <Box sx={{ width: "100%", transform: "translate(140px,-40px)" }}>
             <RankItem rank_tier={72}></RankItem>
           </Box> */}
-
-          <Box sx={{ width: "100%" }}>
-            {values ? <HeatMapChart values={values} /> : null}
-          </Box>
         </Box>
       }
       logo={<LogoMenu />}

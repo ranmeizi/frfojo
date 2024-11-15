@@ -1,6 +1,7 @@
 // 这个组件去取数据， 传给 heatmap 组件 heatmap 负责样式
-import { FC, useCallback, useMemo, useState } from "react";
+import { FC, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
+  alpha,
   Box,
   Skeleton,
   styled,
@@ -8,10 +9,17 @@ import {
   ToggleButtonGroup,
   Typography,
 } from "@mui/material";
-import HeatMapChart, { ItemData, ChartProps } from "@/components/HeatMap/Chart";
+import HeatMapChart, {
+  ItemData,
+  ChartProps,
+  RefType,
+  default_colors,
+  EnumItemType,
+} from "@/components/HeatMap/Chart";
 import { opendotaApi } from "@/redux/queryApis/opendota";
 import dayjs from "dayjs";
 import { HeatMapComment } from "@/components/HeatMap";
+import { green, orange, red, yellow } from "@mui/material/colors";
 
 type RowItem = DTOs.Opendota.PlayerMatches;
 
@@ -21,18 +29,24 @@ const Root = styled("div")(() => ({
 
 type LastMonthHeatMapProps = {
   account_id: number;
-};
+} & Omit<ChartProps, "values">;
 
-const LastMonthHeatMap: FC<LastMonthHeatMapProps> = ({ account_id }) => {
-  const { data, isFetching } = opendotaApi.usePlayerMatchesQuery({
+const LastMonthHeatMap: FC<LastMonthHeatMapProps> = ({
+  account_id,
+  ...chartProps
+}) => {
+  const [loading, setLoading] = useState(true);
+  const { data } = opendotaApi.usePlayerMatchesQuery({
     account_id,
     date: 365, // 搜3个月的
     significant: 0,
   });
 
+  const chartRef = useRef<RefType>(null);
+
   const ChartToogle = useClassToggle();
 
-  const values = useMemo<ItemData[]>(() => {
+  useEffect(() => {
     const memo: Record<string, RowItem[]> = {};
     data?.forEach((item) => {
       const date = dayjs(item.start_time! * 1000).format("YYYY-MM-DD");
@@ -43,11 +57,15 @@ const LastMonthHeatMap: FC<LastMonthHeatMapProps> = ({ account_id }) => {
       }
     });
 
-    return Object.entries(memo).map(([date, matches]) => ({
+    const values = Object.entries(memo).map(([date, matches]) => ({
       date,
       value: ChartToogle.calcValue(matches),
       payload: matches,
     }));
+
+    // 更新数据
+    chartRef.current?.setData(values);
+    setLoading(false);
   }, [data, ChartToogle.calcValue]);
 
   const renderTooltip: ChartProps["renderTooltip"] = (item) => {
@@ -57,62 +75,75 @@ const LastMonthHeatMap: FC<LastMonthHeatMapProps> = ({ account_id }) => {
     const unit = d === 1 ? "st" : d === 2 ? "nd" : d === 3 ? "rd" : "th";
     const matches = item.payload || [];
 
-    if (ChartToogle.type === "frequency") {
-      return `${matches.length} matches on ${m} ${d}${unit}.`;
-    } else {
-      const win_matches = matches.filter(isMatchWin);
+    const win_matches = matches.filter(isMatchWin);
 
-      return (
-        <Box>
-          <Box>{`${matches.length} matches on ${m} ${d}${unit}.`}</Box>
-          <Box>win: {win_matches.length}</Box>
-          <Box>lose: {matches.length}</Box>
+    return (
+      <Box>
+        <Box>{`${matches.length} matches on ${m} ${d}${unit}.`}</Box>
+        <Box display="flex" alignItems="baseline" justifyContent="center">
+          <Typography sx={{ color: green["700"] }}>
+            {win_matches.length}
+          </Typography>
+          <Typography sx={{ margin: "0 8px" }}>-</Typography>
+          <Typography sx={{ color: red["700"] }}>
+            {matches.length - win_matches.length}
+          </Typography>
         </Box>
-      );
-    }
+      </Box>
+    );
   };
 
   return (
     <Root>
-      {isFetching ? (
-        <MySkeleton />
-      ) : (
-        <Box>
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              marginBottom: "8px",
-              ".MuiButtonBase-root": {
-                padding: "2px 8px",
-                fontSize: "10px",
-              },
-            }}
-          >
-            <Typography variant="h6">Activity</Typography>
-            <Box>{ChartToogle.button}</Box>
-          </Box>
-
-          <HeatMapChart
-            xAxis
-            yAxis
-            values={values}
-            renderTooltip={renderTooltip}
-          />
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "flex-end",
-              marginTop: "12px",
-            }}
-          >
-            <HeatMapComment />
-          </Box>
+      <Box>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            marginBottom: "8px",
+            ".MuiButtonBase-root": {
+              padding: "2px 8px",
+              fontSize: "10px",
+            },
+          }}
+        >
+          <Typography variant="h6">Activity</Typography>
+          <Box>{ChartToogle.button}</Box>
         </Box>
-      )}
+
+        <HeatMapChart
+          ref={chartRef}
+          renderTooltip={renderTooltip}
+          colors={ChartToogle.colors}
+          onCellClick={(item) => {
+            alert(
+              `Date:${item.date}, open a modal with ${item.payload.length} matches `
+            );
+          }}
+          {...chartProps}
+        />
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "flex-end",
+            marginTop: "12px",
+          }}
+        >
+          <HeatMapComment colors={ChartToogle.colors} />
+        </Box>
+      </Box>
     </Root>
   );
+};
+
+const a = 0.5;
+const win_colors = {
+  [EnumItemType["平平的"]]: alpha(red["900"], a), // 0~20
+  [EnumItemType["有一点"]]: alpha(orange["600"], a), // 40~60
+  [EnumItemType["有意思"]]: alpha(yellow["600"], a), // 60~80
+  [EnumItemType["卧槽了"]]: alpha(green["A400"], a), // 80%~100
+  [EnumItemType["假的"]]: "#161b22",
 };
 
 function useClassToggle() {
@@ -140,7 +171,7 @@ function useClassToggle() {
   function winrCalcValue(matches: RowItem[]) {
     const win_matches = matches.filter(isMatchWin);
 
-    return win_matches.length / matches.length;
+    return win_matches.length / matches.length + 0.01;
   }
 
   return {
@@ -148,6 +179,10 @@ function useClassToggle() {
     button,
     calcValue: useCallback(
       type === "frequency" ? freqCalcValue : winrCalcValue,
+      [type]
+    ),
+    colors: useMemo(
+      () => (type === "frequency" ? default_colors : win_colors),
       [type]
     ),
   };
@@ -165,10 +200,6 @@ function isMatchWin(match: RowItem) {
   }
   // item.player_slot
   return false;
-}
-
-function MySkeleton() {
-  return <Skeleton sx={{ height: "120px" }}></Skeleton>;
 }
 
 export default LastMonthHeatMap;
