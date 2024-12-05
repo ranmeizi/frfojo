@@ -6,7 +6,9 @@
     "dev": "pnpm -F main dev",
     "build": "pnpm -F main build",
     "dev:dota": "pnpm -F opendota dev",
-    "build:dota": "pnpm -F opendota build"
+    "build:dota": "pnpm -F opendota build",
+    "dev:tool": "pnpm -F bobo-tool dev",
+    "build:tool": "pnpm -F bobo-tool build"
   },
   "keywords": [],
   "author": "",

@@ -6,6 +6,7 @@ import IconMcDonalds from "@/assets/move-icons/mcdonalds.png";
 import IconReact from "@/assets/move-icons/react.png";
 import IconStarBucks from "@/assets/move-icons/starbucks.png";
 import IconVue from "@/assets/move-icons/vue.png";
+import IconBoboTool from "@/assets/move-icons/bobo-tool.png";
 
 const schema = {
   title: "app_menu",
@@ -56,6 +57,15 @@ const INIT_DATA: MenuDocType[] = [
     src: IconDota2,
     path: "/m/sub/opendota",
     tooltip: "Dota2战绩查询",
+  },
+  {
+    id: "bobo-tool",
+    parentId: undefined,
+    order: 1,
+    type: "item",
+    src: IconBoboTool,
+    path: "/m/sub/bobo-tool",
+    tooltip: "工具",
   },
   {
     id: "html",

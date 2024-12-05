@@ -5,6 +5,7 @@ import LogoMenu from "@/components/LogoMenu";
 import NavBar from "@/components/NavBar";
 import { useParams } from "react-router-dom";
 import LastMonthHeatMap from "./components/LastMonthHeatmap";
+import { opendotaApi } from "@/redux/queryApis/opendota";
 
 const Root = styled("div")(() => ({}));
 
@@ -13,7 +14,12 @@ type ProfileProps = {};
 const Profile: FC<ProfileProps> = () => {
   const params = useParams<{ account_id: string }>();
 
-  console.log("kanwo yixia,", params);
+  const { data } = opendotaApi.usePlayerQuery({
+    account_id: Number(params.account_id),
+  });
+
+  // 获取
+  console.log("kanwo yixia,", params, data);
 
   const sidebar = <SideSkeleton />;
   // const sidebar = <LastMonthHeatMap account_id={Number(params.account_id)} />;

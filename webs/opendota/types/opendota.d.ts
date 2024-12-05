@@ -85,6 +85,10 @@ declare namespace Params {
        */
       with_hero_id?: number;
     };
+
+    type Player = {
+      account_id: number;
+    };
   }
 }
 // response 传输对象类型
@@ -342,6 +346,87 @@ declare namespace DTOs {
        * version
        */
       version?: number | null;
+    };
+
+    /** 查询玩家 */
+    type Player = {
+      /**
+       * competitive_rank
+       */
+      competitive_rank?: number | null;
+      /**
+       * leaderboard_rank
+       */
+      leaderboard_rank?: number | null;
+      /**
+       * profile
+       */
+      profile?: {
+        /**
+         * The player account ID
+         */
+        account_id?: number;
+        /**
+         * avatar
+         */
+        avatar?: null | string;
+        /**
+         * avatarfull
+         */
+        avatarfull?: null | string;
+        /**
+         * avatarmedium
+         */
+        avatarmedium?: null | string;
+        /**
+         * cheese
+         */
+        cheese?: number | null;
+        /**
+         * Boolean indicating if the user contributed to the development of OpenDota
+         */
+        is_contributor?: boolean;
+        /**
+         * Boolean indicating if the user subscribed to OpenDota
+         */
+        is_subscriber?: boolean;
+        /**
+         * last_login
+         */
+        last_login?: null | string;
+        /**
+         * loccountrycode
+         */
+        loccountrycode?: null | string;
+        /**
+         * name
+         */
+        name?: null | string;
+        /**
+         * Player's Steam name
+         */
+        personaname?: null | string;
+        /**
+         * Boolean indicating status of current Dota Plus subscription
+         */
+        plus?: boolean;
+        /**
+         * profileurl
+         */
+        profileurl?: null | string;
+        /**
+         * steamid
+         */
+        steamid?: null | string;
+      };
+      /**
+       * rank_tier
+       */
+      rank_tier?: number | null;
+      /**
+       * solo_competitive_rank
+       */
+      solo_competitive_rank?: number | null;
     };
   }
 }

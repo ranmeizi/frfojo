@@ -35,10 +35,9 @@ const LastMonthHeatMap: FC<LastMonthHeatMapProps> = ({
   account_id,
   ...chartProps
 }) => {
-  const [loading, setLoading] = useState(true);
   const { data } = opendotaApi.usePlayerMatchesQuery({
     account_id,
-    date: 365, // 搜3个月的
+    date: 90, // 搜3个月的
     significant: 0,
   });
 
@@ -65,7 +64,6 @@ const LastMonthHeatMap: FC<LastMonthHeatMapProps> = ({
 
     // 更新数据
     chartRef.current?.setData(values);
-    setLoading(false);
   }, [data, ChartToogle.calcValue]);
 
   const renderTooltip: ChartProps["renderTooltip"] = (item) => {

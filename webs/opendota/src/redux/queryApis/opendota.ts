@@ -1,6 +1,9 @@
 // Import the RTK Query methods from the React-specific entry point
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
+const KEEP_FOREVER = Infinity;
+const KEEP_MINUTE = 60 * 30;
+
 // Define our single API slice object
 export const opendotaApi = createApi({
   reducerPath: "opendotaApi",
@@ -15,7 +18,7 @@ export const opendotaApi = createApi({
       void
     >({
       query: () => "/constants/heroes",
-      keepUnusedDataFor: Infinity,
+      keepUnusedDataFor: KEEP_FOREVER,
     }),
     /**
      * 查询常量 items 道具
@@ -25,14 +28,14 @@ export const opendotaApi = createApi({
       void
     >({
       query: () => "/constants/items",
-      keepUnusedDataFor: Infinity,
+      keepUnusedDataFor: KEEP_FOREVER,
     }),
     /**
      * 查询常量 item_ids 道具 id/name
      */
     constantsItemIds: builder.query<Record<string, string>, void>({
       query: () => "/constants/item_ids",
-      keepUnusedDataFor: Infinity,
+      keepUnusedDataFor: KEEP_FOREVER,
     }),
     /**
      * 查询常量 abilities 技能
@@ -42,14 +45,14 @@ export const opendotaApi = createApi({
       void
     >({
       query: () => "/constants/abilities",
-      keepUnusedDataFor: Infinity,
+      keepUnusedDataFor: KEEP_FOREVER,
     }),
     /**
      * 查询常量 ability_ids 技能 id/name
      */
     constantsAbilityIds: builder.query<Record<string, string>, void>({
       query: () => "/constants/ability_ids",
-      keepUnusedDataFor: Infinity,
+      keepUnusedDataFor: KEEP_FOREVER,
     }),
     /**
      * 模糊查询玩家列表
@@ -60,9 +63,12 @@ export const opendotaApi = createApi({
       Params.Opendota.SearchParams
     >({
       query: (params) => ({ url: "/search", params }),
-      keepUnusedDataFor: 60 * 30,
+      keepUnusedDataFor: KEEP_MINUTE,
     }),
-
+    player: builder.query<DTOs.Opendota.Player, Params.Opendota.Player>({
+      query: (params) => ({ url: `/players/${params.account_id}` }),
+      keepUnusedDataFor: KEEP_MINUTE,
+    }),
     /**
      * 查询玩家比赛数据
      */
@@ -74,7 +80,7 @@ export const opendotaApi = createApi({
         url: `/players/${account_id}/matches`,
         params,
       }),
-      keepUnusedDataFor: 60 * 30,
+      keepUnusedDataFor: KEEP_MINUTE,
     }),
   }),
 });
