@@ -5,7 +5,6 @@ import { Back } from "@frfojo/components/widgets";
 import Menu from "./components/menu";
 import Exec from "./views/Exec";
 import { useNavigate } from "react-router-dom";
-import DocHomuInput from "./views/DocHomuInput";
 
 const Root = styled("div")(({ theme }) => ({}));
 
@@ -18,8 +17,8 @@ const PoringInOneTool: FC<PoringInOneToolProps> = (props) => {
     switch (active) {
       case 0:
         return <Exec />;
-      case 1:
-        return <DocHomuInput />;
+      // case 1:
+      //   return <DocHomuInput />;
     }
   }, [active]);
 

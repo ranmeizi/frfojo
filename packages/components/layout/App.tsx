@@ -20,7 +20,7 @@ const StyledRoot = styled("div")(({ theme }) => ({
   },
 
   ".ffj-layout-app__sidebar": {
-    background: theme.palette.app.app_paper_sidebar,
+    background: theme.palette.app?.app_paper_sidebar,
     height: "100%",
     width: "70px",
     paddingTop: (window as any).__TAURI__ ? "30px" : 0,
@@ -31,7 +31,7 @@ const StyledRoot = styled("div")(({ theme }) => ({
   },
 
   ".ffj-layout-app__content": {
-    background: theme.palette.app.app_paper_content,
+    background: theme.palette.app?.app_paper_content,
     width: "100%",
     height: "100%",
     display: "flex",

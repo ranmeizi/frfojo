@@ -54,7 +54,7 @@ const Root = styled("div")(({ theme }) => ({
     flex: 1,
     display: "flex",
     flexDirection: "column",
-    background: theme.palette.app.app_paper_content,
+    background: theme.palette.app?.app_paper_content,
 
     ".ffj-layout-menu__header": {
       height: HEADER_HEIGHT + "px",

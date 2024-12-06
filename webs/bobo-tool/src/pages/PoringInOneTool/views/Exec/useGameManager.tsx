@@ -1,9 +1,12 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useRef } from "react";
 import { loadScript } from "@frfojo/common/utils";
 import { GameManager } from "./libs/game_manager";
-const modelUrl = new URL("@/assets/model.bin", import.meta.url).href;
-const convnetjsUrl = new URL("@/assets/convnet-min.js", import.meta.url).href;
+//@ts-ignore
+const modelUrl = new URL("/model.bin", import.meta.url).href;
+//@ts-ignore
+const convnetjsUrl = new URL("/convnet-min.js", import.meta.url).href;
 
 export function useGameManager() {
   const net = useRef<any>();
