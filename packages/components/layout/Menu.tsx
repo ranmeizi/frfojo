@@ -40,6 +40,8 @@ const Root = styled("div")(({ theme }) => ({
 
     ".ffj-layout-menu__logo": {
       height: HEADER_HEIGHT + "px",
+      display: "flex",
+      alignItems: "center",
       // borderBottom: `1px solid ${theme.palette.divider}`,
     },
     ".ffj-layout-menu__menu": {
@@ -56,6 +58,8 @@ const Root = styled("div")(({ theme }) => ({
 
     ".ffj-layout-menu__header": {
       height: HEADER_HEIGHT + "px",
+      display: "flex",
+      alignItems: "center",
       // borderBottom: `1px solid ${theme.palette.divider}`,
     },
     ".ffj-layout-menu__view": {

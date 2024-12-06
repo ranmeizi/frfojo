@@ -100,6 +100,13 @@ const Search: FC<SearchProps> = () => {
           >
             看看你的
           </a>
+          <a
+            onClick={() => {
+              navigate("/ffj/profile/137129583");
+            }}
+          >
+            看看qkss的
+          </a>
         </div>
       </Root>
     </LayoutMenu>
