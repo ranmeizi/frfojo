@@ -24,6 +24,8 @@ export function useGameManager() {
     console.log(net);
     // 初始化 manager
     manager.current = new GameManager(4);
+
+    manager.current.net = net.current;
   }
 
   return manager;

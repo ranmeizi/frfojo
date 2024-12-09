@@ -22,7 +22,7 @@ const BoboTool: FC<BoboToolProps> = () => {
 
     const app = await Garfish.loadApp("sub-bobotool-app", {
       domGetter: selector,
-      entry: `${location.origin}:8012`,
+      entry: `${location.protocol}//${location.hostname}:8012`,
       sandbox: false,
       props: {
         width: rect?.width,

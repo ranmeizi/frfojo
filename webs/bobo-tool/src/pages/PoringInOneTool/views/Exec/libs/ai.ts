@@ -20,6 +20,7 @@ AI.prototype.make_input = function () {
       }
     }
   }
+  console.log("input", this.grid);
 };
 
 // performs a search and returns the best move
