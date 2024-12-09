@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { loadScript } from "@frfojo/common/utils";
 import { GameManager } from "./libs/game_manager";
 //@ts-ignore
@@ -12,11 +12,14 @@ export function useGameManager() {
   const net = useRef<any>();
   const manager = useRef<any>();
 
+  const [loading, setLoading] = useState(false);
+
   useEffect(() => {
     init();
   }, []);
 
   async function init() {
+    setLoading(true);
     // 加载脚本
     await loadScript(convnetjsUrl);
     // 初始化网络
@@ -26,9 +29,11 @@ export function useGameManager() {
     manager.current = new GameManager(4);
 
     manager.current.net = net.current;
+
+    setLoading(false);
   }
 
-  return manager;
+  return { manager, loading };
 }
 
 async function init_net() {

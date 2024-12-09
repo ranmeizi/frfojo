@@ -14,6 +14,7 @@ import ArrowCircleUpOutlinedIcon from "@mui/icons-material/ArrowCircleUpOutlined
 import ArrowCircleLeftOutlinedIcon from "@mui/icons-material/ArrowCircleLeftOutlined";
 import ArrowCircleRightOutlinedIcon from "@mui/icons-material/ArrowCircleRightOutlined";
 import ArrowCircleDownOutlinedIcon from "@mui/icons-material/ArrowCircleDownOutlined";
+import Spin from "@frfojo/components/loading/Spin";
 
 window.ffj_2048_interval = 500;
 
@@ -39,7 +40,7 @@ const Exec: FC<ExecProps> = (props) => {
     [0, 0, 0, 0],
   ]);
 
-  const manager = useGameManager();
+  const { manager, loading } = useGameManager();
 
   async function getAccess() {
     const fsFileHandle = await showOpenFilePicker();
@@ -89,25 +90,27 @@ const Exec: FC<ExecProps> = (props) => {
   return (
     <Root>
       <Container>
-        <Paper sx={{}}>
-          <Button onClick={getAccess}>点击获取文件权限</Button>
-          <Button onClick={run} disabled={!handle}>
-            开始获取啦
-          </Button>
-        </Paper>
+        <Spin spining={loading}>
+          <Paper sx={{}}>
+            <Button onClick={getAccess}>点击获取文件权限</Button>
+            <Button onClick={run} disabled={!handle}>
+              开始获取啦
+            </Button>
+          </Paper>
 
-        {/* 棋盘 */}
-        <Paper
-          sx={{
-            display: "flex",
-            justifyContent: "space-around",
-            overflow: "hidden",
-            padding: "24px",
-          }}
-        >
-          <Grid data={showGrid} />
-          <TheBestMove move={bestMove} />
-        </Paper>
+          {/* 棋盘 */}
+          <Paper
+            sx={{
+              display: "flex",
+              justifyContent: "space-around",
+              overflow: "hidden",
+              padding: "24px",
+            }}
+          >
+            <Grid data={showGrid} />
+            <TheBestMove move={bestMove} />
+          </Paper>
+        </Spin>
       </Container>
     </Root>
   );
