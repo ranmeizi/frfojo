@@ -1,8 +1,10 @@
-import { FC, ReactNode, useRef, useState } from "react";
+import { FC, PropsWithChildren, ReactNode, useRef, useState } from "react";
 import {
   Box,
   Button,
   Container,
+  LinearProgress,
+  LinearProgressProps,
   Link,
   Paper,
   styled,
@@ -41,7 +43,9 @@ const Exec: FC<ExecProps> = (props) => {
     [0, 0, 0, 0],
   ]);
 
-  const { manager, loading } = useGameManager();
+  const { manager, progress } = useGameManager();
+
+  console.log("progress", progress);
 
   async function getAccess() {
     const fsFileHandle = await showOpenFilePicker();
@@ -91,7 +95,7 @@ const Exec: FC<ExecProps> = (props) => {
   return (
     <Root>
       <Container>
-        <Spin spining={loading}>
+        <LoadModelGuard progress={progress}>
           <Paper sx={{ marginBottom: "12px", padding: "24px" }}>
             <Box sx={{ display: "flex" }}>
               <Typography sx={{ mr: "12px" }}>生命体脚本下载:</Typography>
@@ -121,7 +125,7 @@ const Exec: FC<ExecProps> = (props) => {
             <Grid data={showGrid} />
             <TheBestMove move={bestMove} />
           </Paper>
-        </Spin>
+        </LoadModelGuard>
       </Container>
     </Root>
   );
@@ -141,6 +145,58 @@ function TheBestMove({ move }: { move: number }) {
     >
       <Box>最佳预测</Box>
       {moveNode ? <Box sx={{ color: "red" }}>{moveNode}</Box> : null}
+    </Box>
+  );
+}
+
+function LinearProgressWithLabel(
+  props: LinearProgressProps & { value: number }
+) {
+  return (
+    <Box sx={{ display: "flex", alignItems: "center", width: "30%" }}>
+      <Box sx={{ width: "100%", mr: 1 }}>
+        <LinearProgress variant="determinate" {...props} />
+      </Box>
+      <Box sx={{ minWidth: 35 }}>
+        <Typography
+          variant="body2"
+          sx={{ color: "text.secondary" }}
+        >{`${Math.round(props.value)}%`}</Typography>
+      </Box>
+    </Box>
+  );
+}
+
+function LoadModelGuard({
+  progress,
+  children,
+}: PropsWithChildren<{ progress: number }>) {
+  const loading = progress < 100;
+  return (
+    <Box sx={{ position: "relative", overflow: "hidden" }}>
+      {loading ? (
+        <Box
+          className="loading-mask"
+          sx={{
+            position: "absolute",
+            zIndex: "1000",
+            top: 0,
+            left: 0,
+            height: "100%",
+            width: "100%",
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "center",
+            alignItems: "center",
+            background: "rgba(0,0,0,.8)",
+          }}
+        >
+          <Typography sx={{ marginBottom: "16px" }}>模型加载中...</Typography>
+          <LinearProgressWithLabel value={progress} />
+        </Box>
+      ) : null}
+
+      {children}
     </Box>
   );
 }
