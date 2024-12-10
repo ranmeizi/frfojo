@@ -28,7 +28,7 @@ const Menu: FC<MenuProps> = ({ value, onChange }) => {
     <Root>
       <nav aria-label="main mailbox folders">
         <List>
-          <ListItemText secondary="使用" />
+          <ListItemText sx={{ marginLeft: "4px" }} secondary="使用" />
           <ListItem disablePadding>
             <ListItemButton
               selected={0 === value}
@@ -42,7 +42,7 @@ const Menu: FC<MenuProps> = ({ value, onChange }) => {
       <Divider />
       <nav aria-label="secondary mailbox folders">
         <List>
-          <ListItemText secondary="说明" />
+          <ListItemText sx={{ marginLeft: "4px" }} secondary="说明" />
           <ListItem disablePadding>
             <ListItemButton
               selected={1 === value}
@@ -59,14 +59,14 @@ const Menu: FC<MenuProps> = ({ value, onChange }) => {
               <ListItemText primary="ocr方式" />
             </ListItemButton>
           </ListItem> */}
-          <ListItem disablePadding>
+          {/* <ListItem disablePadding>
             <ListItemButton
               selected={3 === value}
               onClick={(event) => handleListItemClick(event, 3)}
             >
               <ListItemText primary="开发者" />
             </ListItemButton>
-          </ListItem>
+          </ListItem> */}
         </List>
       </nav>
     </Root>

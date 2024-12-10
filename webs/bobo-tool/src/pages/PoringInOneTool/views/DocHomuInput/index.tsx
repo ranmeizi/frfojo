@@ -1,12 +1,14 @@
 import { FC } from "react";
 import MdDoc from "@/components/MdDoc";
 import doc from "./doc.md?raw";
-import { Container } from "@mui/material";
+import { Container, Paper } from "@mui/material";
 
 const DocHomuInput: FC = () => {
   return (
     <Container>
-      <MdDoc mdText={doc} />;
+      <Paper sx={{ padding: "24px" }}>
+        <MdDoc mdText={doc} />
+      </Paper>
     </Container>
   );
 };

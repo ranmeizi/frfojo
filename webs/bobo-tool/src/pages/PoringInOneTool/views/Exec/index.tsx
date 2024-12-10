@@ -3,6 +3,7 @@ import {
   Box,
   Button,
   Container,
+  Link,
   Paper,
   styled,
   Typography,
@@ -91,10 +92,20 @@ const Exec: FC<ExecProps> = (props) => {
     <Root>
       <Container>
         <Spin spining={loading}>
-          <Paper sx={{}}>
+          <Paper sx={{ marginBottom: "12px", padding: "24px" }}>
+            <Box sx={{ display: "flex" }}>
+              <Typography sx={{ mr: "12px" }}>生命体脚本下载:</Typography>
+              <a
+                href="https://raw.githubusercontent.com/ranmeizi/ro-homu-ai/refs/heads/main/2048/AI.lua"
+                target="downloadFile"
+                download
+              >
+                AI.lua
+              </a>
+            </Box>
             <Button onClick={getAccess}>点击获取文件权限</Button>
             <Button onClick={run} disabled={!handle}>
-              开始获取啦
+              运行
             </Button>
           </Paper>
 
