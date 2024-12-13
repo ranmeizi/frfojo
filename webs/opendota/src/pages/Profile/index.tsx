@@ -14,7 +14,7 @@ type ProfileProps = {};
 const Profile: FC<ProfileProps> = () => {
   const params = useParams<{ account_id: string }>();
 
-  const { data } = opendotaApi.usePlayerQuery({
+  const { data, isFetching } = opendotaApi.usePlayerQuery({
     account_id: Number(params.account_id),
   });
 

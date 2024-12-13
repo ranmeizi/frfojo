@@ -6,7 +6,7 @@ import { useAppTheme } from "./theme";
 import { Provider } from "react-redux";
 import { store } from "./redux/store";
 import { useEffect, useState } from "react";
-import TextLoading1 from "@frfojo/components/loading/classic/TextLoading1";
+import Loading from "@frfojo/components/loading/Loading";
 import { bootstrap } from "./main";
 
 const router = createBrowserRouter(routes, {
@@ -48,7 +48,7 @@ const withInitGuard: HOC_Expand<any> = (Component) => (props) => {
         alignItems: "center",
       }}
     >
-      <TextLoading1 />
+      <Loading />
     </Box>
   ) : (
     <Component {...subProps}></Component>

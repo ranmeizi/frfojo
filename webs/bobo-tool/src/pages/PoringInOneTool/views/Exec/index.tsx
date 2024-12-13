@@ -45,6 +45,7 @@ const Exec: FC<ExecProps> = (props) => {
 
   const { manager, progress } = useGameManager();
 
+  window.m = manager;
   console.log("progress", progress);
 
   async function getAccess() {
@@ -65,7 +66,7 @@ const Exec: FC<ExecProps> = (props) => {
       setShowGrid(grid);
       // 预测下一步
       const res = manager.current.ai.getBest(net);
-      console.log(res);
+      // console.log(res);
       setBestMove(res?.move);
       await sleep(window.ffj_2048_interval);
     }
@@ -81,12 +82,12 @@ const Exec: FC<ExecProps> = (props) => {
 
     return new Promise((resolve) =>
       fr.addEventListener("load", (d) => {
-        console.log("FileReader", d.target?.result);
+        // console.log("FileReader", d.target?.result);
         const text = d.target?.result as string;
         const grid = text
           ?.split("\r\n")
           .filter((row) => row)
-          .map((row) => row.split(","));
+          .map((row) => row.split(",").map((item) => Number(item)));
 
         resolve(grid);
       })
