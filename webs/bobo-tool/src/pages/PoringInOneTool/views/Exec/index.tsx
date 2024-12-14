@@ -35,6 +35,8 @@ type ExecProps = {};
 const Exec: FC<ExecProps> = (props) => {
   const [handle, setHandle] = useState();
   const [bestMove, setBestMove] = useState();
+  // 文件上一次修改时间
+  const lastModified = useRef<number>(0);
 
   const [showGrid, setShowGrid] = useState([
     [0, 0, 0, 0],
@@ -61,21 +63,29 @@ const Exec: FC<ExecProps> = (props) => {
   async function run() {
     const net = manager.current.net;
     while (true) {
-      const grid = await getGrid();
+      await sleep(window.ffj_2048_interval);
+
+      const file: File = await handle.getFile();
+
+      // 若文件没有被修改，那么执行下一循环
+      if (file.lastModified === lastModified.current) {
+        continue;
+      }
+
+      lastModified.current = file.lastModified;
+
+      const grid = await getGrid(file);
+      console.log("grid", grid);
       manager.current.setGrid(grid);
       setShowGrid(grid);
       // 预测下一步
       const res = manager.current.ai.getBest(net);
       // console.log(res);
       setBestMove(res?.move);
-      await sleep(window.ffj_2048_interval);
     }
   }
 
-  async function getGrid() {
-    // 获取文件
-    const file: File = await handle.getFile();
-
+  async function getGrid(file: File) {
     const fr = new FileReader();
 
     fr.readAsText(file);
