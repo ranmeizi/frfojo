@@ -1,4 +1,12 @@
-import { FC, PropsWithChildren, ReactNode, useRef, useState } from "react";
+/* eslint-disable @typescript-eslint/ban-ts-comment */
+import {
+  FC,
+  PropsWithChildren,
+  ReactNode,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import {
   Box,
   Button,
@@ -17,7 +25,15 @@ import ArrowCircleUpOutlinedIcon from "@mui/icons-material/ArrowCircleUpOutlined
 import ArrowCircleLeftOutlinedIcon from "@mui/icons-material/ArrowCircleLeftOutlined";
 import ArrowCircleRightOutlinedIcon from "@mui/icons-material/ArrowCircleRightOutlined";
 import ArrowCircleDownOutlinedIcon from "@mui/icons-material/ArrowCircleDownOutlined";
-import Spin from "@frfojo/components/loading/Spin";
+
+//@ts-ignore
+const upAudioUrl = new URL("/up.mp3", import.meta.url).href;
+//@ts-ignore
+const downAudioUrl = new URL("/down.mp3", import.meta.url).href;
+//@ts-ignore
+const leftAudioUrl = new URL("/left.mp3", import.meta.url).href;
+//@ts-ignore
+const rightAudioUrl = new URL("/right.mp3", import.meta.url).href;
 
 window.ffj_2048_interval = 500;
 
@@ -65,23 +81,27 @@ const Exec: FC<ExecProps> = (props) => {
     while (true) {
       await sleep(window.ffj_2048_interval);
 
-      const file: File = await handle.getFile();
+      try {
+        const file: File = await handle.getFile();
 
-      // 若文件没有被修改，那么执行下一循环
-      if (file.lastModified === lastModified.current) {
-        continue;
+        // 若文件没有被修改，那么执行下一循环
+        if (file.lastModified === lastModified.current) {
+          continue;
+        }
+
+        lastModified.current = file.lastModified;
+
+        const grid = await getGrid(file);
+        console.log("grid", grid);
+        manager.current.setGrid(grid);
+        setShowGrid(grid);
+        // 预测下一步
+        const res = manager.current.ai.getBest(net);
+        // console.log(res);
+        setBestMove(res?.move);
+      } catch (e) {
+        //
       }
-
-      lastModified.current = file.lastModified;
-
-      const grid = await getGrid(file);
-      console.log("grid", grid);
-      manager.current.setGrid(grid);
-      setShowGrid(grid);
-      // 预测下一步
-      const res = manager.current.ai.getBest(net);
-      // console.log(res);
-      setBestMove(res?.move);
     }
   }
 
@@ -103,6 +123,7 @@ const Exec: FC<ExecProps> = (props) => {
       })
     );
   }
+
   return (
     <Root>
       <Container>
@@ -142,8 +163,44 @@ const Exec: FC<ExecProps> = (props) => {
   );
 };
 
+const moveDirection = {
+  0: "up",
+  1: "right",
+  2: "down",
+  3: "left",
+};
+
 function TheBestMove({ move }: { move: number }) {
   const moveNode = move_nodes[move];
+
+  // 存储当前播放的音频
+  const currentAudio = useRef<HTMLAudioElement>();
+
+  // 播放指定方向的音频
+  function playAudio(direction: "up" | "down" | "left" | "right") {
+    // 获取对应方向的音频元素
+    const audioElement: HTMLAudioElement | null = document.getElementById(
+      `audio-${direction}`
+    );
+
+    if (!audioElement) {
+      return;
+    }
+
+    // 如果当前音频不是这个，先停止当前音频
+    if (currentAudio.current && currentAudio.current !== audioElement) {
+      currentAudio.current.pause();
+    }
+
+    // 播放新音频
+    audioElement.play();
+    currentAudio.current = audioElement;
+  }
+
+  useEffect(() => {
+    playAudio(moveDirection[move]);
+  }, [move]);
+
   return (
     <Box
       sx={{
@@ -154,6 +211,10 @@ function TheBestMove({ move }: { move: number }) {
         width: "400px",
       }}
     >
+      <audio id="audio-up" src={upAudioUrl}></audio>
+      <audio id="audio-down" src={downAudioUrl}></audio>
+      <audio id="audio-left" src={leftAudioUrl}></audio>
+      <audio id="audio-right" src={rightAudioUrl}></audio>
       <Box>最佳预测</Box>
       {moveNode ? <Box sx={{ color: "red" }}>{moveNode}</Box> : null}
     </Box>
