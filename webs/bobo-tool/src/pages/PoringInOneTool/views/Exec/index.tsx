@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import {
   FC,
@@ -11,11 +12,13 @@ import {
   Box,
   Button,
   Container,
+  FormControlLabel,
   LinearProgress,
   LinearProgressProps,
   Link,
   Paper,
   styled,
+  Switch,
   Typography,
 } from "@mui/material";
 import { sleep } from "@frfojo/common";
@@ -38,10 +41,10 @@ const rightAudioUrl = new URL("/right.mp3", import.meta.url).href;
 window.ffj_2048_interval = 500;
 
 const move_nodes: Record<string, ReactNode> = {
-  0: <ArrowCircleUpOutlinedIcon sx={{ fontSize: "128px" }} />,
-  1: <ArrowCircleRightOutlinedIcon sx={{ fontSize: "128px" }} />,
-  2: <ArrowCircleDownOutlinedIcon sx={{ fontSize: "128px" }} />,
-  3: <ArrowCircleLeftOutlinedIcon sx={{ fontSize: "128px" }} />,
+  0: <ArrowCircleUpOutlinedIcon sx={{ fontSize: "256px" }} />,
+  1: <ArrowCircleRightOutlinedIcon sx={{ fontSize: "256px" }} />,
+  2: <ArrowCircleDownOutlinedIcon sx={{ fontSize: "256px" }} />,
+  3: <ArrowCircleLeftOutlinedIcon sx={{ fontSize: "256px" }} />,
 };
 
 const Root = styled("div")(({ theme }) => ({}));
@@ -50,7 +53,7 @@ type ExecProps = {};
 
 const Exec: FC<ExecProps> = (props) => {
   const [handle, setHandle] = useState();
-  const [bestMove, setBestMove] = useState();
+  const [bestMove, setBestMove] = useState({});
   // 文件上一次修改时间
   const lastModified = useRef<number>(0);
 
@@ -92,13 +95,12 @@ const Exec: FC<ExecProps> = (props) => {
         lastModified.current = file.lastModified;
 
         const grid = await getGrid(file);
-        console.log("grid", grid);
         manager.current.setGrid(grid);
         setShowGrid(grid);
         // 预测下一步
         const res = manager.current.ai.getBest(net);
         // console.log(res);
-        setBestMove(res?.move);
+        setBestMove(res);
       } catch (e) {
         //
       }
@@ -170,14 +172,20 @@ const moveDirection = {
   3: "left",
 };
 
-function TheBestMove({ move }: { move: number }) {
-  const moveNode = move_nodes[move];
+type TheBestMoveProps = {
+  move: { move: number; moves: any };
+};
+
+function TheBestMove({ move }: TheBestMoveProps) {
+  const moveNode = move_nodes[move?.move];
+
+  const [playAudio, setPlayAudio] = useState(false);
 
   // 存储当前播放的音频
   const currentAudio = useRef<HTMLAudioElement>();
 
   // 播放指定方向的音频
-  function playAudio(direction: "up" | "down" | "left" | "right") {
+  function play(direction: "up" | "down" | "left" | "right") {
     // 获取对应方向的音频元素
     const audioElement: HTMLAudioElement | null = document.getElementById(
       `audio-${direction}`
@@ -197,9 +205,10 @@ function TheBestMove({ move }: { move: number }) {
     currentAudio.current = audioElement;
   }
 
+  // 刷新一次 move 就播放一次语音
   useEffect(() => {
-    playAudio(moveDirection[move]);
-  }, [move]);
+    playAudio && play(moveDirection[move?.move]);
+  }, [move, playAudio]);
 
   return (
     <Box
@@ -209,13 +218,34 @@ function TheBestMove({ move }: { move: number }) {
         alignItems: "center",
         justifyContent: "center",
         width: "400px",
+        position: "relative",
       }}
     >
       <audio id="audio-up" src={upAudioUrl}></audio>
       <audio id="audio-down" src={downAudioUrl}></audio>
       <audio id="audio-left" src={leftAudioUrl}></audio>
       <audio id="audio-right" src={rightAudioUrl}></audio>
-      <Box>最佳预测</Box>
+      <Box
+        sx={{
+          width: "100%",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          position: "absolute",
+          top: "12px",
+        }}
+      >
+        <Box>最佳预测</Box>
+        <FormControlLabel
+          control={
+            <Switch
+              checked={playAudio}
+              onChange={(e) => setPlayAudio(e.target.checked)}
+            />
+          }
+          label="语音提示"
+        />
+      </Box>
       {moveNode ? <Box sx={{ color: "red" }}>{moveNode}</Box> : null}
     </Box>
   );

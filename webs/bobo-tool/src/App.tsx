@@ -28,7 +28,6 @@ export const SubApp = function () {
   const [width, setWidth] = useState(window.innerWidth - 70);
 
   useEffect(() => {
-    console.log("meme弟弟");
     function onResize() {
       const el = document.querySelector(".garfish-container");
       setHeight(el?.clientHeight || 0);
@@ -43,6 +42,8 @@ export const SubApp = function () {
       window.removeEventListener("resize", onResize);
     };
   }, []);
+
+  console.log("hihihi theme", theme);
 
   return (
     <Box sx={{ height: height + "px", width: width + "px" }}>
