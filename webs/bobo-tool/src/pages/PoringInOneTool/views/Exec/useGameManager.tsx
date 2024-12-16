@@ -33,6 +33,8 @@ export function useGameManager() {
     const oReq = new XMLHttpRequest();
     oReq.open("GET", url, true);
     oReq.responseType = "arraybuffer";
+    oReq.setRequestHeader("cache-control", "public");
+
     const updateProgress = function (oEvent) {
       const per = (100 * oEvent.loaded) / 25484016;
 
