@@ -51,6 +51,14 @@ const Menu: FC<MenuProps> = ({ value, onChange }) => {
               <ListItemText primary="生命体方式" />
             </ListItemButton>
           </ListItem>
+          <ListItem disablePadding>
+            <ListItemButton
+              selected={2 === value}
+              onClick={(event) => handleListItemClick(event, 2)}
+            >
+              <ListItemText primary="AHK全自动" />
+            </ListItemButton>
+          </ListItem>
           {/* <ListItem disablePadding disabled>
             <ListItemButton
               selected={2 === value}

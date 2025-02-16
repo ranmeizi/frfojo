@@ -44,8 +44,7 @@ const MenuCard: FC<MenuCardProps> = ({ title, description, img, path }) => {
           </Typography>
           <Typography
             variant="body2"
-            sx={{ fontSize: "12px" }}
-            sx={{ color: "text.secondary" }}
+            sx={{ fontSize: "12px", color: "text.secondary" }}
           >
             {description}
           </Typography>

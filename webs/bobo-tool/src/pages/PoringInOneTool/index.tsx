@@ -7,6 +7,7 @@ import Exec from "./views/Exec";
 import { useNavigate } from "react-router-dom";
 import DocHomuInput from "./views/DocHomuInput";
 import DocReadme from "./views/DocReadme";
+import DocAHKAutoInput from "./views/DocAHKAuto";
 
 const Root = styled("div")(({ theme }) => ({}));
 
@@ -21,6 +22,8 @@ const PoringInOneTool: FC<PoringInOneToolProps> = (props) => {
         return <Exec />;
       case 1:
         return <DocHomuInput />;
+      case 2:
+        return <DocAHKAutoInput />;
       case 3:
         return <DocReadme />;
     }
