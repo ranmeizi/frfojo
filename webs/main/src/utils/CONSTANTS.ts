@@ -7,3 +7,8 @@ export const APP_CONFIG_PAGE_TRANSITION_DIRECTION =
 
 export const TAURI_CMD_OPEN_WINDOW = "open_window"; // tauri cmd 打开新窗口
 export const TAURI_CMD_OPEN_BROWSER = "open_browser"; // tauri cmd 打开浏览器
+
+export const isMobile =
+  /Mobi|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+    navigator.userAgent
+  );

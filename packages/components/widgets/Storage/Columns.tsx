@@ -5,6 +5,7 @@ import {
   DndContext,
   DragOverlay,
   MouseSensor,
+  TouchSensor,
   useSensor,
   useSensors,
 } from "@dnd-kit/core";
@@ -84,6 +85,12 @@ const Columns: FC<ColumnsProps> = ({ value, onChange, renderWrapper }) => {
 
   const sensors = useSensors(
     useSensor(MouseSensor, {
+      activationConstraint: {
+        delay: 300,
+        tolerance: 5,
+      },
+    }),
+    useSensor(TouchSensor, {
       activationConstraint: {
         delay: 300,
         tolerance: 5,

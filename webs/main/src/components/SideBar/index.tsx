@@ -18,6 +18,7 @@ import { MenuDocType } from "@/db/schema/Menu.schema";
 import ContextMenu from "./ContextMenu";
 import { useLocation, useNavigate } from "react-router-dom";
 import UserSetting from "./UserSetting";
+import { isMobile } from "@/utils/CONSTANTS";
 
 const WrapActiveRoute = styled(Box)<{ isActive: boolean }>(
   ({ theme, isActive }) =>
@@ -122,7 +123,7 @@ const SideBar: FC = () => {
               }
 
               // 添加 tooltip
-              if (item.tooltip) {
+              if (item.tooltip && !isMobile) {
                 child = (
                   <BootstrapTooltip
                     title={item.tooltip}

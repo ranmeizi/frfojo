@@ -4,6 +4,7 @@ import { MenuDocType } from "@/db/schema/Menu.schema";
 import { useRxQuery } from "@/db/hook/useRxQuery";
 import * as MenuService from "@/db/services/Menu.service";
 import DeleteConfirm, { DeleteConfirmApi } from "./DeleteConfirm";
+import { isMobile } from "@/utils/CONSTANTS";
 
 const Root = styled("div")(() => ({}));
 
@@ -15,6 +16,9 @@ const ContextMenu: FC<PropsWithChildren<ContextMenuProps>> = ({ children }) => {
     mouseY: number;
     itemId: string;
   } | null>(null);
+
+  const timer = useRef<number>();
+  const touchPos = useRef<{ x: number; y: number }>();
 
   const delDialog = useRef<DeleteConfirmApi>(null);
 
@@ -35,29 +39,29 @@ const ContextMenu: FC<PropsWithChildren<ContextMenuProps>> = ({ children }) => {
     setContextMenu(null);
   };
 
+  function getItemIdFromElement(root: Element, el: HTMLElement) {
+    // 无了
+    if (el === root) {
+      return undefined;
+    }
+
+    // 找一找 我会在 Item/Folder 组件中 添加.storage-item 类 以及 data-id 作为数据索引
+    if (el.classList.contains("storage-item") && el.dataset) {
+      const id = el.dataset.id || "";
+      if (menu.find((item) => item.id === id)) {
+        return id;
+      }
+    }
+
+    return getItemIdFromElement(root, el.parentElement!); // 一定有的
+  }
+
   const handleContextMenu = (e: React.MouseEvent) => {
     e.preventDefault();
 
     const root = e.currentTarget;
 
-    function getItemIdFromElement(el: HTMLElement) {
-      // 无了
-      if (el === root) {
-        return undefined;
-      }
-
-      // 找一找 我会在 Item/Folder 组件中 添加.storage-item 类 以及 data-id 作为数据索引
-      if (el.classList.contains("storage-item") && el.dataset) {
-        const id = el.dataset.id || "";
-        if (menu.find((item) => item.id === id)) {
-          return id;
-        }
-      }
-
-      return getItemIdFromElement(el.parentElement!); // 一定有的
-    }
-
-    const id = getItemIdFromElement(e.target as any);
+    const id = getItemIdFromElement(root, e.target as any);
 
     if (id) {
       // 打开
@@ -78,7 +82,6 @@ const ContextMenu: FC<PropsWithChildren<ContextMenuProps>> = ({ children }) => {
   };
 
   const menuList = useMemo(() => {
-    console.log("da", data);
     if (!data) {
       return null;
     }
@@ -138,8 +141,46 @@ const ContextMenu: FC<PropsWithChildren<ContextMenuProps>> = ({ children }) => {
     return null;
   }, [data]);
 
+  function touchReset() {
+    touchPos.current = undefined;
+    if (timer.current) {
+      clearTimeout(timer.current);
+    }
+  }
+
   return (
-    <Root onContextMenu={handleContextMenu}>
+    <Root
+      onContextMenu={!isMobile ? handleContextMenu : undefined}
+      onTouchStart={(e) => {
+        const x = e.touches[0]?.clientX + 24;
+        const y = e.touches[0]?.clientY - 6;
+        const root = e.currentTarget;
+        const id = getItemIdFromElement(root, e.target as any)!;
+
+        touchPos.current = { x, y };
+
+        timer.current = setTimeout(() => {
+          timer.current = undefined;
+          setContextMenu({
+            mouseX: x,
+            mouseY: y,
+            itemId: id,
+          });
+        }, 1000);
+      }}
+      onTouchEnd={touchReset}
+      onTouchMove={(e) => {
+        if (!touchPos.current) {
+          return;
+        }
+        const dx = e.touches[0].clientX - touchPos.current.x;
+        const dy = e.touches[0].clientY - touchPos.current.y;
+
+        if (dx > 20 || dy > 20) {
+          touchReset();
+        }
+      }}
+    >
       {children}
       <Menu
         open={contextMenu !== null}
