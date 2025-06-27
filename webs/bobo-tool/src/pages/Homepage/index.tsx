@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 
 const IconMomoro = new URL("@/assets/momoro.jpeg", import.meta.url).href;
 const IconAHKTesting = new URL("@/assets/testing.jpeg", import.meta.url).href;
+const IconMomotu = new URL("@/assets/momotu.webp", import.meta.url).href;
 
 const menus = [
   {
@@ -19,6 +20,12 @@ const menus = [
     desciption: "测试",
     img: IconAHKTesting,
     path: "/ffj/ahk-testing",
+  },
+  {
+    title: "MomoIngameNews",
+    desciption: "MomoRo数据统计",
+    img: IconMomotu,
+    path: "/ffj/momo-ingamenews",
   },
 ];
 

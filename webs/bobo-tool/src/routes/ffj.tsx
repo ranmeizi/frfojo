@@ -3,6 +3,7 @@ import Homepage from "../pages/Homepage";
 import { LayoutMenu } from "@frfojo/components/layout";
 import PoringInOneTool from "@/pages/PoringInOneTool";
 import AHKTesting from "@/pages/AHKTesting";
+import MomoIngameNews from "@/pages/MomoIngameNews";
 
 const routes: RouteObject[] = [
   {
@@ -19,6 +20,10 @@ const routes: RouteObject[] = [
       {
         path: "/ffj/ahk-testing",
         element: <AHKTesting />,
+      },
+      {
+        path: "/ffj/momo-ingamenews",
+        element: <MomoIngameNews />,
       },
       {
         path: "/ffj/*",

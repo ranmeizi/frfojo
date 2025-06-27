@@ -33,7 +33,7 @@ const MenuCard: FC<MenuCardProps> = ({ title, description, img, path }) => {
           sx={{ height: "96px", width: "96px" }}
           image={img}
         />
-        <CardContent sx={{ width: "128px" }}>
+        <CardContent sx={{ width: "180px" }}>
           <Typography
             gutterBottom
             variant="h5"
