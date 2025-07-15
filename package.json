@@ -8,7 +8,10 @@
     "dev:dota": "pnpm -F opendota dev",
     "build:dota": "pnpm -F opendota build",
     "dev:tool": "pnpm -F bobo-tool dev",
-    "build:tool": "pnpm -F bobo-tool build"
+    "build:tool": "pnpm -F bobo-tool build",
+    "dev:user": "pnpm -F user-center dev",
+    "build:user": "pnpm -F user-center build",
+    "build:components": "pnpm -F @frfojo/components build"
   },
   "keywords": [],
   "author": "",

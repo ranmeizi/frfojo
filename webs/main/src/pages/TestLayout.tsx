@@ -1,10 +1,9 @@
 import { Box, Button } from "@mui/material";
-import createResizeElement from "@frfojo/components/element/createResizeElement";
 import { useCallback } from "react";
 import { throttle } from "@frfojo/common/utils/delay";
 import * as AppConfigService from "@/db/services/AppConfig.service";
 import { APP_CONFIG_STORAGE_KEY_MODE } from "@/utils/CONSTANTS";
-import MenuLayout from "@frfojo/components/layout/Menu";
+import { createResizeElement, LayoutMenu } from "@frfojo/components";
 
 const ReDiv = createResizeElement("div");
 
@@ -48,5 +47,5 @@ export default function TestLayout() {
       </ReDiv>
     </Box>
   );
-  return <MenuLayout content={content} />;
+  return <LayoutMenu content={content} />;
 }

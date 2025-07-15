@@ -1,10 +1,10 @@
 import { FC, useEffect } from "react";
-import { LayoutMenu } from "@frfojo/components/layout";
 import LogoComp from "./Logo";
 import Sidebar from "./Sidebar";
 import { useNavigate, useParams } from "react-router-dom";
 import Header from "./Header";
 import { isMobile } from "@/utils/CONSTANTS";
+import { LayoutMenu } from "@frfojo/components";
 
 const Server: FC = () => {
   const params = useParams<{ serverId: string; topic?: string }>();

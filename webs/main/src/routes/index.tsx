@@ -7,6 +7,7 @@ import HomePage from "@/pages/HomePage";
 import Server from "@/pages/Server";
 import Opendota from "@/pages/SubApps/Opendota";
 import BoboTool from "@/pages/SubApps/BoboTool";
+import Login from "@/pages/Login";
 
 function Redirect({ to }: any) {
   const navigate = useNavigate();
@@ -53,10 +54,14 @@ const routes: RouteObject[] = [
         path: "/m/sub/bobo-tool*",
         element: <BoboTool />,
       },
-      {
-        path: "*",
-      },
+      // {
+      //   path: "/m/*",
+      // },
     ],
+  },
+  {
+    path: "/login",
+    element: <Login />,
   },
 ];
 

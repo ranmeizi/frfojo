@@ -63,7 +63,9 @@ const Root = styled("div")(({ theme }) => ({
       // borderBottom: `1px solid ${theme.palette.divider}`,
     },
     ".ffj-layout-menu__view": {
-      flex: 1,
+      height: `calc(100% - ${HEADER_HEIGHT}px)`,
+      maxHeight: `calc(100% - ${HEADER_HEIGHT}px)`,
+      overflowY: "auto",
       ...topShadow(),
     },
   },

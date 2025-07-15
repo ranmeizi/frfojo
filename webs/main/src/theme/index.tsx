@@ -33,5 +33,5 @@ export function useAppTheme() {
     return prefersDarkMode ? "dark" : "light";
   }, [mode, prefersDarkMode]);
 
-  return useCreateTheme({ primary: primary?.value || "", mode: calcMode });
+  return useCreateTheme({ primary: primary?.value || "blue", mode: calcMode });
 }

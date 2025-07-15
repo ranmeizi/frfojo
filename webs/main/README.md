@@ -1,50 +1,21 @@
-# React + TypeScript + Vite
+# main 主应用壳子
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## CustBridge
 
-Currently, two official plugins are available:
+CustBridge 是开发时定义的一套 主应用 子应用 用来交互的一套方案，接口即回调函数，全部由主应用以 props 传入。
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+有可能是即时回调，这时子应用调用回调函数即可
+也有可能是需要双向交互，这时子应用调用的回调函数应返回 Promise 这样方便子应用得知响应结果
+如需多次双向交互，采用子应用callback 轮询的方式，子应用发起一个回调，callback返回 Promise结果，再决定需不需要继续轮询
 
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
-
-- Configure the top-level `parserOptions` property like this:
-
-```js
-export default tseslint.config({
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
-```
-
-- Replace `tseslint.configs.recommended` to `tseslint.configs.recommendedTypeChecked` or `tseslint.configs.strictTypeChecked`
-- Optionally add `...tseslint.configs.stylisticTypeChecked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and update the config:
-
-```js
-// eslint.config.js
-import react from 'eslint-plugin-react'
-
-export default tseslint.config({
-  // Set the react version
-  settings: { react: { version: '18.3' } },
-  plugins: {
-    // Add the react plugin
-    react,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended rules
-    ...react.configs.recommended.rules,
-    ...react.configs['jsx-runtime'].rules,
-  },
-})
+```ts
+interface CustBridge{
+  /**
+   * 去登陆
+   * 
+   * 登陆成功原样返回登陆接口的返回值
+   * 但同时也要更新一下 props.token 或是 props.uinfo
+   */
+  login():Promise<unknown>
+}
 ```
