@@ -1,9 +1,13 @@
-import { FC, ReactNode } from "react";
-import { styled } from "@mui/material";
+import { FC, ReactNode, useEffect, useRef, useState } from "react";
+import { alpha, styled } from "@mui/material";
 import { MotionProps } from "framer-motion";
+import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
+import DragIndicatorIcon from "@mui/icons-material/DragIndicator";
 
 const HEADER_HEIGHT = 48;
-const SIDEBAR_WIDTH = 235;
+const SIDEBAR_WIDTH = () => {
+  return (235 / (window.innerWidth - 70)) * 100;
+};
 
 function topShadow(): {
   "&::after": React.CSSProperties;
@@ -25,7 +29,7 @@ function topShadow(): {
   };
 }
 
-const Root = styled("div")(({ theme }) => ({
+const Root = styled(PanelGroup)(({ theme }) => ({
   display: "flex",
   flexDirection: "row",
   flex: 1,
@@ -33,7 +37,6 @@ const Root = styled("div")(({ theme }) => ({
   width: "100%",
 
   ".ffj-layout-menu__sidebar": {
-    width: SIDEBAR_WIDTH + "px",
     display: "flex",
     flexDirection: "column",
     background: theme.palette.app?.app_pager_menu,
@@ -48,6 +51,47 @@ const Root = styled("div")(({ theme }) => ({
       flex: 1,
       ...topShadow(),
     },
+  },
+
+  ".ffj-layout-resize-handle": {
+    width: "1px",
+    background: "rgba(44,44,44,.4)",
+    position: "relative",
+    display: "flex",
+    justifyContent: "center",
+
+    ".bar": {
+      position: "absolute",
+      width: "1px",
+      background: "rgba(44,44,44,.4)",
+      transition: "0.2s",
+      height: "100%",
+      display: "flex",
+      alignItems: "center",
+
+      ".bar-icon": {
+        width: "10px",
+        opacity: 0,
+        transition: "0.2s",
+      },
+    },
+
+    "&.active .bar": {
+      width: "10px",
+      boxShadow: `0 0 2px 2px ${alpha(theme.palette.primary.main, 0.5)}`,
+      background: alpha(theme.palette.primary.main, 0.2),
+      borderRadius: "2px",
+
+      ".bar-icon": {
+        opacity: 1,
+      },
+    },
+
+    // "&.dragging": {
+    //   ".bar-icon": {
+    //     color: theme.palette.primary,
+    //   },
+    // },
   },
 
   ".ffj-layout-menu__content": {
@@ -81,6 +125,7 @@ type MenuLayoutProps = {
   sidebar?: ReactNode;
   content?: ReactNode;
   children?: ReactNode;
+  widthAutoSaveId?: string;
 };
 
 const MenuLayout: FC<MenuLayoutProps> = ({
@@ -89,32 +134,87 @@ const MenuLayout: FC<MenuLayoutProps> = ({
   sidebar,
   content,
   children,
+  widthAutoSaveId,
 }) => {
   if (children) {
     content = children;
   }
 
+  const [hover, setHover] = useState(false);
+  const [dragging, setDragging] = useState(false);
+
+  useEffect(() => {
+    let observer = null;
+    if (sidebar) {
+      let el = document.querySelector(".ffj-layout-resize-handle");
+
+      observer = new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => {
+          if (mutation.type === "attributes") {
+            const v = (mutation.target as HTMLElement).getAttribute(
+              mutation.attributeName!
+            );
+            setHover(v === "hover");
+          }
+        });
+      });
+
+      observer.observe(el!, {
+        attributes: true, // 监听属性变化
+        attributeFilter: ["data-resize-handle-state"], // 可选，只监听指定属性
+      });
+    }
+
+    return () => {
+      if (observer) {
+        observer.disconnect();
+      }
+    };
+  }, [sidebar]);
+
   return (
-    <Root>
+    <Root autoSaveId={widthAutoSaveId} direction="horizontal">
       {sidebar ? (
-        <div className="ffj-layout-menu__sidebar">
-          {/* logo */}
-          <div className="ffj-layout-menu__logo" data-tauri-drag-region>
-            {logo}
-          </div>
-          {/* sidebar */}
-          <div className="ffj-layout-menu__menu">{sidebar}</div>
-        </div>
+        <>
+          <Panel
+            defaultSize={SIDEBAR_WIDTH()}
+            minSize={SIDEBAR_WIDTH()}
+            maxSize={SIDEBAR_WIDTH() * 2}
+            className="ffj-layout-menu__sidebar"
+          >
+            {/* logo */}
+            <div className="ffj-layout-menu__logo" data-tauri-drag-region>
+              {logo}
+            </div>
+            {/* sidebar */}
+            <div className="ffj-layout-menu__menu">{sidebar}</div>
+          </Panel>
+          <PanelResizeHandle
+            className={`ffj-layout-resize-handle ${
+              hover || dragging ? "active" : ""
+            } ${dragging ? "dragging" : ""}`}
+            onDragging={(isDragging) => {
+              setDragging(isDragging);
+            }}
+          >
+            <div className="bar">
+              <DragIndicatorIcon
+                className="bar-icon"
+                color={dragging ? "primary" : "inherit"}
+              />
+            </div>
+          </PanelResizeHandle>
+        </>
       ) : null}
 
-      <div className="ffj-layout-menu__content">
+      <Panel className="ffj-layout-menu__content">
         {/* header */}
         <div className="ffj-layout-menu__header" data-tauri-drag-region>
           {header}
         </div>
         {/* content */}
         <div className="ffj-layout-menu__view">{content}</div>
-      </div>
+      </Panel>
     </Root>
   );
 };
