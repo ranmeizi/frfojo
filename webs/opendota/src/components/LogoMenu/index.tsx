@@ -10,7 +10,7 @@ import {
   buttonBaseClasses,
   Divider,
 } from "@mui/material";
-import { Logo } from "@frfojo/components/widgets";
+import { Logo } from "@frfojo/components";
 import userMemoSlice from "@/redux/slices/UserMemo";
 import { useSelector } from "react-redux";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";

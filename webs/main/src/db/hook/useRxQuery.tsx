@@ -1,6 +1,6 @@
 // 由订阅的 rx object 映射成 组件 state rx -> state
 // import { } from 'rxdb'
-import { debounce } from "@frfojo/common";
+import { debounce } from "@frfojo/common/utils/delay";
 import { useEffect, useMemo, useState } from "react";
 import { RxQuery } from "rxdb";
 

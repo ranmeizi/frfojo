@@ -1,9 +1,9 @@
 import { RouteObject } from "react-router-dom";
 import Homepage from "../pages/Homepage";
-import { LayoutMenu } from "@frfojo/components/layout";
 import PoringInOneTool from "@/pages/PoringInOneTool";
 import AHKTesting from "@/pages/AHKTesting";
 import MomoIngameNews from "@/pages/MomoIngameNews";
+import { LayoutMenu } from "@frfojo/components";
 
 const routes: RouteObject[] = [
   {

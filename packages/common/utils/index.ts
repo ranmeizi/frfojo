@@ -1,3 +1,5 @@
+import * as delay from "./delay";
+
 export function loadScript(url: string) {
   const memo: Record<string, any> = {};
   if (url in memo) {
@@ -15,3 +17,5 @@ export function loadScript(url: string) {
     document.head.appendChild(script);
   });
 }
+
+export { delay };

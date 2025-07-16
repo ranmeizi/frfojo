@@ -1,45 +1,18 @@
 import {
-  AppBar,
   Box,
-  createTheme,
-  CssBaseline,
-  Fab,
-  IconButton,
   List,
   ListItem,
   ListItemButton,
   ListItemText,
-  Menu,
-  styled,
-  Tab,
-  Tabs,
-  ThemeProvider,
-  Toolbar,
   Typography,
-  useMediaQuery,
 } from "@mui/material";
-import MenuIcon from "@mui/icons-material/Menu";
-import AddIcon from "@mui/icons-material/Add";
-import SearchIcon from "@mui/icons-material/Search";
-import MoreIcon from "@mui/icons-material/MoreVert";
 import { useEffect, useMemo, useState } from "react";
 import Ranking from "./views/ranking";
 import Search from "./views/search";
 import Group from "./views/group";
-import { LayoutMenu } from "@frfojo/components/layout";
-
-const StyledFab = styled(Fab)({
-  position: "absolute",
-  zIndex: 1,
-  top: -30,
-  left: 0,
-  right: 0,
-  margin: "0 auto",
-});
+import { LayoutMenu } from "@frfojo/components";
 
 export default function MomoIngameNews() {
-  const prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)");
-
   const [active, setActive] = useState(0);
 
   const view = useMemo(() => {

@@ -1,4 +1,4 @@
-import { request } from "@frfojo/common/utils/request";
+import { request } from "@frfojo/common/request";
 
 /**
  * 登陆

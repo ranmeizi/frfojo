@@ -1,7 +1,6 @@
 import { FC, useMemo, useState } from "react";
 import { Box, Stack, styled } from "@mui/material";
-import MenuLayout from "@frfojo/components/layout/Menu";
-import { Back } from "@frfojo/components/widgets";
+import { Back, LayoutMenu } from "@frfojo/components";
 import Menu from "./components/menu";
 import Exec from "./views/Exec";
 import { useNavigate } from "react-router-dom";
@@ -36,12 +35,12 @@ const PoringInOneTool: FC<PoringInOneToolProps> = (props) => {
     </Stack>
   );
   return (
-    <MenuLayout
+    <LayoutMenu
       logo={logo}
       sidebar={<Menu value={active} onChange={setActive} />}
     >
       <Root>{view}</Root>
-    </MenuLayout>
+    </LayoutMenu>
   );
 };
 

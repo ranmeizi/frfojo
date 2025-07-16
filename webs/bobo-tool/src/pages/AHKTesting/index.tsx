@@ -1,10 +1,9 @@
-import { FC, useRef, useState } from "react";
+import { FC, useState } from "react";
 import {
   Box,
   Button,
   Container,
   IconButton,
-  Menu,
   Modal,
   Paper,
   Stack,
@@ -12,12 +11,10 @@ import {
   Typography,
 } from "@mui/material";
 import "react-simple-keyboard/build/css/index.css";
-import KB from "./Keyboard";
 import Responsing from "./Responsing";
 import CloseIcon from "@mui/icons-material/Close";
-import MenuLayout from "@frfojo/components/layout/Menu";
-import { Back } from "@frfojo/components/widgets";
 import { useNavigate } from "react-router-dom";
+import { Back, LayoutMenu } from "@frfojo/components";
 
 const Root = styled("div")(({ theme }) => ({}));
 
@@ -35,7 +32,7 @@ const AHKTesting: FC<AHKTestingProps> = (props) => {
     </Stack>
   );
   return (
-    <MenuLayout logo={logo} sidebar={<div></div>}>
+    <LayoutMenu logo={logo} sidebar={<div></div>}>
       <Root sx={{ color: "#000" }}>
         <Container
           sx={{
@@ -89,7 +86,7 @@ const AHKTesting: FC<AHKTestingProps> = (props) => {
           </Paper>
         </Modal>
       </Root>
-    </MenuLayout>
+    </LayoutMenu>
   );
 };
 

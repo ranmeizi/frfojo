@@ -9,7 +9,7 @@ import {
   DragStartEvent,
 } from "@dnd-kit/core";
 import { useClosestCenter } from "./useClosestCenter";
-import { useInvoker } from "@frfojo/common/hooks/useInvoker";
+import { useInvoker } from "@frfojo/common/hooks";
 
 type UseDragControlParams = {
   value: ItemData[]; // 值

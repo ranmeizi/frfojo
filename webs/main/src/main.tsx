@@ -1,7 +1,7 @@
 import { createRoot } from "react-dom/client";
 import App from "./App.tsx";
 import "./index.css";
-import { AsyncProcess, sleep } from "@frfojo/common/utils/delay.ts";
+import { AsyncProcess, sleep } from "@frfojo/common/utils/delay";
 import { init as rxdbInit } from "./db";
 
 const process = new AsyncProcess();

@@ -15,13 +15,12 @@ import {
   FormControlLabel,
   LinearProgress,
   LinearProgressProps,
-  Link,
   Paper,
   styled,
   Switch,
   Typography,
 } from "@mui/material";
-import { sleep } from "@frfojo/common";
+import { sleep } from "@frfojo/common/utils/delay";
 import Grid from "./components/Grid";
 import { useGameManager } from "./useGameManager";
 import ArrowCircleUpOutlinedIcon from "@mui/icons-material/ArrowCircleUpOutlined";

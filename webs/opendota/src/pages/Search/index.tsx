@@ -1,7 +1,7 @@
 import { FC, useMemo, useState } from "react";
 import { Box, Button, styled, Switch, TextField } from "@mui/material";
 import { opendotaApi } from "@/redux/queryApis/opendota";
-import { LayoutMenu } from "@frfojo/components/layout";
+import { LayoutMenu } from "@frfojo/components";
 import NavBar from "@/components/NavBar";
 import LogoMenu from "@/components/LogoMenu";
 import { useNavigate } from "react-router-dom";

@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {
-  FC,
   forwardRef,
   PropsWithChildren,
   ReactNode,
@@ -12,7 +11,7 @@ import {
 } from "react";
 import { Box, BoxProps, styled, Tooltip } from "@mui/material";
 import dayjs from "dayjs";
-import useRefState from "@frfojo/common/hooks/useRefState";
+import { useRefState } from "@frfojo/common/hooks";
 import localeData from "dayjs/plugin/localeData";
 
 dayjs.extend(localeData);

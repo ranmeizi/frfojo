@@ -1,8 +1,8 @@
 import { FC } from "react";
 import { Box, Container, Paper, styled, Typography } from "@mui/material";
-import MenuLayout from "@frfojo/components/layout/Menu";
 import MenuCard from "./components/MenuCard";
 import { useNavigate } from "react-router-dom";
+import { LayoutMenu } from "@frfojo/components";
 
 const IconMomoro = new URL("@/assets/momoro.jpeg", import.meta.url).href;
 const IconAHKTesting = new URL("@/assets/testing.jpeg", import.meta.url).href;
@@ -35,7 +35,7 @@ type HomepageProps = {};
 
 const Homepage: FC<HomepageProps> = (props) => {
   return (
-    <MenuLayout
+    <LayoutMenu
       header={
         <Box
           sx={{
@@ -73,7 +73,7 @@ const Homepage: FC<HomepageProps> = (props) => {
           </Paper>
         </Container>
       </Root>
-    </MenuLayout>
+    </LayoutMenu>
   );
 };
 

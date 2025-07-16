@@ -1,6 +1,6 @@
 import { FC } from "react";
 import { Box, Divider, Skeleton, styled } from "@mui/material";
-import { LayoutMenu } from "@frfojo/components/layout";
+import { LayoutMenu } from "@frfojo/components";
 import LogoMenu from "@/components/LogoMenu";
 import NavBar from "@/components/NavBar";
 import { useParams } from "react-router-dom";

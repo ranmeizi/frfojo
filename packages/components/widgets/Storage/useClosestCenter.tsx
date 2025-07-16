@@ -4,7 +4,7 @@ import {
   ClientRect,
 } from "@dnd-kit/core";
 import { Coordinates } from "@dnd-kit/utilities";
-import { useInvoker } from "@frfojo/common/hooks/useInvoker";
+import { useInvoker } from "@frfojo/common/hooks";
 import { useRef } from "react";
 import { ItemData } from "./Columns";
 

@@ -1,7 +1,7 @@
 import { createRoot } from "react-dom/client";
 import App, { SubApp } from "./App.tsx";
 import "./index.css";
-import { AsyncProcess } from "@frfojo/common/utils/delay.ts";
+import { AsyncProcess } from "@frfojo/common/utils/delay";
 import { reactBridge } from "@garfish/bridge-react-v18";
 import { Box } from "@mui/material";
 

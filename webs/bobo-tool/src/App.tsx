@@ -4,7 +4,7 @@ import { ThemeProvider } from "@emotion/react";
 import { Box, createTheme, CssBaseline } from "@mui/material";
 import { useAppTheme } from "./theme";
 import { useEffect, useState } from "react";
-console.log("sseeee,", window.__GARFISH__);
+
 const router = createBrowserRouter(routes, {
   basename: window.__GARFISH__ ? "/m/sub/bobo-tool" : "",
 });

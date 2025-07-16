@@ -11,7 +11,10 @@
     "build:tool": "pnpm -F bobo-tool build",
     "dev:user": "pnpm -F user-center dev",
     "build:user": "pnpm -F user-center build",
-    "build:components": "pnpm -F @frfojo/components build"
+    "build:common": "pnpm -F @frfojo/common build",
+    "build:components": "pnpm -F @frfojo/components build",
+    "tauri:start": "cargo tauri dev",
+    "tauri:build": "cargo tauri build"
   },
   "keywords": [],
   "author": "",

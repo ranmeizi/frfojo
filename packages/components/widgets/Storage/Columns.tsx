@@ -17,7 +17,7 @@ import SortableItem from "./SortableItem";
 import createResizeElement from "../../element/createResizeElement";
 import Item from "./Item";
 import Folder from "./Folder";
-import { throttle } from "@frfojo/common";
+import { throttle } from "@frfojo/common/utils/delay";
 
 // resize div
 const ReDiv = createResizeElement("div");
