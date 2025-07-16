@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "pnpm -F main dev",
     "build": "pnpm -F main build",
+    "build:all": "pnpm build:common && pnpm build:components && pnpm build && pnpm build:dota && pnpm build:tool",
     "dev:dota": "pnpm -F opendota dev",
     "build:dota": "pnpm -F opendota build",
     "dev:tool": "pnpm -F bobo-tool dev",
