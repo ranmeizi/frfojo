@@ -3,6 +3,7 @@ import { FC, useEffect, useRef } from "react";
 import { styled } from "@mui/material";
 import Garfish, { interfaces } from "garfish";
 import { useLocation } from "react-router-dom";
+import { getPath } from "./utils";
 
 const Root = styled("div")(() => ({
   position: "relative",
@@ -32,7 +33,7 @@ const BoboTool: FC<BoboToolProps> = () => {
 
     const app = await Garfish.loadApp("sub-bobotool-app", {
       domGetter: selector,
-      entry: `${location.protocol}//${location.hostname}:8012`,
+      entry: getPath("8012"),
       sandbox: false,
       props: {
         width: rect?.width,
