@@ -12,6 +12,7 @@ import { AppConfigDocType } from "@/db/schema/AppConfig.schema";
 type AppConfig = {
   cust_theme_primary?: string;
   theme_mode: "dark" | "light";
+  cacheVersion: number;
 };
 
 const defaultValue: AppConfig = {
@@ -19,6 +20,8 @@ const defaultValue: AppConfig = {
   cust_theme_primary: undefined,
   // mode
   theme_mode: "light",
+  // 前端缓存资源版本号
+  cacheVersion: 0,
 };
 
 export const context = createContext(defaultValue);

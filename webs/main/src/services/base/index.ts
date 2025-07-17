@@ -29,3 +29,21 @@ export function sendEmailCode(params: Params.BoboanNetBase.SendEmailCode) {
     data: params,
   });
 }
+
+/**
+ * 获取当前用户信息
+ */
+export function getCurrentUser() {
+  return request<Res.data<DTOs.BoboanNetBase.UserDto>>("/user/getCurrentUser", {
+    method: "GET",
+  });
+}
+
+/**
+ * 获取当前用户权限
+ */
+export function getPermissions() {
+  return request<Res.data<string[]>>("/users/permissions", {
+    method: "GET",
+  });
+}

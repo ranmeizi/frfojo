@@ -3,6 +3,7 @@ import { AppConfigProvider } from "./contexts/AppConfig";
 import { useAppTheme } from "./theme";
 import routes from "./routes";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { GlobalStatesProvider } from "./contexts/GlobalStates";
 
 const router = createBrowserRouter(routes);
 
@@ -13,7 +14,9 @@ function App() {
     <ThemeProvider theme={createTheme(theme)}>
       <CssBaseline />
       <AppConfigProvider>
-        <RouterProvider router={router} />
+        <GlobalStatesProvider>
+          <RouterProvider router={router} />
+        </GlobalStatesProvider>
       </AppConfigProvider>
     </ThemeProvider>
   );

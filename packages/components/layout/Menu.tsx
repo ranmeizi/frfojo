@@ -64,21 +64,23 @@ const Root = styled(PanelGroup)(({ theme }) => ({
       position: "absolute",
       width: "1px",
       background: "rgba(44,44,44,.4)",
-      transition: "0.2s",
+      transition: "0.3s",
       height: "100%",
       display: "flex",
       alignItems: "center",
+      transitionTimingFunction: "cubic-bezier(0.34, 1.56, 0.64, 1)",
 
       ".bar-icon": {
         width: "10px",
         opacity: 0,
-        transition: "0.2s",
+        transition: "0.3s",
+        transitionTimingFunction: "cubic-bezier(0.34, 1.56, 0.64, 1)",
       },
     },
 
     "&.active .bar": {
       width: "10px",
-      boxShadow: `0 0 2px 2px ${alpha(theme.palette.primary.main, 0.5)}`,
+      boxShadow: `0 0 2px 2px ${alpha(theme.palette.primary.main, 0.4)}`,
       background: alpha(theme.palette.primary.main, 0.2),
       borderRadius: "2px",
 

@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { FC, useMemo } from "react";
 import {
   Badge,
@@ -11,7 +12,6 @@ import {
   alpha,
 } from "@mui/material";
 import Introduce from "../Intro";
-import StorageColumns from "@frfojo/components/widgets/Storage/Columns";
 import { useRxQuery } from "@/db/hook/useRxQuery";
 import * as MenuService from "@/db/services/Menu.service";
 import { MenuDocType } from "@/db/schema/Menu.schema";
@@ -19,6 +19,7 @@ import ContextMenu from "./ContextMenu";
 import { useLocation, useNavigate } from "react-router-dom";
 import UserSetting from "./UserSetting";
 import { isMobile } from "@/utils/CONSTANTS";
+import { ColumnsStorage } from "@frfojo/components";
 
 const WrapActiveRoute = styled(Box)<{ isActive: boolean }>(
   ({ theme, isActive }) =>
@@ -79,8 +80,6 @@ const SideBar: FC = () => {
     return id;
   }, [pathname, list]);
 
-  console.log("sssssaaaaa", activeId);
-
   return (
     <Box
       sx={(theme) => ({
@@ -102,9 +101,8 @@ const SideBar: FC = () => {
             marginBottom: spacing(1),
           })}
         />
-
         <ContextMenu>
-          <StorageColumns
+          <ColumnsStorage
             value={list}
             onChange={MenuService.services.resetMenu}
             renderWrapper={(item, dom) => {

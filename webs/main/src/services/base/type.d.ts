@@ -75,6 +75,18 @@ declare namespace DTOs {
 
     /** 注册返回值 */
     type Signup = null;
+
+    /** 用户对象 */
+    type UserDto = {
+      id: string;
+      username: string;
+      email: string;
+      status: string;
+      firstName: string;
+      lastName: strng;
+      createdAt: string;
+      updatedAt: string;
+    };
   }
 }
 // 公共类型
