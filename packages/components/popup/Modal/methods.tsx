@@ -37,7 +37,14 @@ export const methods = {
   confirm(options: ModalMethodOptions) {
     let node;
     const task = new Promise((resolve, reject) => {
-      node = <ConfirmModal resolve={resolve} reject={reject} {...options} />;
+      node = (
+        <ConfirmModal
+          key={options.content}
+          resolve={resolve}
+          reject={reject}
+          {...options}
+        />
+      );
     });
 
     window.__BOCOMP_POPUP_EVENT_BUS__.emit(
