@@ -5,8 +5,8 @@ import { FC } from "react";
 type HomePageProps = {};
 
 const HomePage: FC<HomePageProps> = () => {
-  function open() {
-    const a = Modal.confirm({
+  async function open() {
+    const { close } = Modal.confirm({
       title: "hi",
       content: "content",
       maskClosable: true,
@@ -14,7 +14,6 @@ const HomePage: FC<HomePageProps> = () => {
         await sleep(3000);
       },
     });
-    console.log("open over", a);
   }
 
   return (

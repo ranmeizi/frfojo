@@ -36,7 +36,9 @@ export type ModalMethodOptions = {
 export const methods = {
   confirm(options: ModalMethodOptions) {
     let node;
+    let close;
     const task = new Promise((resolve, reject) => {
+      close = reject;
       node = (
         <ConfirmModal
           key={options.content}
@@ -55,6 +57,6 @@ export const methods = {
       }
     );
 
-    return task;
+    return { close };
   },
 };

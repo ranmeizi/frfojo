@@ -57,5 +57,6 @@ export function useMethodPopup() {
     </div>
   );
 }
-
-window.__BOCOMP_POPUP_EVENT_BUS__ = new EventBus();
+if (window.__BOCOMP_POPUP_EVENT_BUS__ === undefined) {
+  window.__BOCOMP_POPUP_EVENT_BUS__ = new EventBus();
+}

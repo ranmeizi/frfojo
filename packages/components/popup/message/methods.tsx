@@ -28,8 +28,10 @@ export const methods = {
     }
 
     let node;
+    let close;
 
     const task = new Promise((resolve, reject) => {
+      close = reject;
       node = <SuccessMessage resolve={resolve} reject={reject} {...options} />;
     });
 
@@ -52,8 +54,10 @@ export const methods = {
     }
 
     let node;
+    let close;
 
     const task = new Promise((resolve, reject) => {
+      close = reject;
       node = <WarningMessage resolve={resolve} reject={reject} {...options} />;
     });
 
@@ -76,8 +80,10 @@ export const methods = {
     }
 
     let node;
+    let close;
 
     const task = new Promise((resolve, reject) => {
+      close = reject;
       node = <ErrorMessage resolve={resolve} reject={reject} {...options} />;
     });
 
@@ -100,8 +106,10 @@ export const methods = {
     }
 
     let node;
+    let close;
 
     const task = new Promise((resolve, reject) => {
+      close = reject;
       node = <InfoMessage resolve={resolve} reject={reject} {...options} />;
     });
 
@@ -113,6 +121,6 @@ export const methods = {
       }
     );
 
-    return task;
+    return { close };
   },
 };
