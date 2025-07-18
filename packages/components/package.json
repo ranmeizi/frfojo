@@ -3,10 +3,10 @@
   "version": "1.0.0",
   "description": "",
   "type": "module",
-  "main": "index.ts",
-  "module": "index.ts",
-  "main1": "dist/index.js",
-  "module1": "dist/index.esm.js",
+  "main2": "index.ts",
+  "module2": "index.ts",
+  "main": "dist/index.js",
+  "module": "dist/index.esm.js",
   "types": "dist/index.d.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -16,6 +16,7 @@
     "@dnd-kit/core": "6.1.0",
     "@dnd-kit/sortable": "^8.0.0",
     "@dnd-kit/utilities": "^3.2.2",
+    "notistack": "^3.0.2",
     "react-hook-form": "^7.52.2",
     "react-resizable-panels": "^3.0.3"
   },

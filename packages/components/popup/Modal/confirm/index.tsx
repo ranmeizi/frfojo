@@ -8,12 +8,14 @@ import {
   Zoom,
 } from "@mui/material";
 import { FC, forwardRef, useCallback, useState } from "react";
-import { ModalMethodOptions, ModalPromise } from "../methods";
-import { createRoot } from "react-dom/client";
+import { ModalMethodOptions } from "../methods";
 import { sleep } from "@frfojo/common/utils/delay";
 import AsyncButton from "../../../button/AsyncButton";
 import { TransitionProps } from "@mui/material/transitions";
+import { useDefaultOptions } from "../useDefaultOptions";
+import { PopupPromise } from "../../common";
 
+// 过渡动画
 const Transition = forwardRef(function Transition(
   props: TransitionProps & {
     children: React.ReactElement<any, any>;
@@ -23,27 +25,15 @@ const Transition = forwardRef(function Transition(
   return <Zoom ref={ref} {...props} />;
 });
 
-export const ConfirmModal: FC<ModalMethodOptions & ModalPromise> = ({
+// 确认弹窗
+export const ConfirmModal: FC<ModalMethodOptions & PopupPromise> = ({
   resolve,
   reject,
   ...props
 }) => {
   const [open, setOpen] = useState(true);
 
-  const title = props.title;
-  const content = props.content;
-  const width = props.width || 416;
-
-  const okText = props.okText || "确认";
-  const cancelText = props.cancelText || "取消";
-
-  const onOk = props.onOk || (() => Promise.resolve());
-  const onCancel = props.onCancel || (() => Promise.resolve());
-  const okButtonProps = props.okButtonProps;
-
-  const mask = props.mask === undefined ? true : props.mask;
-  const maskClosable = props.maskClosable || false;
-  const cancelButtonProps = props.cancelButtonProps;
+  const options = useDefaultOptions(props);
 
   // 关闭函数
   const close = useCallback(async () => {
@@ -70,36 +60,36 @@ export const ConfirmModal: FC<ModalMethodOptions & ModalPromise> = ({
         transition: Transition,
       }}
       slotProps={{
-        backdrop: mask ? {} : { invisible: true },
+        backdrop: options.mask ? {} : { invisible: true },
       }}
       onClose={(e, reason) => {
-        if (reason === "backdropClick" && !maskClosable) {
+        if (reason === "backdropClick" && !options.maskClosable) {
           return;
         }
         close();
       }}
     >
-      <DialogTitle>{title}</DialogTitle>
-      <DialogContent sx={{ width: width + "px" }}>
+      <DialogTitle>{options.title}</DialogTitle>
+      <DialogContent sx={{ width: options.width + "px" }}>
         <DialogContentText id="alert-dialog-description">
-          {content}
+          {options.content}
         </DialogContentText>
       </DialogContent>
       <DialogActions>
         <AsyncButton
-          {...cancelButtonProps}
+          {...options.cancelButtonProps}
           loadingPosition="start"
-          onClick={handleClick(onCancel)}
+          onClick={handleClick(options.onCancel)}
         >
-          {cancelText}
+          {options.cancelText}
         </AsyncButton>
         <AsyncButton
-          {...okButtonProps}
+          {...options.okButtonProps}
           loadingPosition="start"
-          onClick={handleClick(onOk)}
+          onClick={handleClick(options.onOk)}
           autoFocus
         >
-          {okText}
+          {options.okText}
         </AsyncButton>
       </DialogActions>
     </Dialog>

@@ -1,13 +1,8 @@
 import { ButtonProps } from "@mui/material";
 import { ReactNode, useEffect, useRef, useState } from "react";
-import { ModalExpand } from ".";
 import { ConfirmModal } from "./confirm";
 import { useForceUpdate } from "@frfojo/common/hooks";
-
-export type ModalPromise = {
-  resolve: <T = any>(data?: T) => void;
-  reject: () => void;
-};
+import { bus } from "../common";
 
 export type ModalMethodOptions = {
   /** 标题 */
@@ -45,10 +40,13 @@ export const methods = {
       node = <ConfirmModal resolve={resolve} reject={reject} {...options} />;
     });
 
-    ModalExpand.__$eb.emit(ModalExpand.__$eb.TYPES.MESSAGE, {
-      task,
-      node,
-    });
+    window.__BOCOMP_POPUP_EVENT_BUS__.emit(
+      window.__BOCOMP_POPUP_EVENT_BUS__.TYPES.MESSAGE,
+      {
+        task,
+        node,
+      }
+    );
 
     return task;
   },

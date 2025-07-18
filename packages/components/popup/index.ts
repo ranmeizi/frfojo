@@ -1,4 +1,3 @@
-import { useMethodPopup } from "./useMethodPopup";
-
+export * from "./common";
 export * from "./Modal";
-export { useMethodPopup };
+export * from "./message";

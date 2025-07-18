@@ -1,6 +1,11 @@
 import { useForceUpdate } from "@frfojo/common/hooks";
 import { ReactNode, useEffect, useRef } from "react";
-import { ModalExpand } from "./Modal";
+import { EventBus } from "@frfojo/common/utils";
+
+export type PopupPromise = {
+  resolve: <T = any>(data?: T) => void;
+  reject: () => void;
+};
 
 /**
  * 采用 use hook 挂载到 react tree 的方案
@@ -30,9 +35,12 @@ export function useMethodPopup() {
         forceUpdate();
       });
     }
-    ModalExpand.__$eb.on(ModalExpand.__$eb.TYPES.MESSAGE, listener);
+    window.__BOCOMP_POPUP_EVENT_BUS__.on("message", listener);
     return () => {
-      ModalExpand.__$eb.un(ModalExpand.__$eb.TYPES.MESSAGE, listener);
+      window.__BOCOMP_POPUP_EVENT_BUS__.un(
+        window.__BOCOMP_POPUP_EVENT_BUS__.TYPES.MESSAGE,
+        listener
+      );
     };
   }, []);
 
@@ -49,3 +57,5 @@ export function useMethodPopup() {
     </div>
   );
 }
+
+window.__BOCOMP_POPUP_EVENT_BUS__ = new EventBus();
