@@ -3,8 +3,10 @@
   "version": "1.0.0",
   "description": "",
   "type": "module",
-  "main": "dist/index.js",
-  "module": "dist/index.esm.js",
+  "main": "index.ts",
+  "module": "index.ts",
+  "main1": "dist/index.js",
+  "module1": "dist/index.esm.js",
   "types": "dist/index.d.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",

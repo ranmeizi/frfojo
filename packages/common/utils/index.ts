@@ -1,4 +1,5 @@
 import * as delay from "./delay";
+import $EB, { EventBus } from "./EventBus";
 
 export function loadScript(url: string) {
   const memo: Record<string, any> = {};
@@ -18,4 +19,4 @@ export function loadScript(url: string) {
   });
 }
 
-export { delay };
+export { delay, EventBus, $EB };
