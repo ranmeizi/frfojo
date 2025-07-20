@@ -22,6 +22,9 @@ export type FormApis = {
   // 把原始的api暴露出来
   getFieldState: Origin["getFieldState"];
   reset: Origin["reset"];
+  state: {
+    loading: boolean;
+  };
 };
 
 type RHFContextType = {
@@ -92,10 +95,11 @@ export default function BoForm({
   );
 }
 
-function getFormApi({ origin }: RHFContextType) {
+function getFormApi({ origin, state }: RHFContextType) {
   return {
     getFieldState: origin!.getFieldState,
     reset: origin!.reset,
+    state: state,
   };
 }
 

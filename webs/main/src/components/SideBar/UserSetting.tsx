@@ -3,14 +3,11 @@ import {
   Avatar,
   Box,
   IconButton,
-  List,
   ListItem,
   ListItemButton,
   ListItemText,
   Menu,
   MenuItem,
-  Paper,
-  Popover,
   styled,
 } from "@mui/material";
 import StatusBadge, { EnumStatus } from "./components/StatusBadge";
@@ -48,7 +45,7 @@ const UserSetting: FC<UserSettingProps> = () => {
 
   const statusMenuItem = (
     <ListItem disablePadding>
-      <ListItemButton onClick={handleStatusClick}>
+      <ListItemButton onClick={(e) => handleStatusClick(e as any)}>
         <Box
           display="flex"
           alignItems="center"

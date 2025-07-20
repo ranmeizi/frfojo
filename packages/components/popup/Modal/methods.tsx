@@ -1,8 +1,6 @@
 import { ButtonProps } from "@mui/material";
-import { ReactNode, useEffect, useRef, useState } from "react";
+import { ReactNode } from "react";
 import { ConfirmModal } from "./confirm";
-import { useForceUpdate } from "@frfojo/common/hooks";
-import { bus } from "../common";
 
 export type ModalMethodOptions = {
   /** 标题 */
@@ -41,7 +39,7 @@ export const methods = {
       close = reject;
       node = (
         <ConfirmModal
-          key={options.content}
+          key={Math.random()}
           resolve={resolve}
           reject={reject}
           {...options}

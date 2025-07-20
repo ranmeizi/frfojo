@@ -7,4 +7,6 @@ type AsyncProcessFn = (next?: () => void) => Promise<void>;
 
 interface Window {
   ffj_loaded(): void;
+
+  __BOCOMP_POPUP_EVENT_BUS__: any;
 }

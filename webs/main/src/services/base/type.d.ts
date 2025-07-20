@@ -68,7 +68,7 @@ declare namespace DTOs {
     /** 登陆返回值 */
     type Signin = {
       accessToken: string;
-      expiresIn: string;
+      expiresIn: number;
       refreshToken: string;
       tokenType: string;
     };

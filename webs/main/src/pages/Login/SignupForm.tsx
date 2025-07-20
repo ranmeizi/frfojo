@@ -10,7 +10,7 @@ import {
 } from "@mui/material";
 import VerifyCodeField from "./components/VerifyCodeField";
 import PasswordInput from "./components/PasswordInput";
-import { BoFormItem } from "@frfojo/components";
+import { BoFormItem, useFormApi } from "@frfojo/components";
 
 const Root = styled(Paper)(({ theme }) => ({
   borderRadius: theme.spacing(1),
@@ -26,6 +26,7 @@ export default function SignupForm({
   onGoSignin,
   ...props
 }: PaperProps & SignupFormProps) {
+  const { state } = useFormApi();
   return (
     <Root {...props}>
       <Box
@@ -112,7 +113,13 @@ export default function SignupForm({
             </Link>
           </Box>
           {/* 提交 */}
-          <Button type="submit" variant="contained" fullWidth>
+          <Button
+            loading={state.loading}
+            loadingPosition="start"
+            type="submit"
+            variant="contained"
+            fullWidth
+          >
             注册
           </Button>
         </Box>

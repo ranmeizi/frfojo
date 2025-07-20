@@ -9,11 +9,16 @@ import {
 import * as BaseServices from "@/services/base";
 
 type GlobalStates = {
-  user: ReturnType<typeof useUser> | null;
+  user: ReturnType<typeof useUser>;
 };
 
 export const Context = createContext<GlobalStates>({
-  user: null,
+  user: {
+    info: null,
+    permissions: [],
+    getCurrentUser: () => Promise.reject(),
+    getPermissions: () => Promise.reject(),
+  },
 });
 
 export function GlobalStatesProvider({ children }: PropsWithChildren) {

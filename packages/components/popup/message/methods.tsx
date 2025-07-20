@@ -1,6 +1,5 @@
 import { ReactNode } from "react";
 import { SuccessMessage } from "./Success";
-import { bus } from "../common";
 import { WarningMessage } from "./Warning";
 import { ErrorMessage } from "./Error";
 import { InfoMessage } from "./Info";

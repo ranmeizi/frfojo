@@ -44,11 +44,9 @@ export function useMethodPopup() {
     };
   }, []);
 
-  const modals = Array.from(
-    modalsMap.current.entries().map(([task, node]) => node)
+  const modals = Array.from(modalsMap.current.entries()).map(
+    ([task, node]) => node
   );
-
-  console.log(modals, modalsMap, "modals");
 
   return (
     <div style={{ height: 0, width: 0, position: "fixed", top: 0, left: 0 }}>

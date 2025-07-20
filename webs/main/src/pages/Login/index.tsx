@@ -5,7 +5,10 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import SignupForm from "./SignupForm";
 import { motion } from "framer-motion";
 import { signin, signup } from "@/services/base";
-import { BoForm, FormApis } from "@frfojo/components";
+import { BoForm, FormApis, message } from "@frfojo/components";
+import { sleep } from "@frfojo/common/utils/delay";
+import { calcExpiresAt, setToken } from "@frfojo/common/request";
+import { useSearchParams } from "react-router-dom";
 
 const BGImg = new URL("@/assets/bg.jpg", import.meta.url).href;
 
@@ -39,6 +42,13 @@ type SignupFormType = {
 export default function Login() {
   const [type, setType] = useState<"signin" | "signup" | undefined>();
 
+  const [searchParams] = useSearchParams();
+
+  // 获取单个参数
+  const redirect_uri =
+    searchParams.get("redirect_uri") ||
+    `${location.protocol}//${location.hostname}:${location.port}/`;
+
   const formRef = useRef<FormApis>();
 
   useEffect(() => {
@@ -52,22 +62,27 @@ export default function Login() {
     console.log("???res", res);
     if (res.code === "000000") {
       // 存token
+      const token = calcExpiresAt(res.data);
+      setToken(token);
       // 跳转
+      location.replace(redirect_uri);
     } else {
-      alert("出错 换成mui");
+      message.error(res.msg);
     }
   }
 
   async function onSignUp(data: SignupFormType) {
-    console.log("onSignUp", data);
+    await sleep(1000);
     const res = await signup(data);
     if (res.code === "000000") {
+      formRef.current?.reset?.();
       // 提示
-
+      message.success("注册成功! 去登陆吧😊");
+      await sleep(1000);
       // 跳登陆
       setType("signin");
     } else {
-      alert("出错 换成mui");
+      message.error(res.msg);
     }
   }
 
