@@ -1,6 +1,8 @@
 import {
   createContext,
   PropsWithChildren,
+  ReactNode,
+  useCallback,
   useContext,
   useRef,
   useState,
@@ -13,7 +15,8 @@ import {
 
 type FormProps = {
   formRef?: React.MutableRefObject<FormApis | undefined>;
-  onSubmit: (data: any) => Promise<boolean>;
+  onSubmit?: (data: any) => Promise<boolean>;
+  children?: ReactNode | ((ctx: RHFContextType) => ReactNode);
 };
 
 type Origin = ReturnType<typeof useForm>;
@@ -46,7 +49,8 @@ export default function BoForm({
   onSubmit,
   formRef,
   ...props
-}: PropsWithChildren<FormProps & React.HtmlHTMLAttributes<HTMLFormElement>>) {
+}: FormProps &
+  Omit<React.HtmlHTMLAttributes<HTMLFormElement>, "onSubmit" | "children">) {
   // loading 状态
   const [loading, setLoading] = useState(false);
 
@@ -77,7 +81,7 @@ export default function BoForm({
 
     try {
       // 回调 外面处理提交
-      await onSubmit(data);
+      await onSubmit?.(data);
       console.log("成功");
     } catch (e) {
       console.log("失败");
@@ -86,10 +90,32 @@ export default function BoForm({
     }
   }
 
+  const defaultOnReset = useCallback(() => {
+    originForm.reset(
+      {},
+      {
+        // undefined 表示使用 defaultValues
+        keepErrors: false,
+        keepDirty: false,
+        keepIsSubmitted: false,
+        keepTouched: false,
+        keepIsValid: false,
+        keepSubmitCount: false,
+      }
+    );
+  }, []);
+
   return (
     <RHFContext.Provider value={value}>
-      <form {...props} onSubmit={originForm.handleSubmit(_onSubmit)}>
-        {children}
+      <form
+        {...props}
+        onSubmit={originForm.handleSubmit(_onSubmit)}
+        onReset={(e) => {
+          defaultOnReset();
+          props?.onReset?.(e);
+        }}
+      >
+        {typeof children === "function" ? children(value) : children}
       </form>
     </RHFContext.Provider>
   );

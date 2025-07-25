@@ -1,10 +1,10 @@
 import { sendEmailCode } from "@/services/base";
 import { BoFormItem, useFormApi, useWatch } from "@frfojo/components";
 
-import { Box, Button, Input, InputProps } from "@mui/material";
+import { Box, Button, TextField, TextFieldProps } from "@mui/material";
 import { useState } from "react";
 
-export default function VerifyCodeField(props: InputProps) {
+export default function VerifyCodeField(props: TextFieldProps) {
   const [cooldown, setCooldown] = useState(-1);
 
   const email = useWatch("email");
@@ -42,6 +42,7 @@ export default function VerifyCodeField(props: InputProps) {
   return (
     <Box sx={{ width: "100%", display: "flex", alignItems: "end" }}>
       <BoFormItem
+        ignoreFormItem
         name="verifyCode"
         label="验证码"
         formControlProps={{ variant: "standard" }}
@@ -49,7 +50,11 @@ export default function VerifyCodeField(props: InputProps) {
           required: "验证码不能为空",
         }}
       >
-        <Input {...props} inputProps={{ maxLength: 6 }} />
+        <TextField
+          {...props}
+          variant="standard"
+          inputProps={{ maxLength: 6 }}
+        />
       </BoFormItem>
       <Box sx={{ pb: "12px" }}>
         {cooldown > 0 ? (

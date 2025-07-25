@@ -3,6 +3,7 @@ import App from "./App.tsx";
 import "./index.css";
 import { AsyncProcess, sleep } from "@frfojo/common/utils/delay";
 import { init as rxdbInit } from "./db";
+import RefreshController from '@frfojo/common/'
 
 const process = new AsyncProcess();
 

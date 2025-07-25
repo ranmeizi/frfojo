@@ -71,9 +71,7 @@ export const ConfirmModal: FC<ModalMethodOptions & PopupPromise> = ({
     >
       <DialogTitle>{options.title}</DialogTitle>
       <DialogContent sx={{ width: options.width + "px" }}>
-        <DialogContentText id="alert-dialog-description">
-          {options.content}
-        </DialogContentText>
+        <DialogContentText>{options.content}</DialogContentText>
       </DialogContent>
       <DialogActions>
         <AsyncButton

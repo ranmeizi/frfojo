@@ -1,6 +1,6 @@
 import { FC, PropsWithChildren, useContext, useMemo } from "react";
 import { styled } from "@mui/material";
-import { context, ItemData } from "./Columns";
+import type { ItemData } from "./Columns";
 import {
   SortableContext,
   verticalListSortingStrategy,
@@ -10,6 +10,7 @@ import Item, { transtion } from "./Item";
 import FolderIcon from "@mui/icons-material/Folder";
 import { green } from "@mui/material/colors";
 import { motion, AnimatePresence } from "framer-motion";
+import { context } from "./Context";
 
 const Root = styled("div")<{ open: boolean; width: number }>(
   ({ theme, open, width }) => ({

@@ -1,9 +1,9 @@
 import { styled } from "@mui/material";
 import { FC, useContext } from "react";
 import type { ItemData } from "./Columns";
-import { context } from "./Columns";
 import { green } from "@mui/material/colors";
 import { motion, AnimatePresence, MotionProps } from "framer-motion";
+import { context } from "./Context";
 
 export const transtion: MotionProps["transition"] = {
   duration: 0.2,

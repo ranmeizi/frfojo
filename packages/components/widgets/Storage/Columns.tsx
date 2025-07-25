@@ -1,6 +1,6 @@
-import { createContext, FC, useCallback, useMemo, useState } from "react";
+import { FC, useCallback, useMemo, useState } from "react";
 import { styled } from "@mui/material";
-import { useDragControl, DragControl } from "./useDragControl";
+import { useDragControl } from "./useDragControl";
 import {
   DndContext,
   DragOverlay,
@@ -18,6 +18,7 @@ import createResizeElement from "../../element/createResizeElement";
 import Item from "./Item";
 import Folder from "./Folder";
 import { throttle } from "@frfojo/common/utils/delay";
+import { context } from "./Context";
 
 // resize div
 const ReDiv = createResizeElement("div");
@@ -53,27 +54,6 @@ export type ItemData = {
   path?: string;
   tooltip?: string;
 };
-
-export const context = createContext<
-  Omit<
-    DragControl,
-    | "onDragStart"
-    | "onDragOver"
-    | "onDragMove"
-    | "onDragEnd"
-    | "itemMap"
-    | "collisionDetection"
-  > & {
-    width: number;
-  }
->({
-  flatTree: [],
-  activeId: null,
-  hoverId: null,
-  width: 0,
-  openId: null,
-  setOpenId: () => {},
-});
 
 /**
  *

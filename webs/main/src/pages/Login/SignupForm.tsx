@@ -1,11 +1,11 @@
 import {
   Box,
   Button,
-  Input,
   Link,
   Paper,
   PaperProps,
   styled,
+  TextField,
   Typography,
 } from "@mui/material";
 import VerifyCodeField from "./components/VerifyCodeField";
@@ -48,6 +48,7 @@ export default function SignupForm({
         >
           <Typography sx={{ mb: 2 }}>Boboan.net 注册</Typography>
           <BoFormItem
+            ignoreFormItem
             name="username"
             label="用户名"
             formControlProps={{ variant: "standard" }}
@@ -63,9 +64,10 @@ export default function SignupForm({
               },
             }}
           >
-            <Input />
+            <TextField variant="standard" />
           </BoFormItem>
           <BoFormItem
+            ignoreFormItem
             name="password"
             label="密码"
             formControlProps={{ variant: "standard" }}
@@ -81,10 +83,11 @@ export default function SignupForm({
               },
             }}
           >
-            <PasswordInput autoComplete="current-password" />
+            <PasswordInput variant="standard" autoComplete="current-password" />
           </BoFormItem>
 
           <BoFormItem
+            ignoreFormItem
             name="email"
             label="邮箱"
             formControlProps={{ variant: "standard" }}
@@ -96,7 +99,7 @@ export default function SignupForm({
               },
             }}
           >
-            <Input />
+            <TextField variant="standard" />
           </BoFormItem>
 
           <VerifyCodeField />

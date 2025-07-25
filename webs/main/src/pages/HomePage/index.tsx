@@ -1,7 +1,21 @@
 import { request } from "@frfojo/common/request";
 import { sleep } from "@frfojo/common/utils/delay";
-import { LayoutMenu, Modal, message } from "@frfojo/components";
-import { Box, Paper, Typography } from "@mui/material";
+import {
+  LayoutMenu,
+  Modal,
+  message,
+  ModalForm,
+  BoFormItem,
+} from "@frfojo/components";
+import {
+  Box,
+  Input,
+  MenuItem,
+  Paper,
+  Select,
+  TextField,
+  Typography,
+} from "@mui/material";
 import { FC } from "react";
 
 type HomePageProps = {};
@@ -44,7 +58,24 @@ const HomePage: FC<HomePageProps> = () => {
         </Paper>
         <Paper>
           <div>ModalForm</div>
-          <button onClick={() => message.error("错误")}>open ModalForm</button>
+          <ModalForm
+            title="see"
+            onSubmit={async () => {
+              await sleep(2000);
+              return true;
+            }}
+            trigger={<button>open ModalForm</button>}
+          >
+            <BoFormItem label="输入项1" name="input1">
+              <TextField variant="standard" />
+            </BoFormItem>
+            <BoFormItem label="选择1" name="select1">
+              <Select>
+                <MenuItem value={"1"}>选项1</MenuItem>
+                <MenuItem value={"2"}>选项2</MenuItem>
+              </Select>
+            </BoFormItem>
+          </ModalForm>
         </Paper>
       </Box>
     </LayoutMenu>
