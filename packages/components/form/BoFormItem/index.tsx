@@ -17,6 +17,7 @@ type FormItemProps = {
   ignoreFormItem?: boolean; // 不要 FormControl / label / error
   ignoreLabel?: boolean; // 不要 Label
   ignoreError?: boolean; // 不要错误
+  fieldProps?: Record<string, any>;
 };
 
 export default function BoFormItem({
@@ -27,6 +28,7 @@ export default function BoFormItem({
   ignoreFormItem,
   ignoreLabel,
   ignoreError,
+  fieldProps = {},
   children,
 }: PropsWithChildren<FormItemProps>) {
   // 处理 value onchange
@@ -43,6 +45,7 @@ export default function BoFormItem({
         label: ignoreLabel ? undefined : label,
         error: hasError,
         fullWidth: true,
+        ...fieldProps,
       })}
       {ignoreError ? null : (
         <Box className="BoFormItem-error-area" sx={{ height: "12px" }}>
@@ -59,13 +62,18 @@ export default function BoFormItem({
     >
       {/* clone 给他加入一些这个组件控制的属性 */}
       {ignoreLabel ? null : (
-        <InputLabel className="BoFormItem-label" htmlFor={name}>
+        <InputLabel
+          variant={fieldProps?.variant}
+          className="BoFormItem-label"
+          id={`lebel_for_${name}`}
+        >
           {label}
         </InputLabel>
       )}
       {React.cloneElement(children, {
-        id: name,
+        label,
         ...origin?.register(name, options),
+        labelId: `lebel_for_${name}`,
       })}
       {ignoreError ? null : (
         <Box className="BoFormItem-error-area" sx={{ height: "12px" }}>

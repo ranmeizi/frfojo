@@ -60,14 +60,27 @@ const HomePage: FC<HomePageProps> = () => {
           <div>ModalForm</div>
           <ModalForm
             title="see"
-            onSubmit={async () => {
+            onSubmit={async (data) => {
+              console.log("提交", data);
               await sleep(2000);
               return true;
             }}
             trigger={<button>open ModalForm</button>}
           >
-            <BoFormItem label="输入项1" name="input1">
-              <TextField variant="standard" />
+            <BoFormItem
+              ignoreFormItem
+              label="输入项1"
+              name="input1"
+              fieldProps={{ variant: "standard" }}
+            >
+              <TextField />
+            </BoFormItem>
+            <BoFormItem
+              label="输入项2没有"
+              name="input2"
+              fieldProps={{ variant: "standard" }}
+            >
+              <Input />
             </BoFormItem>
             <BoFormItem label="选择1" name="select1">
               <Select>
