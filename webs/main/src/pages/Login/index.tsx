@@ -213,6 +213,8 @@ function useHiddenLoginHandler(redirectFn: Function) {
   const { user } = useGlobalStates();
   useEffect(() => {
     document.addEventListener("visibilitychange", function (e) {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      //@ts-ignore
       if (!e?.target?.hidden) {
         if (getToken()) {
           // 跳转

@@ -85,7 +85,7 @@ export async function newMessage(content: string) {
     console.log("run", Math.round(Date.now() / 1000));
     await checkInterrupted();
     fn();
-    await sleep(timeout, (t) => (timer = t));
+    await sleep(timeout, (t: any) => (timer = t));
   }
 }
 
@@ -110,7 +110,7 @@ export function reset() {
 export function useVisibilityEvent() {
   console.log("heeeee");
   useEffect(() => {
-    function onVisibilitychange(e) {
+    function onVisibilitychange(e: any) {
       console.log("onVisibilitychange", e);
       if (e.target.hidden) {
         onHidden();

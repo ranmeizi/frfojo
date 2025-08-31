@@ -43,7 +43,7 @@ export default function GoogleOAuthButton({
   useEffect(() => {}, [loading]);
 
   useEffect(() => {
-    function onMessage(e) {
+    function onMessage(e: any) {
       const type = e.data?.type;
 
       if (type === "google-callback") {

@@ -54,7 +54,7 @@ const HomePage: FC<HomePageProps> = () => {
         </Paper>
         <Paper>
           <div>Test Auth</div>
-          <button onClick={() => request("/users/list")}>
+          <button onClick={() => request("/users/list", {})}>
             request auth guard
           </button>
         </Paper>

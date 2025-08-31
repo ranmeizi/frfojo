@@ -85,7 +85,7 @@ export function getUrl() {
   };
 
   for (const [k, v] of Object.entries(gQuery)) {
-    url.searchParams.append(k, v);
+    url.searchParams.append(k, v as string);
   }
 
   return url.toString();
