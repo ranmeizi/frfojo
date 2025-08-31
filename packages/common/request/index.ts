@@ -58,9 +58,9 @@ external.interceptors.response.use(responseInterceptor, errorFn);
  */
 export function request<T = any>(
   url: string,
-  { env, ...config }: AxiosRequestConfig & { env?: "development" | "prod" }
+  config: AxiosRequestConfig
 ): Promise<T> {
-  env = env || "development";
+  const env = location.hostname === "boboan.net" ? "pord" : "development";
 
   if (env === "development") {
     config.baseURL = "http://localhost:3000";
