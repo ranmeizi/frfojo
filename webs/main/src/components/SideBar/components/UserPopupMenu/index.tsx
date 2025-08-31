@@ -1,5 +1,5 @@
 import { useUserSelector } from "@/contexts/GlobalStates";
-import { Logo, Modal } from "@frfojo/components";
+import { Logo, message, Modal } from "@frfojo/components";
 import {
   alpha,
   Box,
@@ -13,6 +13,8 @@ import {
 } from "@mui/material";
 import React from "react";
 import { useNavigate } from "react-router-dom";
+import ChangePasswordModalForm from "../ChangePasswordModalForm";
+import { changePassword } from "@/services/base";
 
 type UserPopupMenuProps = {
   statusMenuItem: React.ReactElement;
@@ -36,6 +38,7 @@ export default function UserPopupMenu({
         color: "error",
       },
       async onOk() {
+        user.clearUser();
         navigate("/login");
       },
     });
@@ -43,6 +46,18 @@ export default function UserPopupMenu({
 
   function handleLogin() {
     navigate("/login");
+  }
+
+  async function onChangePasswordSubmit(data: any) {
+    const res = await changePassword(data);
+
+    if (res.code === "000000") {
+      message.success(res.msg);
+      return true;
+    } else {
+      message.error(res.msg);
+      return false;
+    }
   }
 
   return (
@@ -79,6 +94,16 @@ export default function UserPopupMenu({
           >
             <Paper elevation={9} sx={{ width: "280px" }}>
               <List dense disablePadding>
+                <ListItem disablePadding>
+                  <ChangePasswordModalForm
+                    onSubmit={onChangePasswordSubmit}
+                    trigger={
+                      <ListItemButton>
+                        <ListItemText primary="修改密码" />
+                      </ListItemButton>
+                    }
+                  />
+                </ListItem>
                 <ListItem disablePadding>
                   <ListItemButton>
                     <ListItemText primary="编辑资料" />

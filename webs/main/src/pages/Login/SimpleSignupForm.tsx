@@ -9,8 +9,8 @@ import {
   Typography,
 } from "@mui/material";
 import VerifyCodeField from "./components/VerifyCodeField";
-import { BoFormItem, useFormApi } from "@frfojo/components";
 import PasswordInput from "./components/PasswordInput";
+import { BoFormItem, useFormApi } from "@frfojo/components";
 
 const Root = styled(Paper)(({ theme }) => ({
   borderRadius: theme.spacing(1),
@@ -47,23 +47,17 @@ export default function SignupForm({
           }}
         >
           <Typography sx={{ mb: 2 }}>Boboan.net 注册</Typography>
-
           <BoFormItem
             ignoreFormItem
-            name="email"
+            name="username"
             label="邮箱"
             formControlProps={{ variant: "standard" }}
             options={{
-              required: "邮箱地址不能为空",
-              pattern: {
-                value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                message: "请输入有效的邮箱地址",
-              },
+              required: "邮箱不能为空",
             }}
           >
-            <TextField variant="standard" autoComplete="new-password" />
+            <TextField variant="standard" />
           </BoFormItem>
-
           <BoFormItem
             name="password"
             label="密码"
@@ -81,18 +75,23 @@ export default function SignupForm({
             }}
             fieldProps={{ variant: "standard" }}
           >
-            <PasswordInput autoComplete="new-password" />
+            <PasswordInput autoComplete="current-password" />
           </BoFormItem>
+
           <BoFormItem
             ignoreFormItem
-            name="verifyCode"
-            label="验证码"
+            name="email"
+            label="邮箱"
             formControlProps={{ variant: "standard" }}
             options={{
-              required: "验证码不能为空",
+              required: "邮箱地址不能为空",
+              pattern: {
+                value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                message: "请输入有效的邮箱地址",
+              },
             }}
           >
-            <VerifyCodeField />
+            <TextField variant="standard" />
           </BoFormItem>
 
           <Box
@@ -103,10 +102,7 @@ export default function SignupForm({
             }}
           >
             {/* 去登陆(切换表单) */}
-            <Link
-              sx={{ fontSize: "14px", mb: 4, cursor: "pointer" }}
-              onClick={onGoSignin}
-            >
+            <Link sx={{ fontSize: "14px", mb: 4 }} onClick={onGoSignin}>
               去登陆
             </Link>
           </Box>

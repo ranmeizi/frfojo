@@ -17,6 +17,8 @@ import {
   Typography,
 } from "@mui/material";
 import { FC } from "react";
+import GoogleOAuthButton from "../Login/components/GoogleOAuthButton";
+import * as TitleAnime from "@/utils/flashTitle";
 
 type HomePageProps = {};
 
@@ -90,6 +92,29 @@ const HomePage: FC<HomePageProps> = () => {
             </BoFormItem>
           </ModalForm>
         </Paper>
+
+        <Paper>
+          <div>测试 title 动画</div>
+          <button
+            onClick={() => {
+              TitleAnime.newMessage("你好我是波波安，这是你的蛋糕");
+            }}
+          >
+            开始
+          </button>
+          <button
+            onClick={() => {
+              TitleAnime.reset();
+            }}
+          >
+            中断
+          </button>
+        </Paper>
+        <GoogleOAuthButton
+          onCallback={({ code }) => {
+            alert(`code:${code}`);
+          }}
+        />
       </Box>
     </LayoutMenu>
   );

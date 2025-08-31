@@ -5,6 +5,7 @@ import routes from "./routes";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { GlobalStatesProvider } from "./contexts/GlobalStates";
 import { SnackbarProvider, useMethodPopup } from "@frfojo/components/popup";
+import * as FlashTitle from "@/utils/flashTitle";
 
 const router = createBrowserRouter(routes);
 
@@ -12,6 +13,8 @@ function App() {
   const theme = useAppTheme();
 
   const popup = useMethodPopup();
+
+  FlashTitle.useVisibilityEvent();
 
   return (
     <ThemeProvider theme={createTheme(theme)}>

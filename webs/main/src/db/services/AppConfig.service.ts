@@ -2,7 +2,12 @@ import { db } from "..";
 
 const name = "appConfig";
 
-type AllAppConfigKeys = "cust_theme_primary" | "theme_mode" | "is_first";
+export type AllAppConfigKeys =
+  | "cust_theme_primary"
+  | "theme_mode"
+  | "is_first"
+  | "app_state_user"
+  | "app_state_permissions";
 
 export const querys = {
   /** 按 Key 查询一行配置 */
@@ -32,7 +37,7 @@ export const services = {
   /**
    * 设置 config
    */
-  async setConfig(key: AllAppConfigKeys, value: string) {
+  async setConfig(key: AllAppConfigKeys, value: any) {
     return await db.collections["appConfig"].upsert({
       key: key,
       value: value,

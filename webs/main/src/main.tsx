@@ -3,12 +3,19 @@ import App from "./App.tsx";
 import "./index.css";
 import { AsyncProcess, sleep } from "@frfojo/common/utils/delay";
 import { init as rxdbInit } from "./db";
-import RefreshController from '@frfojo/common/'
+import { checkIfGoogleCallback } from "./callbacks/google-callback/index.tsx";
+import { checkIfEmailVerifyCallback } from "./callbacks/email-verify-callback/index.tsx";
 
 const process = new AsyncProcess();
 
+// 检查是否由googlecallback 来的
+process.use(checkIfGoogleCallback);
+
 // 异步初始化 rxdb
 process.use(rxdbInit);
+
+// 检查是否由email callback链接来的
+process.use(checkIfEmailVerifyCallback);
 
 // 测试 loading
 process.use(async function (next: AsyncProcessFn) {

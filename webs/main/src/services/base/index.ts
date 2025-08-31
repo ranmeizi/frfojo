@@ -11,13 +11,16 @@ export function signin(params: Params.BoboanNetBase.Signin) {
 }
 
 /**
- * 注册
+ * 邮箱注册
  */
-export function signup(params: Params.BoboanNetBase.Signup) {
-  return request<Res.data<DTOs.BoboanNetBase.Signup>>("/auth/signup", {
-    method: "POST",
-    data: params,
-  });
+export function emailsignup(params: Params.BoboanNetBase.EmailSignup) {
+  return request<Res.data<DTOs.BoboanNetBase.EmailSignup>>(
+    "/auth/emailsignup",
+    {
+      method: "POST",
+      data: params,
+    }
+  );
 }
 
 /**
@@ -34,9 +37,12 @@ export function sendEmailCode(params: Params.BoboanNetBase.SendEmailCode) {
  * 获取当前用户信息
  */
 export function getCurrentUser() {
-  return request<Res.data<DTOs.BoboanNetBase.UserDto>>("/user/getCurrentUser", {
-    method: "GET",
-  });
+  return request<Res.data<DTOs.BoboanNetBase.UserDto>>(
+    "/users/getCurrentUser",
+    {
+      method: "GET",
+    }
+  );
 }
 
 /**
@@ -45,5 +51,27 @@ export function getCurrentUser() {
 export function getPermissions() {
   return request<Res.data<string[]>>("/users/permissions", {
     method: "GET",
+  });
+}
+
+/**
+ * 修改密码
+ */
+export function changePassword(params: Params.BoboanNetBase.ChangePassword) {
+  return request<Res.data<{}>>("/auth/changePassword", {
+    method: "POST",
+    data: params,
+  });
+}
+
+/**
+ * 忘记密码
+ */
+export function forgotChangePassword(
+  params: Params.BoboanNetBase.ForgotChangePassword
+) {
+  return request<Res.data<null>>("/auth/forgotChangePassword", {
+    method: "POST",
+    data: params,
   });
 }

@@ -1,23 +1,23 @@
 // 处理异步流程
 export class AsyncProcess {
-    process: any[] = [];
+  process: any[] = [];
 
-    use(fn: any) {
-        this.process.push(() => fn(this.next));
+  use(fn: any) {
+    this.process.push(() => fn(this.next));
+  }
+
+  next = async () => {
+    try {
+      const action = this.process.shift();
+      action && (await action());
+    } catch (e) {
+      console.log(e);
     }
+  };
 
-    next = async () => {
-        try {
-            const action = this.process.shift();
-            action && (await action());
-        } catch (e) {
-            console.log(e);
-        }
-    };
-
-    async start() {
-        await this.next();
-    }
+  async start() {
+    await this.next();
+  }
 }
 
 type anyFn = (...args: any[]) => any;
@@ -68,6 +68,9 @@ export function debounceCancelAble(fn: anyFn, delay: number) {
  * @param timeout 延迟timeout
  * @returns
  */
-export async function sleep(timeout: number) {
-  return new Promise((resolve) => setTimeout(resolve, timeout));
+export async function sleep(timeout: number, callback?: Function) {
+  return new Promise((resolve) => {
+    const res = setTimeout(resolve, timeout);
+    callback && callback(res);
+  });
 }

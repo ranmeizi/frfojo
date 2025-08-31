@@ -44,13 +44,17 @@ export const RHFContext = createContext<RHFContextType>({
   },
 });
 
+export type OriginFormProps = React.DetailedHTMLProps<
+  React.FormHTMLAttributes<HTMLFormElement>,
+  HTMLFormElement
+>;
+
 export default function BoForm({
   children,
   onSubmit,
   formRef,
   ...props
-}: FormProps &
-  Omit<React.HtmlHTMLAttributes<HTMLFormElement>, "onSubmit" | "children">) {
+}: FormProps & Omit<OriginFormProps, "onSubmit" | "children">) {
   // loading 状态
   const [loading, setLoading] = useState(false);
 

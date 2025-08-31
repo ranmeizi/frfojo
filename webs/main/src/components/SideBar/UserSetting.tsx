@@ -13,6 +13,7 @@ import {
 import StatusBadge, { EnumStatus } from "./components/StatusBadge";
 import UserPopupMenu from "./components/UserPopupMenu";
 import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
+import { useGlobalStates } from "@/contexts/GlobalStates";
 
 const Root = styled(Box)(() => ({}));
 
@@ -22,6 +23,8 @@ const UserSetting: FC<UserSettingProps> = () => {
   const [status, setStatus] = useState(EnumStatus.OFFLINE);
 
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
+
+  const { user } = useGlobalStates();
 
   const [statusAnchorEl, setStatusAnchorEl] =
     useState<HTMLButtonElement | null>(null);
@@ -107,7 +110,7 @@ const UserSetting: FC<UserSettingProps> = () => {
           anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
           variant="dot"
         >
-          <Avatar alt="Ranmz" />
+          <Avatar alt="Ranmz" src={user?.info?.picture} />
         </StatusBadge>
       </IconButton>
 

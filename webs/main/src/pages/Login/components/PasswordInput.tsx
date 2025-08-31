@@ -1,6 +1,8 @@
 import {
   IconButton,
+  Input,
   InputAdornment,
+  InputProps,
   TextField,
   TextFieldProps,
 } from "@mui/material";
@@ -8,7 +10,7 @@ import { forwardRef, useState } from "react";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 
-export default forwardRef(function PasswordInput(props: TextFieldProps, ref) {
+export default forwardRef(function PasswordInput(props: InputProps, ref) {
   const [showPassword, setShowPassword] = useState(false);
 
   const handleClickShowPassword = () => setShowPassword((show) => !show);
@@ -26,7 +28,7 @@ export default forwardRef(function PasswordInput(props: TextFieldProps, ref) {
   };
 
   return (
-    <TextField
+    <Input
       ref={ref}
       type={showPassword ? "text" : "password"}
       endAdornment={

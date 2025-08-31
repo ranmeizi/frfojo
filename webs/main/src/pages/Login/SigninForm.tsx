@@ -11,6 +11,8 @@ import {
 } from "@mui/material";
 import PasswordInput from "./components/PasswordInput";
 import { BoFormItem } from "@frfojo/components";
+import GoogleOAuthButton from "./components/GoogleOAuthButton";
+import { ForgotPasswordModal } from "./components/ForgotPasswordModal";
 
 const Root = styled(Paper)(({ theme }) => ({
   borderRadius: theme.spacing(1),
@@ -20,10 +22,12 @@ const Root = styled(Paper)(({ theme }) => ({
 
 type SigninFormProps = {
   onGoSignup: () => void;
+  handleGoogleFastLogin: any;
 };
 
 export default function LoginForm({
   onGoSignup,
+  handleGoogleFastLogin,
   ...props
 }: PaperProps & SigninFormProps) {
   return (
@@ -49,24 +53,14 @@ export default function LoginForm({
           <BoFormItem
             ignoreFormItem
             name="username"
-            label="用户名"
+            label="邮箱"
             options={{
-              required: "用户名不能为空",
-              maxLength: {
-                value: 20,
-                message: "用户名最大20位",
-              },
-              minLength: {
-                value: 6,
-                message: "用户名至少6位",
-              },
+              required: "邮箱不能为空",
             }}
           >
             <TextField variant="standard" />
           </BoFormItem>
-
           <BoFormItem
-            ignoreFormItem
             name="password"
             label="密码"
             formControlProps={{ variant: "standard" }}
@@ -81,25 +75,36 @@ export default function LoginForm({
                 message: "密码至少6位",
               },
             }}
+            fieldProps={{ variant: "standard" }}
           >
-            <PasswordInput variant="standard" autoComplete="current-password" />
+            <PasswordInput autoComplete="current-password" />
           </BoFormItem>
-
           <Box
             sx={{
               width: "100%",
               display: "flex",
               justifyContent: "space-between",
-              mb: 4,
+              mb: 0,
             }}
           >
             {/* 忘记密码(切换表单) */}
-            <Link sx={{ fontSize: "14px" }}>忘记密码</Link>
+            <ForgotPasswordModal
+              trigger={
+                <Link sx={{ fontSize: "14px", cursor: "pointer" }}>
+                  忘记密码
+                </Link>
+              }
+            />
+
             {/* 去注册(切换表单) */}
-            <Link sx={{ fontSize: "14px" }} onClick={onGoSignup}>
+            <Link
+              sx={{ fontSize: "14px", cursor: "pointer" }}
+              onClick={onGoSignup}
+            >
               去注册
             </Link>
           </Box>
+          <GoogleOAuthButton onCallback={handleGoogleFastLogin} />
           {/* 提交 */}
           <Button variant="contained" fullWidth type="submit">
             登录

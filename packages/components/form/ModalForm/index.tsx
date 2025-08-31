@@ -19,9 +19,9 @@ import {
 } from "react";
 import { ModalProps } from "../../popup";
 import { useDefaultOptions } from "../../popup/Modal/useDefaultOptions";
-import BoForm from "../BoForm";
+import BoForm, { OriginFormProps } from "../BoForm";
 
-type ModalFormProps = {
+export type ModalFormProps = {
   /** 用于触发 Modal 打开的 dom，一般是 button */
   trigger?: ReactNode;
   /** 是否打开 */
@@ -38,6 +38,10 @@ type ModalFormProps = {
    * Modal 的 props
    */
   modalProps?: ModalProps;
+  /**
+   * form 的 props
+   */
+  formProps?: OriginFormProps;
 };
 
 // 过渡动画
@@ -52,6 +56,7 @@ const Transition = forwardRef(function Transition(
 
 export function ModalForm({
   modalProps = {},
+  formProps = {},
   children,
   ...props
 }: PropsWithChildren<ModalFormProps>) {
@@ -88,6 +93,7 @@ export function ModalForm({
       <DialogTitle>{options.title}</DialogTitle>
       {open ? (
         <BoForm
+          {...formProps}
           onSubmit={async (values) => {
             const res = (await props?.onSubmit?.(values)) || true;
             setOpen(false);

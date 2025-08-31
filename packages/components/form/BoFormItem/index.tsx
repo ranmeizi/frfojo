@@ -66,6 +66,7 @@ export default function BoFormItem({
           variant={fieldProps?.variant}
           className="BoFormItem-label"
           id={`lebel_for_${name}`}
+          margin="dense"
         >
           {label}
         </InputLabel>
