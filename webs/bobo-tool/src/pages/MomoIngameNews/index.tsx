@@ -11,6 +11,7 @@ import Ranking from "./views/ranking";
 import Search from "./views/search";
 import Group from "./views/group";
 import { LayoutMenu } from "@frfojo/components";
+import Spawning from "./views/spawning";
 
 export default function MomoIngameNews() {
   const [active, setActive] = useState(0);
@@ -23,6 +24,8 @@ export default function MomoIngameNews() {
         return <Ranking />;
       case 2:
         return <Group />;
+      case 3:
+        return <Spawning />;
       default:
         return "empty";
     }
@@ -58,6 +61,11 @@ export default function MomoIngameNews() {
       <ListItem disablePadding>
         <ListItemButton selected={active === 2} onClick={() => setActive(2)}>
           <ListItemText primary="掉落统计" />
+        </ListItemButton>
+      </ListItem>
+      <ListItem disablePadding>
+        <ListItemButton selected={active === 3} onClick={() => setActive(3)}>
+          <ListItemText primary="MVP存活状态" />
         </ListItemButton>
       </ListItem>
     </List>

@@ -6,7 +6,7 @@ export type AsyncButtonType<T = any> = {
   onClick?: (e: MouseEvent) => Promise<T>;
 } & Omit<ComponentProps<typeof Button>, "onClick">;
 
-export default function AsyncButton<T>({
+export function AsyncButton<T>({
   children,
   onClick,
   ...btnProps
@@ -36,3 +36,5 @@ export default function AsyncButton<T>({
     </Button>
   );
 }
+
+export default AsyncButton;

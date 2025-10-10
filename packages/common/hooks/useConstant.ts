@@ -1,6 +1,6 @@
-import React from 'react';
+import React from "react";
 
-function useConstant<T>(init: () => T): T {
+export function useConstant<T>(init: () => T): T {
   const ref = React.useRef<T>();
   if (!ref.current) {
     ref.current = init();

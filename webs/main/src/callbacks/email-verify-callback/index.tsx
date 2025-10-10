@@ -1,12 +1,12 @@
 /* eslint-disable react-refresh/only-export-components */
 import { codeLogin } from "@/services/oauth";
-import useConstant from "@frfojo/common/hooks/useConstant";
 import { calcExpiresAt, setToken } from "@frfojo/common/request";
 import { Box, Container, Link, Stack, Typography } from "@mui/material";
 import { useEffect, useState } from "react";
 import { createRoot } from "react-dom/client";
 import * as FlashTitle from "@/utils/flashTitle";
 import { GlobalStatesProvider, useGlobalStates } from "@/contexts/GlobalStates";
+import { useConstant } from "@frfojo/common/hooks";
 
 export async function checkIfEmailVerifyCallback(next: AsyncProcessFn) {
   if (location.pathname.endsWith("/o2/verify-res")) {

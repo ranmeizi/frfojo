@@ -5,6 +5,7 @@ import axios, {
 } from "axios";
 import { getToken, setToken, clearToken, calcExpiresAt } from "./token";
 import { refresherInit } from "./RefreshController";
+import { RequestQueue } from "./RequestQueue";
 
 const internal = axios.create({
   timeout: 10000,
@@ -63,7 +64,7 @@ export function request<T = any>(
   const env = location.hostname === "boboan.net" ? "pord" : "development";
 
   if (env === "development") {
-    config.baseURL = "http://localhost:3000";
+    config.baseURL = "https://boboan.net/api";
   } else {
     config.baseURL = "https://boboan.net/api";
   }
@@ -81,4 +82,11 @@ export function requestPublic<T = any>(
   return external(url, config);
 }
 
-export { getToken, setToken, clearToken, calcExpiresAt, refresherInit };
+export {
+  getToken,
+  setToken,
+  clearToken,
+  calcExpiresAt,
+  refresherInit,
+  RequestQueue,
+};
