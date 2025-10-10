@@ -19,20 +19,20 @@ export default function Spawning() {
   // 所有mvp地块
   const map = useAllMap();
 
-  console.log("map", map);
-  console.log("note", note);
+  // console.log("map", map);
+  // console.log("note", note);
 
-  useEffect(() => {
-    // 轮流请求
-    setTimeout(() => {
-      for (const item of Object.values(map)) {
-        rq.push(() => reqImage(item.imgUrl));
-        rq.push(() =>
-          reqImage(`https://file5s.ratemyserver.net/maps/${item.mapId}.gif`)
-        );
-      }
-    }, 5000);
-  }, []);
+  // useEffect(() => {
+  //   // 轮流请求
+  //   setTimeout(() => {
+  //     for (const item of Object.values(map)) {
+  //       rq.push(() => reqImage(item.imgUrl));
+  //       rq.push(() =>
+  //         reqImage(`https://file5s.ratemyserver.net/maps/${item.mapId}.gif`)
+  //       );
+  //     }
+  //   }, 5000);
+  // }, []);
 
   // 按deathnote 分类地块
   const { alive, dead, maybe } = useFilterMap(map, note || []);
@@ -41,10 +41,9 @@ export default function Spawning() {
     const res = await getMvpDeathNote();
 
     if (res.code === "000000") {
-      res.data.sort((a, b) => b?.death_time - a?.death_time);
-      setNote(res.data);
+      res.data.sort((a, b) => (b?.death_time - a?.death_time > 0 ? 1 : -1));
+      setNote([...res.data]);
     }
-    console.log(res);
   }
 
   useEffect(() => {
@@ -63,7 +62,7 @@ export default function Spawning() {
         </AsyncButton>
       </Box>
 
-      <Paper>
+      <Paper sx={{ padding: 2 }}>
         <Typography variant="h6" gutterBottom component="div" sx={{ p: 2 }}>
           {"肯定"}
         </Typography>
@@ -79,7 +78,7 @@ export default function Spawning() {
           ))}
         </Box>
       </Paper>
-      <Paper>
+      <Paper sx={{ padding: 2 }}>
         <Typography variant="h6" gutterBottom component="div" sx={{ p: 2 }}>
           {"可能"}
         </Typography>
@@ -94,7 +93,7 @@ export default function Spawning() {
           ))}
         </Box>
       </Paper>
-      <Paper>
+      <Paper sx={{ padding: 2 }}>
         <Typography variant="h6" gutterBottom component="div" sx={{ p: 2 }}>
           死亡
         </Typography>
@@ -151,6 +150,8 @@ function useFilterMap(
     }
     return res;
   }, [death_note]);
+
+  console.log("deathMap", deathMap);
 
   return useMemo(() => {
     const alive: DeathInfoMvp[] = [];
@@ -247,14 +248,14 @@ function MvpMapItem(props: {
             <>
               <ShowValue label="死于">
                 {`${note.killer}(${dayjs(note?.death_time).format(
-                  "HH:mm:ss"
+                  "MM-DD HH:mm:ss"
                 )})`}
               </ShowValue>
               <ShowValue label="可能复活于">
                 {`${dayjs(note.death_time + mapInfo.time_lower).format(
-                  "HH:mm:ss"
+                  "MM-DD HH:mm:ss"
                 )}~${dayjs(note.death_time + mapInfo.time_upper).format(
-                  "HH:mm:ss"
+                  "MM-DD HH:mm:ss"
                 )}`}
               </ShowValue>
             </>
@@ -262,7 +263,8 @@ function MvpMapItem(props: {
         </Box>
       }
     >
-      <Box
+      <Paper
+        elevation={3}
         onClick={() => {
           window.open(
             `https://ro.ro321.com/index.php?page=mob_db&mob_id=${mvpId}`
@@ -278,6 +280,7 @@ function MvpMapItem(props: {
           justifyContent: "center",
           alignItems: "center",
           cursor: "pointer",
+          borderRadius: "8px",
         }}
       >
         <Box
@@ -289,11 +292,12 @@ function MvpMapItem(props: {
             backgroundRepeat: "no-repeat",
             backgroundPosition: "50%",
             color: "red",
+            fontSize: "14px",
           }}
         >
-          {mvpId}
+          {mvpInfo.name_CN}
         </Box>
-      </Box>
+      </Paper>
     </Tooltip>
   );
 }

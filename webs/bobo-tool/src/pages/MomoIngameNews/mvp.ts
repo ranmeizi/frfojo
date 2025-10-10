@@ -261,7 +261,7 @@ const config: Record<EnumMvpIndex, MvpConfig> = {
     name_EN: "MoonlightFlower",
     name_CN: "月夜猫",
     name_map: "Moonlight",
-    name_momo: "MoonlightFlower",
+    name_momo: "Moonlight Flower ",
     imgUrl: "https://file5s.ratemyserver.net/mobs/1150.gif",
     credibility: true,
     respawn_map: {
