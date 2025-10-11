@@ -109,6 +109,10 @@ const config: Record<EnumMvpIndex, MvpConfig> = {
         time_lower: min(60),
         time_upper: min(70),
       },
+      gld_dun4: {
+        time_lower: min(480),
+        time_upper: min(490),
+      },
     },
   },
   // 死灵
@@ -124,6 +128,10 @@ const config: Record<EnumMvpIndex, MvpConfig> = {
       gef_dun02: {
         time_lower: min(120),
         time_upper: min(150),
+      },
+      gld_dun2: {
+        time_lower: min(480),
+        time_upper: min(490),
       },
     },
   },
@@ -169,9 +177,13 @@ const config: Record<EnumMvpIndex, MvpConfig> = {
     imgUrl: "https://file5s.ratemyserver.net/mobs/1115.gif",
     credibility: true,
     respawn_map: {
-      pay_fild10: {
+      pay_fild11: {
         time_lower: min(120),
         time_upper: min(130),
+      },
+      gld_dun01: {
+        time_lower: min(480),
+        time_upper: min(490),
       },
     },
   },
@@ -237,6 +249,10 @@ const config: Record<EnumMvpIndex, MvpConfig> = {
         time_lower: min(60),
         time_upper: min(90),
       },
+      gld_dun3: {
+        time_lower: min(480),
+        time_upper: min(490),
+      },
     },
   },
   // 蜂后
@@ -249,7 +265,7 @@ const config: Record<EnumMvpIndex, MvpConfig> = {
     imgUrl: "https://file5s.ratemyserver.net/mobs/1059.gif",
     credibility: false,
     respawn_map: {
-      mjolnir_05: {
+      mjolnir_04: {
         time_lower: min(120),
         time_upper: min(130),
       },

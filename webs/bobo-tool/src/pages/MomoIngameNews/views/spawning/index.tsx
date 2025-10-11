@@ -1,4 +1,12 @@
-import { Box, Button, Paper, Tooltip, Typography } from "@mui/material";
+import {
+  Box,
+  Button,
+  ButtonBase,
+  Paper,
+  Slide,
+  Tooltip,
+  Typography,
+} from "@mui/material";
 import { PropsWithChildren, useEffect, useMemo, useState } from "react";
 import { getMvpDeathNote } from "../../services/momoro";
 import { AsyncButton } from "@frfojo/components";
@@ -9,6 +17,7 @@ import { DeathNote } from "../../note";
 import duration from "dayjs/plugin/duration";
 import utc from "dayjs/plugin/utc";
 import { RequestQueue } from "@frfojo/common/request";
+import { motion } from "framer-motion";
 
 dayjs.extend(duration);
 dayjs.extend(utc);
@@ -227,78 +236,84 @@ function MvpMapItem(props: {
   const mapInfo = useConstant(() => config[mvpId].respawn_map[mapId]);
 
   return (
-    <Tooltip
-      placement="right"
-      title={
-        <Box sx={{ minWidth: "160px" }}>
-          <ShowValue label="名称">{mvpInfo.name_CN}</ShowValue>
-          <ShowValue label="地图">
-            <a
-              href="#"
-              onClick={() => {
-                window.open(
-                  `https://ro.ro321.com/index.php?page=npc_shop_warp&map=${mapId}`
-                );
+    <motion.div whileHover={{ y: "-4px" }}>
+      <Tooltip
+        placement="top-start"
+        title={
+          <Box sx={{ minWidth: "160px" }}>
+            <ShowValue label="名称">{mvpInfo.name_CN}</ShowValue>
+            <ShowValue label="地图">
+              <a
+                href="#"
+                onClick={() => {
+                  window.open(
+                    `https://ro.ro321.com/index.php?page=npc_shop_warp&map=${mapId}`
+                  );
+                }}
+              >
+                {mapId}
+              </a>
+            </ShowValue>
+            {note ? (
+              <>
+                <ShowValue label="死于">
+                  {`${note.killer}(${dayjs(note?.death_time).format(
+                    "MM-DD HH:mm:ss"
+                  )})`}
+                </ShowValue>
+                <ShowValue label="可能复活于">
+                  {`${dayjs(note.death_time + mapInfo.time_lower).format(
+                    "MM-DD HH:mm:ss"
+                  )}~${dayjs(note.death_time + mapInfo.time_upper).format(
+                    "MM-DD HH:mm:ss"
+                  )}`}
+                </ShowValue>
+              </>
+            ) : null}
+          </Box>
+        }
+      >
+        <ButtonBase
+          sx={{ borderRadius: "8px", boxShadow: "2px 2px 14px 4px #000" }}
+        >
+          <Paper
+            elevation={3}
+            onClick={() => {
+              window.open(
+                `https://ro.ro321.com/index.php?page=mob_db&mob_id=${mvpId}`
+              );
+            }}
+            sx={{
+              height: "96px",
+              width: "96px",
+              backgroundRepeat: "no-repeat",
+              background: `url(https://file5s.ratemyserver.net/maps/${mapId}.gif)`,
+              backgroundSize: "100% 100%",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              cursor: "pointer",
+              borderRadius: "8px",
+            }}
+          >
+            <Box
+              sx={{
+                height: "80%",
+                width: "80%",
+                background: `url(${mvpInfo.imgUrl})`,
+                backgroundSize: "contain",
+                backgroundRepeat: "no-repeat",
+                backgroundPosition: "50%",
+                color: "red",
+                fontSize: "14px",
               }}
             >
-              {mapId}
-            </a>
-          </ShowValue>
-          {note ? (
-            <>
-              <ShowValue label="死于">
-                {`${note.killer}(${dayjs(note?.death_time).format(
-                  "MM-DD HH:mm:ss"
-                )})`}
-              </ShowValue>
-              <ShowValue label="可能复活于">
-                {`${dayjs(note.death_time + mapInfo.time_lower).format(
-                  "MM-DD HH:mm:ss"
-                )}~${dayjs(note.death_time + mapInfo.time_upper).format(
-                  "MM-DD HH:mm:ss"
-                )}`}
-              </ShowValue>
-            </>
-          ) : null}
-        </Box>
-      }
-    >
-      <Paper
-        elevation={3}
-        onClick={() => {
-          window.open(
-            `https://ro.ro321.com/index.php?page=mob_db&mob_id=${mvpId}`
-          );
-        }}
-        sx={{
-          height: "96px",
-          width: "96px",
-          backgroundRepeat: "no-repeat",
-          background: `url(https://file5s.ratemyserver.net/maps/${mapId}.gif)`,
-          backgroundSize: "100% 100%",
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          cursor: "pointer",
-          borderRadius: "8px",
-        }}
-      >
-        <Box
-          sx={{
-            height: "80%",
-            width: "80%",
-            background: `url(${mvpInfo.imgUrl})`,
-            backgroundSize: "contain",
-            backgroundRepeat: "no-repeat",
-            backgroundPosition: "50%",
-            color: "red",
-            fontSize: "14px",
-          }}
-        >
-          {mvpInfo.name_CN}
-        </Box>
-      </Paper>
-    </Tooltip>
+              {mvpInfo.name_CN}
+            </Box>
+          </Paper>
+        </ButtonBase>
+      </Tooltip>
+    </motion.div>
   );
 }
 
