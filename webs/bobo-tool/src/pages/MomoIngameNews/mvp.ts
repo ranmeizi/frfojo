@@ -20,6 +20,9 @@ export enum EnumMvpIndex {
   TurtleGeneral = "1312",
   EvilSnakeLord = "1418",
   TaoGunka = "1583",
+  Vesper = "1685",
+  SamuraiSpecter = "1492",
+  WhiteLady = "1630",
 }
 
 /** mvp 配置数据 */
@@ -416,6 +419,52 @@ const config: Record<EnumMvpIndex, MvpConfig> = {
       beach_dun: {
         time_lower: min(300),
         time_upper: min(330),
+      },
+    },
+  },
+  // 贝思波
+  [EnumMvpIndex.Vesper]: {
+    id: EnumMvpIndex.Vesper,
+    name_EN: "Vesper",
+    name_CN: "贝思波",
+    name_map: "Vesper",
+    name_momo: "Vesper",
+    imgUrl: "https://file5s.ratemyserver.net/mobs/1685.gif",
+    credibility: true,
+    respawn_map: {
+      jupe_core: {
+        time_lower: min(120),
+        time_upper: min(130),
+      },
+    },
+  },
+  [EnumMvpIndex.SamuraiSpecter]: {
+    id: EnumMvpIndex.SamuraiSpecter,
+    name_EN: "Samurai Specter",
+    name_CN: "元灵武士",
+    name_map: "Samurai Specter",
+    name_momo: "Samurai Specter",
+    imgUrl: "https://file5s.ratemyserver.net/mobs/1492.gif",
+    credibility: true,
+    respawn_map: {
+      ama_dun03: {
+        time_lower: min(91),
+        time_upper: min(101),
+      },
+    },
+  },
+  [EnumMvpIndex.WhiteLady]: {
+    id: EnumMvpIndex.WhiteLady,
+    name_EN: "White Lady",
+    name_CN: "白素贞",
+    name_map: "White Lady",
+    name_momo: "White Lady",
+    imgUrl: "https://file5s.ratemyserver.net/mobs/1630.gif",
+    credibility: true,
+    respawn_map: {
+      lou_dun03: {
+        time_lower: min(117),
+        time_upper: min(127),
       },
     },
   },
