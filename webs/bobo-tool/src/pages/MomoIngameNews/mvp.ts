@@ -74,7 +74,7 @@ const config: Record<EnumMvpIndex, MvpConfig> = {
     respawn_map: {
       moc_pryd06: {
         time_lower: min(60),
-        time_upper: min(70),
+        time_upper: min(90),
       },
     },
   },
