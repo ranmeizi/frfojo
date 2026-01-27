@@ -23,6 +23,7 @@ export enum EnumMvpIndex {
   Vesper = "1685",
   SamuraiSpecter = "1492",
   WhiteLady = "1630",
+  RSX0806 = "1623",
 }
 
 /** mvp 配置数据 */
@@ -463,6 +464,21 @@ const config: Record<EnumMvpIndex, MvpConfig> = {
     credibility: true,
     respawn_map: {
       lou_dun03: {
+        time_lower: min(117),
+        time_upper: min(127),
+      },
+    },
+  },
+  [EnumMvpIndex.RSX0806]: {
+    id: EnumMvpIndex.RSX0806,
+    name_EN: "RSX-0806",
+    name_CN: "RSX-0806",
+    name_map: "RSX-0806",
+    name_momo: "RSX-0806",
+    imgUrl: "https://file5s.ratemyserver.net/mobs/1623.gif",
+    credibility: true,
+    respawn_map: {
+      ein_dun02: {
         time_lower: min(117),
         time_upper: min(127),
       },
