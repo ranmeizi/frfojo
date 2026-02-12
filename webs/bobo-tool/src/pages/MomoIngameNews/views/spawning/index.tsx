@@ -4,12 +4,13 @@ import {
   ButtonBase,
   Paper,
   Slide,
+  Stack,
   Tooltip,
   Typography,
 } from "@mui/material";
 import { PropsWithChildren, useEffect, useMemo, useState } from "react";
-import { getMvpDeathNote } from "../../services/momoro";
-import { AsyncButton } from "@frfojo/components";
+import { captureRequest, getMvpDeathNote } from "../../services/momoro";
+import { AsyncButton, message } from "@frfojo/components";
 import { useConstant } from "@frfojo/common/hooks";
 import config, { EnumMvpIndex, MvpConfig, MvpDeathNote } from "../../mvp";
 import dayjs from "dayjs";
@@ -55,6 +56,16 @@ export default function Spawning() {
     }
   }
 
+  async function caprute() {
+    const res = await captureRequest();
+
+    if (res.code === "000000") {
+      alert(res.msg);
+    } else {
+      alert(res.msg);
+    }
+  }
+
   useEffect(() => {
     getData();
   }, []);
@@ -66,9 +77,15 @@ export default function Spawning() {
           {"MVP存活状态 (先用插件去discord自行爬数据)"}
         </Typography>
 
-        <AsyncButton variant="contained" onClick={getData}>
-          刷新
-        </AsyncButton>
+        <Stack direction={"row"} spacing={2}>
+          <AsyncButton variant="contained" onClick={caprute}>
+            抓数据
+          </AsyncButton>
+
+          <AsyncButton variant="contained" onClick={getData}>
+            刷新
+          </AsyncButton>
+        </Stack>
       </Box>
 
       <Paper sx={{ padding: 2 }}>
@@ -146,7 +163,7 @@ type DeathInfoMvp = MapItem & { note?: MvpDeathNote };
 
 function useFilterMap(
   map: Record<string, MapItem>,
-  death_note: MvpDeathNote[]
+  death_note: MvpDeathNote[],
 ) {
   const deathMap = useMemo(() => {
     const res: Record<string, MvpDeathNote> = {};
@@ -175,7 +192,7 @@ function useFilterMap(
       const state = getMvpState(
         time_lower,
         time_upper,
-        deathMap[mapItem.mapId]?.death_time
+        deathMap[mapItem.mapId]?.death_time,
       );
 
       switch (state) {
@@ -247,7 +264,7 @@ function MvpMapItem(props: {
                 href="#"
                 onClick={() => {
                   window.open(
-                    `https://ro.ro321.com/index.php?page=npc_shop_warp&map=${mapId}`
+                    `https://ro.ro321.com/index.php?page=npc_shop_warp&map=${mapId}`,
                   );
                 }}
               >
@@ -258,14 +275,14 @@ function MvpMapItem(props: {
               <>
                 <ShowValue label="死于">
                   {`${note.killer}(${dayjs(note?.death_time).format(
-                    "MM-DD HH:mm:ss"
+                    "MM-DD HH:mm:ss",
                   )})`}
                 </ShowValue>
                 <ShowValue label="可能复活于">
                   {`${dayjs(note.death_time + mapInfo.time_lower).format(
-                    "MM-DD HH:mm:ss"
+                    "MM-DD HH:mm:ss",
                   )}~${dayjs(note.death_time + mapInfo.time_upper).format(
-                    "MM-DD HH:mm:ss"
+                    "MM-DD HH:mm:ss",
                   )}`}
                 </ShowValue>
               </>
@@ -280,7 +297,7 @@ function MvpMapItem(props: {
             elevation={3}
             onClick={() => {
               window.open(
-                `https://ro.ro321.com/index.php?page=mob_db&mob_id=${mvpId}`
+                `https://ro.ro321.com/index.php?page=mob_db&mob_id=${mvpId}`,
               );
             }}
             sx={{
@@ -320,7 +337,7 @@ function MvpMapItem(props: {
 export function getMvpState(
   time_lower: number,
   time_upper: number,
-  death_time: number
+  death_time: number,
 ): "alive" | "dead" | "maybe" {
   // 如果 没有 death_time 或者 death_time + time_upper < now 那就一定活着
 

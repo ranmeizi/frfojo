@@ -10,6 +10,10 @@ export function getMvpDeathNote() {
   return request("/momoro/mvp/getCurrentStatus", { method: "GET" });
 }
 
+export function captureRequest() {
+  return request("/momoro/captureRequest", { method: "GET" });
+}
+
 export function getRewardRank() {
   return request("/momoro/getRewardRank", { method: "GET" });
 }
