@@ -6,6 +6,7 @@ import axios, {
 import { getToken, setToken, clearToken, calcExpiresAt } from "./token";
 import { refresherInit } from "./RefreshController";
 import { RequestQueue } from "./RequestQueue";
+import * as Signature from "./sign";
 
 const internal = axios.create({
   timeout: 10000,
@@ -22,8 +23,8 @@ const external = axios.create({
 });
 
 /** 加token */
-const internalRequestInterceptor = (
-  config: InternalAxiosRequestConfig<any>
+const internalRequestInterceptor = async (
+  config: InternalAxiosRequestConfig<any>,
 ) => {
   // 可在此添加 token 等
 
@@ -35,9 +36,12 @@ const internalRequestInterceptor = (
   if (token) {
     config.headers.set(
       "Authorization",
-      `${token.token_type} ${token.access_token}`
+      `${token.token_type} ${token.access_token}`,
     );
   }
+
+  // 签名
+  await Signature.beforeRequest(config);
 
   return config;
 };
@@ -59,12 +63,13 @@ external.interceptors.response.use(responseInterceptor, errorFn);
  */
 export function request<T = any>(
   url: string,
-  config: AxiosRequestConfig
+  config: AxiosRequestConfig,
 ): Promise<T> {
   const env = location.hostname === "boboan.net" ? "pord" : "development";
 
   if (env === "development") {
-    config.baseURL = "https://boboan.net/api";
+    // config.baseURL = "https://boboan.net/api";
+    config.baseURL = "http://127.0.0.1:3000";
   } else {
     config.baseURL = "https://boboan.net/api";
   }
@@ -77,7 +82,7 @@ export function request<T = any>(
  */
 export function requestPublic<T = any>(
   url: string,
-  config?: AxiosRequestConfig
+  config?: AxiosRequestConfig,
 ): Promise<T> {
   return external(url, config);
 }
