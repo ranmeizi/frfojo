@@ -24,6 +24,14 @@ export enum EnumMvpIndex {
   SamuraiSpecter = "1492",
   WhiteLady = "1630",
   RSX0806 = "1623",
+  LadyTanee = "1688",
+  EgnigemCenia = "1658",
+  LordKnightSeyren = "1646",
+  AssassinCrossEremes = "1647",
+  WhitesmithHarword = "1648",
+  HighPriestMagaleta = "1649",
+  SniperShecil = "1650",
+  HighWizardKatrinn = "1651",
 }
 
 /** mvp 配置数据 */
@@ -481,6 +489,126 @@ const config: Record<EnumMvpIndex, MvpConfig> = {
       ein_dun02: {
         time_lower: min(117),
         time_upper: min(127),
+      },
+    },
+  },
+  [EnumMvpIndex.LadyTanee]: {
+    id: EnumMvpIndex.LadyTanee,
+    name_EN: "Lady Tanee",
+    name_CN: "嗒呢小姐",
+    name_map: "Lady Tanee",
+    name_momo: "Lady Tanee",
+    imgUrl: "https://file5s.ratemyserver.net/mobs/1688.gif",
+    credibility: true,
+    respawn_map: {
+      ayo_dun02: {
+        time_lower: min(420),
+        time_upper: min(430),
+      },
+    },
+  },
+  [EnumMvpIndex.EgnigemCenia]: {
+    id: EnumMvpIndex.EgnigemCenia,
+    name_EN: "Egnigem Cenia",
+    name_CN: "暗●剑士 赛尼亚",
+    name_map: "Egnigem Cenia",
+    name_momo: "Egnigem Cenia",
+    imgUrl: "https://file5s.ratemyserver.net/mobs/1658.gif",
+    credibility: true,
+    respawn_map: {
+      lhz_dun02: {
+        time_lower: min(120),
+        time_upper: min(130),
+      },
+    },
+  },
+  [EnumMvpIndex.LordKnightSeyren]: {
+    id: EnumMvpIndex.LordKnightSeyren,
+    name_EN: "Lord Knight Seyren",
+    name_CN: "暗●骑士领主 赛依连",
+    name_map: "Lord Knight Seyren",
+    name_momo: "Lord Knight Seyren",
+    imgUrl: "https://file5s.ratemyserver.net/mobs/1646.gif",
+    credibility: true,
+    respawn_map: {
+      lhz_dun03: {
+        time_lower: min(120),
+        time_upper: min(130),
+      },
+    },
+  },
+  [EnumMvpIndex.AssassinCrossEremes]: {
+    id: EnumMvpIndex.AssassinCrossEremes,
+    name_EN: "Assassin Cross Eremes",
+    name_CN: "暗●十字刺客 艾勒梅斯",
+    name_map: "Assassin Cross Eremes",
+    name_momo: "Assassin Cross Eremes",
+    imgUrl: "https://file5s.ratemyserver.net/mobs/1647.gif",
+    credibility: true,
+    respawn_map: {
+      lhz_dun03: {
+        time_lower: min(100),
+        time_upper: min(130),
+      },
+    },
+  },
+  [EnumMvpIndex.WhitesmithHarword]: {
+    id: EnumMvpIndex.WhitesmithHarword,
+    name_EN: "Whitesmith Harword",
+    name_CN: "暗●神工匠 哈沃得",
+    name_map: "Whitesmith Harword",
+    name_momo: "Whitesmith Harword",
+    imgUrl: "https://file5s.ratemyserver.net/mobs/1648.gif",
+    credibility: true,
+    respawn_map: {
+      lhz_dun03: {
+        time_lower: min(100),
+        time_upper: min(130),
+      },
+    },
+  },
+  [EnumMvpIndex.HighPriestMagaleta]: {
+    id: EnumMvpIndex.HighPriestMagaleta,
+    name_EN: "High Priest Magaleta",
+    name_CN: "暗●神官 玛嘉雷特",
+    name_map: "High Priest Magaleta",
+    name_momo: "High Priest Magaleta",
+    imgUrl: "https://file5s.ratemyserver.net/mobs/1649.gif",
+    credibility: true,
+    respawn_map: {
+      lhz_dun03: {
+        time_lower: min(100),
+        time_upper: min(130),
+      },
+    },
+  },
+  [EnumMvpIndex.SniperShecil]: {
+    id: EnumMvpIndex.SniperShecil,
+    name_EN: "Sniper Shecil",
+    name_CN: "暗●神射手 迪文",
+    name_map: "Sniper Shecil",
+    name_momo: "Sniper Shecil",
+    imgUrl: "https://file5s.ratemyserver.net/mobs/1650.gif",
+    credibility: true,
+    respawn_map: {
+      lhz_dun03: {
+        time_lower: min(100),
+        time_upper: min(130),
+      },
+    },
+  },
+  [EnumMvpIndex.HighWizardKatrinn]: {
+    id: EnumMvpIndex.HighWizardKatrinn,
+    name_EN: "High Wizard Katrinn",
+    name_CN: "暗●超魔导师 凯特莉娜",
+    name_map: "High Wizard Katrinn",
+    name_momo: "High Wizard Katrinn",
+    imgUrl: "https://file5s.ratemyserver.net/mobs/1651.gif",
+    credibility: true,
+    respawn_map: {
+      lhz_dun03: {
+        time_lower: min(100),
+        time_upper: min(130),
       },
     },
   },

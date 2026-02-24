@@ -19,6 +19,7 @@ import duration from "dayjs/plugin/duration";
 import utc from "dayjs/plugin/utc";
 import { RequestQueue } from "@frfojo/common/request";
 import { motion } from "framer-motion";
+import QuestionMarkIcon from "@mui/icons-material/QuestionMark";
 
 dayjs.extend(duration);
 dayjs.extend(utc);
@@ -187,7 +188,7 @@ function useFilterMap(
     for (const mapItem of Object.values(map)) {
       const { time_lower, time_upper } = mapItem;
 
-      console.log("mapItem", mapItem);
+      console.log("mapItem", mapItem.mapId);
 
       const state = getMvpState(
         time_lower,
@@ -202,6 +203,7 @@ function useFilterMap(
             // note: deathMap[mapItem.mapId],
           });
           break;
+
         case "dead":
           dead.push({
             ...mapItem,
@@ -252,13 +254,20 @@ function MvpMapItem(props: {
 
   const mapInfo = useConstant(() => config[mvpId].respawn_map[mapId]);
 
+  const name = useMemo(() => {
+    if (!note && mapId === "lhz_dun03") {
+      return "暗●MVP (未知)";
+    }
+    return mvpInfo.name_CN;
+  }, [mvpInfo, mvpId, note]);
+
   return (
     <motion.div whileHover={{ y: "-4px" }}>
       <Tooltip
         placement="top-start"
         title={
           <Box sx={{ minWidth: "160px" }}>
-            <ShowValue label="名称">{mvpInfo.name_CN}</ShowValue>
+            <ShowValue label="名称">{name}</ShowValue>
             <ShowValue label="地图">
               <a
                 href="#"
@@ -311,6 +320,7 @@ function MvpMapItem(props: {
               alignItems: "center",
               cursor: "pointer",
               borderRadius: "8px",
+              position: "relative",
             }}
           >
             <Box
@@ -325,8 +335,25 @@ function MvpMapItem(props: {
                 fontSize: "14px",
               }}
             >
-              {mvpInfo.name_CN}
+              {name}
             </Box>
+            {!note && mapId === "lhz_dun03" ? (
+              <Box
+                sx={{
+                  position: "absolute",
+                  height: "100%",
+                  width: "100%",
+                  top: "50%",
+                  marginTop: "-25%",
+                  backgroundSize: "contain",
+                  backgroundRepeat: "no-repeat",
+                  backgroundPosition: "50%",
+                  color: "rgba(255, 213, 0, 0.8)",
+                }}
+              >
+                <QuestionMarkIcon sx={{ fontSize: "48px" }} />
+              </Box>
+            ) : null}
           </Paper>
         </ButtonBase>
       </Tooltip>
