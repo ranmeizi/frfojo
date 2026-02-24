@@ -68,8 +68,8 @@ export function request<T = any>(
   const env = location.hostname === "boboan.net" ? "pord" : "development";
 
   if (env === "development") {
-    // config.baseURL = "https://boboan.net/api";
-    config.baseURL = "http://127.0.0.1:3000";
+    config.baseURL = "https://boboan.net/api";
+    // config.baseURL = "http://127.0.0.1:3000";
   } else {
     config.baseURL = "https://boboan.net/api";
   }
