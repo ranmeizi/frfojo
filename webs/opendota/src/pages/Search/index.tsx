@@ -1,137 +1,134 @@
-import { FC, useMemo, useState } from "react";
-import { Box, Button, styled, Switch, TextField } from "@mui/material";
-import { opendotaApi } from "@/redux/queryApis/opendota";
+import { FC, useEffect, useState } from "react";
+import {
+  Avatar as MuiAvatar,
+  Box,
+  List,
+  ListItemAvatar,
+  ListItemButton,
+  ListItemText,
+  Paper,
+  Skeleton,
+  styled,
+  Typography,
+} from "@mui/material";
 import { LayoutMenu } from "@frfojo/components";
 import NavBar from "@/components/NavBar";
 import LogoMenu from "@/components/LogoMenu";
-import { useNavigate } from "react-router-dom";
-import HeatMapChart, { ItemData } from "@/components/HeatMap/Chart";
-import dayjs from "dayjs";
+import { useNavigate, useParams } from "react-router-dom";
+import { opendotaApi } from "@/redux/queryApis/opendota";
+import SearchBar from "@/components/SearchBar";
 
-const Root = styled("div")(() => ({}));
+const Root = styled("div")(() => ({
+  width: "100%",
+  height: "100%",
+  display: "flex",
+  justifyContent: "center",
+  alignItems: "flex-start",
+}));
 
-type SearchProps = {};
+type SearchRouteParams = {
+  q?: string;
+};
 
-const Search: FC<SearchProps> = () => {
+const Search: FC = () => {
+  const params = useParams<SearchRouteParams>();
   const navigate = useNavigate();
-  // const { data, refetch } = useGetConstantsHeroesQuery();
 
-  const { data } = opendotaApi.usePlayerMatchesQuery({
-    account_id: 164917453,
-    date: 90, // 最近3 月
-    significant: 0,
-  });
+  const initialKeyword = params.q ?? "";
+  const [keyword, setKeyword] = useState(initialKeyword);
 
-  const values = useMemo<ItemData[]>(() => {
-    const memo: Record<string, ItemData> = {};
-    data?.forEach((item) => {
-      const date = dayjs((item?.start_time || 0) * 1000).format("YYYY-MM-DD");
-      if (!memo[date]) {
-        memo[date] = {
-          date,
-          value: 1,
-          payload: undefined,
-        };
-      } else {
-        memo[date].value++;
-      }
-    });
+  useEffect(() => {
+    setKeyword(initialKeyword);
+  }, [initialKeyword]);
 
-    return Object.values(memo);
-  }, [data]);
+  const { data, isFetching } = opendotaApi.useSerachQuery(
+    { q: initialKeyword },
+    {
+      skip: !initialKeyword,
+    } as any
+  );
 
-  console.log("value", values);
-
-  const [show, setShow] = useState(true);
+  function handleSubmit(value: string) {
+    const next = value.trim();
+    if (!next) {
+      navigate("/ffj/search", { replace: true });
+      return;
+    }
+    navigate(`/ffj/search/${encodeURIComponent(next)}`);
+  }
 
   return (
-    <LayoutMenu
-      sidebar={
-        <Box sx={{ padding: "20px" }}>
-          {/* <Box sx={{ width: "100%" }}>
-            <Avatar avatar="https://avatars.steamstatic.com/5c9c619ca4928f57b9022c7a2687576045d21161_full.jpg" />
-          </Box>
-          <Box sx={{ width: "100%", marginTop: "24px" }}>
-            <Avatar
-              vip={1}
-              avatar="https://avatars.steamstatic.com/fef49e7fa7e1997310d705b2a6158ff8dc1cdfeb_full.jpg"
-            />
-          </Box>
-
-          <Box sx={{ width: "100%", marginTop: "24px" }}>
-            <Avatar
-              vip={2}
-              avatar="https://avatars.steamstatic.com/14f1a9927382fa8dea134a0f3ca6f17e6938e131_full.jpg"
-            />
-          </Box>
-
-          <Box sx={{ width: "100%", marginTop: "24px" }}>
-            <Avatar
-              vip={1}
-              avatar="https://avatars.steamstatic.com/c46fdd211b79d396a4ac833a5990a2fde7070df6_full.jpg"
-            />
-          </Box>
-
-          <Box sx={{ width: "100%", transform: "translate(140px,-40px)" }}>
-            <RankItem rank_tier={72}></RankItem>
-          </Box> */}
-        </Box>
-      }
-      logo={<LogoMenu />}
-      header={<NavBar />}
-    >
+    <LayoutMenu logo={<LogoMenu />} header={<NavBar />}>
       <Root>
-        HI
-        <div>
-          模拟路由卸载
-          <Switch checked={show} onChange={(e) => setShow(e.target.checked)} />
-          {show ? <TMD></TMD> : null}
-          <a
-            onClick={() => {
-              navigate("/ffj/profile/164917453");
-            }}
-          >
-            小连接
-          </a>
-          <a
-            onClick={() => {
-              navigate("/ffj/profile/137129583");
-            }}
-          >
-            看看你的
-          </a>
-          <a
-            onClick={() => {
-              navigate("/ffj/profile/137129583");
-            }}
-          >
-            看看qkss的
-          </a>
-        </div>
+        <Box sx={{ maxWidth: 640, width: "100%", p: 3 }}>
+          <Paper sx={{ p: 2, mb: 2 }}>
+            <Typography variant="h6" sx={{ mb: 1 }}>
+              搜索 Dota 2 玩家
+            </Typography>
+            <SearchBar
+              value={keyword}
+              onChange={setKeyword}
+              onSubmit={handleSubmit}
+            />
+          </Paper>
+
+          <Paper sx={{ p: 1 }}>
+            {!initialKeyword ? (
+              <Box sx={{ p: 2, color: "text.secondary", fontSize: 14 }}>
+                输入 Steam32 ID 或玩家昵称进行搜索。
+              </Box>
+            ) : isFetching ? (
+              <Box sx={{ p: 2 }}>
+                <Skeleton variant="text" width={220} />
+                <Skeleton variant="text" width={320} />
+                <Skeleton variant="text" width={280} />
+              </Box>
+            ) : !data || data.length === 0 ? (
+              <Box sx={{ p: 2, color: "text.secondary", fontSize: 14 }}>
+                没有找到和 “{initialKeyword}” 相关的玩家。
+              </Box>
+            ) : (
+              <List dense disablePadding>
+                {data.map((item) => (
+                  <ListItemButton
+                    key={item.account_id}
+                    onClick={() =>
+                      item.account_id &&
+                      navigate(`/ffj/profile/${item.account_id}`)
+                    }
+                    >
+                      <ListItemAvatar>
+                        <MuiAvatar
+                          src={item.avatarfull || undefined}
+                          sx={{ width: 32, height: 32 }}
+                        >
+                          ?
+                        </MuiAvatar>
+                      </ListItemAvatar>
+                      <ListItemText
+                        primary={
+                          <Typography variant="body2">
+                            {item.personaname || item.account_id}
+                          </Typography>
+                        }
+                        secondary={
+                          <Typography
+                            variant="caption"
+                            color="text.secondary"
+                          >
+                            ID: {item.account_id}
+                          </Typography>
+                        }
+                      />
+                    </ListItemButton>
+                ))}
+              </List>
+            )}
+          </Paper>
+        </Box>
       </Root>
     </LayoutMenu>
   );
 };
-
-function TMD() {
-  // const { data, refetch } = useGetConstantsHeroesQuery();
-  // console.log("bbr", data);
-  const [trigger, result] = opendotaApi.useLazySerachQuery();
-
-  const [search, setSeatch] = useState("");
-
-  function handleSearch() {
-    trigger({ q: search }, true);
-  }
-
-  console.log("result", result);
-
-  return (
-    <div>
-      <TextField value={search} onChange={(e) => setSeatch(e.target.value)} />
-      <Button onClick={handleSearch}>Search</Button>
-    </div>
-  );
-}
 
 export default Search;

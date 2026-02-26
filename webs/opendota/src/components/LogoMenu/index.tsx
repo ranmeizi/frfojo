@@ -116,12 +116,12 @@ function InnerMenu({ onClose }: InnerMenuProps) {
 
   return (
     <>
-      <MenuItem onClick={() => {}}>数据来源opdndota</MenuItem>
+      <MenuItem onClick={() => {}}>数据来源：OpenDota</MenuItem>
       <Divider />
       {hasAccount ? (
-        <MenuItem onClick={() => {}}>Set AccountId</MenuItem>
+        <MenuItem onClick={() => {}}>设置默认账号</MenuItem>
       ) : (
-        <MenuItem onClick={() => {}}>Change AccountId</MenuItem>
+        <MenuItem onClick={() => {}}>修改默认账号</MenuItem>
       )}
     </>
   );

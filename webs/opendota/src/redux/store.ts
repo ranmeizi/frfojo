@@ -33,9 +33,31 @@ async function initialize(next: AsyncProcessFn) {
   const rootState = store.getState();
 
   const heroes = opendotaApi.endpoints.constantsHeroes.select()(rootState);
+  const items = opendotaApi.endpoints.constantsItems.select()(rootState);
+  const itemIds = opendotaApi.endpoints.constantsItemIds.select()(rootState);
+  const abilities =
+    opendotaApi.endpoints.constantsAbilities.select()(rootState);
+  const abilityIds =
+    opendotaApi.endpoints.constantsAbilityIds.select()(rootState);
 
   if (!heroes.data) {
     await store.dispatch(opendotaApi.endpoints.constantsHeroes.initiate());
+  }
+
+  if (!items.data) {
+    await store.dispatch(opendotaApi.endpoints.constantsItems.initiate());
+  }
+
+  if (!itemIds.data) {
+    await store.dispatch(opendotaApi.endpoints.constantsItemIds.initiate());
+  }
+
+  if (!abilities.data) {
+    await store.dispatch(opendotaApi.endpoints.constantsAbilities.initiate());
+  }
+
+  if (!abilityIds.data) {
+    await store.dispatch(opendotaApi.endpoints.constantsAbilityIds.initiate());
   }
 
   await next();

@@ -89,6 +89,11 @@ declare namespace Params {
     type Player = {
       account_id: number;
     };
+
+    /** 查询单场比赛 */
+    type Match = {
+      match_id: number;
+    };
   }
 }
 // response 传输对象类型
@@ -348,6 +353,9 @@ declare namespace DTOs {
       version?: number | null;
     };
 
+    /** 查询玩家最近比赛数据 */
+    type PlayerRecentMatches = PlayerMatches;
+
     /** 查询玩家 */
     type Player = {
       /**
@@ -427,6 +435,98 @@ declare namespace DTOs {
        * solo_competitive_rank
        */
       solo_competitive_rank?: number | null;
+    };
+
+    /** 单场比赛简要数据（仅包含页面展示所需字段） */
+    type MatchPlayer = {
+      account_id?: number | null;
+      player_slot?: number | null;
+      hero_id?: number | null;
+      kills?: number;
+      deaths?: number;
+      assists?: number;
+      personaname?: string | null;
+      level?: number | null;
+      gold_per_min?: number | null;
+      xp_per_min?: number | null;
+      hero_damage?: number | null;
+      tower_damage?: number | null;
+      last_hits?: number | null;
+      /** 物品栏 */
+      item_0?: number | null;
+      item_1?: number | null;
+      item_2?: number | null;
+      item_3?: number | null;
+      item_4?: number | null;
+      item_5?: number | null;
+      backpack_0?: number | null;
+      backpack_1?: number | null;
+      backpack_2?: number | null;
+      item_neutral?: number | null;
+    };
+
+    type MatchResponse = {
+      match_id?: number;
+      duration?: number;
+      radiant_win?: boolean | null;
+      radiant_score?: number;
+      dire_score?: number;
+      start_time?: number;
+      players?: MatchPlayer[];
+    };
+
+    /** 公共匹配（/publicMatches） */
+    type PublicMatch = {
+      match_id: number;
+      match_seq_num?: number;
+      radiant_win?: boolean | null;
+      start_time?: number;
+      duration?: number;
+      lobby_type?: number;
+      game_mode?: number;
+      avg_rank_tier?: number;
+      num_rank_tier?: number;
+      cluster?: number;
+      radiant_team?: number[];
+      dire_team?: number[];
+    };
+
+    /** 职业比赛列表项（/proMatches） */
+    type ProMatch = {
+      match_id: number;
+      duration?: number;
+      start_time?: number;
+      radiant_team_id?: number;
+      radiant_name?: string;
+      dire_team_id?: number;
+      dire_name?: string;
+      leagueid?: number;
+      league_name?: string;
+      series_id?: number;
+      series_type?: number;
+      radiant_score?: number;
+      dire_score?: number;
+      radiant_win?: boolean | null;
+    };
+
+    /** 玩家常用英雄（/players/{account_id}/heroes） */
+    type PlayerHero = {
+      hero_id: number;
+      last_played?: number;
+      games: number;
+      win: number;
+      with_games?: number;
+      with_win?: number;
+      against_games?: number;
+      against_win?: number;
+    };
+
+    /** 玩家英雄排名（/players/{account_id}/rankings） */
+    type PlayerHeroRanking = {
+      hero_id: number;
+      score: number;
+      percent_rank: number;
+      card: number;
     };
   }
 }

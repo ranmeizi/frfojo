@@ -82,5 +82,78 @@ export const opendotaApi = createApi({
       }),
       keepUnusedDataFor: KEEP_MINUTE,
     }),
+
+    /**
+     * 查询玩家最近比赛数据
+     */
+    playerRecentMatches: builder.query<
+      DTOs.Opendota.PlayerRecentMatches[],
+      Params.Opendota.Player
+    >({
+      query: ({ account_id }) => ({
+        url: `/players/${account_id}/recentMatches`,
+      }),
+      keepUnusedDataFor: KEEP_MINUTE,
+    }),
+
+    /**
+     * 查询单场比赛详情
+     */
+    match: builder.query<
+      DTOs.Opendota.MatchResponse,
+      Params.Opendota.Match
+    >({
+      query: ({ match_id }) => ({
+        url: `/matches/${match_id}`,
+      }),
+      keepUnusedDataFor: KEEP_MINUTE,
+    }),
+
+    /**
+     * 查询玩家按英雄统计数据（常用英雄）
+     */
+    playerHeroes: builder.query<
+      DTOs.Opendota.PlayerHero[],
+      Params.Opendota.Player & { limit?: number }
+    >({
+      query: ({ account_id, ...params }) => ({
+        url: `/players/${account_id}/heroes`,
+        params,
+      }),
+      keepUnusedDataFor: KEEP_MINUTE,
+    }),
+
+    /**
+     * 查询玩家英雄排名（英雄 mmr 积分）
+     */
+    playerRankings: builder.query<
+      DTOs.Opendota.PlayerHeroRanking[],
+      Params.Opendota.Player
+    >({
+      query: ({ account_id }) => ({
+        url: `/players/${account_id}/rankings`,
+      }),
+      keepUnusedDataFor: KEEP_MINUTE,
+    }),
+
+    /**
+     * 查询公共对局列表（随机抽样）
+     */
+    publicMatches: builder.query<DTOs.Opendota.PublicMatch[], void>({
+      query: () => ({
+        url: "/publicMatches",
+      }),
+      keepUnusedDataFor: KEEP_MINUTE,
+    }),
+
+    /**
+     * 查询职业比赛列表
+     */
+    proMatches: builder.query<DTOs.Opendota.ProMatch[], void>({
+      query: () => ({
+        url: "/proMatches",
+      }),
+      keepUnusedDataFor: KEEP_MINUTE,
+    }),
   }),
 });

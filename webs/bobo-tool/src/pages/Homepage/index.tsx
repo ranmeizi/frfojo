@@ -1,13 +1,7 @@
 import { FC } from "react";
-import {
-  alpha,
-  Box,
-  Container,
-  Paper,
-  styled,
-  Typography,
-} from "@mui/material";
+import { Box, Container, Paper, styled, Typography } from "@mui/material";
 import MenuCard from "./components/MenuCard";
+import { useNavigate } from "react-router-dom";
 import { LayoutMenu } from "@frfojo/components";
 
 const IconMomoro = new URL("@/assets/momoro.jpeg", import.meta.url).href;
@@ -35,40 +29,11 @@ const menus = [
   },
 ];
 
-const Root = styled("div")(({ theme }) => ({
-  minHeight: "100%",
-  background:
-    theme.palette.mode === "dark"
-      ? `linear-gradient(160deg, ${alpha(
-          theme.palette.primary.main,
-          0.06
-        )} 0%, transparent 50%)`
-      : `linear-gradient(160deg, ${alpha(
-          theme.palette.primary.main,
-          0.04
-        )} 0%, transparent 45%)`,
-}));
+const Root = styled("div")(({ theme }) => ({}));
 
-const StyledPaper = styled(Paper)(({ theme }) => ({
-  padding: theme.spacing(3),
-  display: "flex",
-  gap: theme.spacing(3),
-  flexWrap: "wrap",
-  borderRadius: theme.shape.borderRadius * 2,
-  boxShadow:
-    theme.palette.mode === "dark"
-      ? `0 4px 24px ${alpha(theme.palette.common.black, 0.4)}`
-      : `0 4px 24px ${alpha(theme.palette.primary.main, 0.08)}`,
-  border: `1px solid ${theme.palette.divider}`,
-  background:
-    theme.palette.mode === "dark"
-      ? alpha(theme.palette.background.paper, 0.6)
-      : theme.palette.background.paper,
-}));
+type HomepageProps = {};
 
-type HomepageProps = Record<string, never>;
-
-const Homepage: FC<HomepageProps> = () => {
+const Homepage: FC<HomepageProps> = (props) => {
   return (
     <LayoutMenu
       header={
@@ -77,10 +42,7 @@ const Homepage: FC<HomepageProps> = () => {
             display: "flex",
             alignItems: "center",
             height: "100%",
-            paddingLeft: 2,
-            fontWeight: 600,
-            fontSize: "1rem",
-            color: "text.primary",
+            paddingLeft: "16px",
           }}
         >
           工具
@@ -88,37 +50,27 @@ const Homepage: FC<HomepageProps> = () => {
       }
     >
       <Root>
-        <Container maxWidth="lg" sx={{ py: 4, px: 3 }}>
-          <Box sx={{ mb: 3 }}>
-            <Typography
-              variant="h5"
-              component="h1"
-              sx={{
-                fontWeight: 700,
-                letterSpacing: "-0.02em",
-                color: "text.primary",
-              }}
-            >
-              工具导航
-            </Typography>
-            <Typography
-              variant="body2"
-              sx={{ mt: 0.5, color: "text.secondary" }}
-            >
-              选择下方工具开始使用
-            </Typography>
-          </Box>
-          <StyledPaper elevation={0}>
+        <Container>
+          <Typography variant="h6" sx={{ margin: "24px 0" }}>
+            工具导航
+          </Typography>
+          <Paper
+            sx={{
+              padding: "24px",
+              display: "flex",
+              gap: 2,
+              flexWrap: "wrap",
+            }}
+          >
             {menus.map((item) => (
               <MenuCard
-                key={item.path}
                 title={item.title}
                 description={item.desciption}
                 img={item.img}
                 path={item.path}
               />
             ))}
-          </StyledPaper>
+          </Paper>
         </Container>
       </Root>
     </LayoutMenu>
