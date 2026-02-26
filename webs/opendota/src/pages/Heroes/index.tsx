@@ -1,13 +1,6 @@
 import { FC, useMemo } from "react";
-import {
-  Box,
-  Chip,
-  Grid,
-  Paper,
-  Skeleton,
-  Typography,
-  styled,
-} from "@mui/material";
+import { Box, Chip, Paper, Skeleton, Typography, styled } from "@mui/material";
+import Grid from "@mui/material/Grid";
 import { LayoutMenu } from "@frfojo/components";
 import LogoMenu from "@/components/LogoMenu";
 import NavBar from "@/components/NavBar";
@@ -40,93 +33,99 @@ const HeroesPage: FC = () => {
           <Typography variant="h6" sx={{ mb: 2 }}>
             英雄列表
           </Typography>
-          <Grid container spacing={2}>
+          <Box
+            sx={{
+              display: "grid",
+              gridTemplateColumns: {
+                xs: "repeat(2, minmax(0, 1fr))",
+                sm: "repeat(3, minmax(0, 1fr))",
+                md: "repeat(4, minmax(0, 1fr))",
+              },
+              gap: 2,
+            }}
+          >
             {isFetching || !data
               ? Array.from({ length: 12 }).map((_, i) => (
-                  <Grid item xs={6} sm={4} md={3} key={i}>
-                    <Paper
-                      sx={{
-                        p: 1.5,
-                        height: CARD_HEIGHT,
-                        width: CARD_HEIGHT,
-                        display: "flex",
-                        flexDirection: "column",
-                      }}
-                    >
-                      <Skeleton
-                        variant="rectangular"
-                        height={120}
-                        sx={{ mb: 1 }}
-                      />
-                      <Skeleton variant="text" width={80} />
-                      <Skeleton variant="text" width={60} />
-                    </Paper>
-                  </Grid>
+                  <Paper
+                    key={i}
+                    sx={{
+                      p: 1.5,
+                      height: CARD_HEIGHT,
+                      display: "flex",
+                      flexDirection: "column",
+                    }}
+                  >
+                    <Skeleton
+                      variant="rectangular"
+                      height={120}
+                      sx={{ mb: 1 }}
+                    />
+                    <Skeleton variant="text" width={80} />
+                    <Skeleton variant="text" width={60} />
+                  </Paper>
                 ))
               : heroes.map((hero) => {
                   const img = `https://api.opendota.com${hero.img}`;
                   return (
-                    <Grid item xs={6} sm={4} md={3} key={hero.id}>
-                      <Paper
+                    <Paper
+                      key={hero.id}
+                      sx={{
+                        p: 1.5,
+                        cursor: "default",
+                        bgcolor: "background.paper",
+                        height: CARD_HEIGHT,
+                        display: "flex",
+                        flexDirection: "column",
+                      }}
+                    >
+                      <Box
                         sx={{
-                          p: 1.5,
-                          cursor: "default",
-                          bgcolor: "background.paper",
-                          height: CARD_HEIGHT,
-                          width: CARD_HEIGHT,
+                          width: "100%",
+                          height: 120,
+                          borderRadius: 1,
+                          backgroundImage: `url(${img})`,
+                          backgroundSize: "cover",
+                          backgroundPosition: "center",
+                          mb: 1,
+                        }}
+                      />
+                      <Typography variant="body2" noWrap>
+                        {hero.localized_name}
+                      </Typography>
+                      <Typography
+                        variant="caption"
+                        color="text.secondary"
+                        noWrap
+                      >
+                        属性：{hero.primary_attr}
+                      </Typography>
+                      <Box
+                        sx={{
+                          mt: 0.5,
                           display: "flex",
-                          flexDirection: "column",
+                          flexWrap: "wrap",
+                          flexGrow: 1,
+                          alignItems: "flex-start",
                         }}
                       >
-                        <Box
-                          sx={{
-                            width: "100%",
-                            height: 120,
-                            borderRadius: 1,
-                            backgroundImage: `url(${img})`,
-                            backgroundSize: "cover",
-                            backgroundPosition: "center",
-                            mb: 1,
-                          }}
-                        />
-                        <Typography variant="body2" noWrap>
-                          {hero.localized_name}
-                        </Typography>
-                        <Typography
-                          variant="caption"
-                          color="text.secondary"
-                          noWrap
-                        >
-                          属性：{hero.primary_attr}
-                        </Typography>
-                        <Box
-                          sx={{
-                            mt: 0.5,
-                            display: "flex",
-                            flexWrap: "wrap",
-                            flexGrow: 1,
-                            alignItems: "flex-start",
-                          }}
-                        >
-                          {hero.roles.slice(0, 3).map((r) => (
-                            <Chip
-                              key={r}
-                              label={r}
-                              size="small"
-                              sx={{
-                                mr: 0.5,
-                                mb: 0.5,
-                                fontSize: 10,
-                                height: 18,
-                              }}
-                            />
-                          ))}
-                        </Box>
-                      </Paper>
-                    </Grid>
+                        {hero.roles.slice(0, 3).map((r) => (
+                          <Chip
+                            key={r}
+                            label={r}
+                            size="small"
+                            sx={{
+                              mr: 0.5,
+                              mb: 0.5,
+                              fontSize: 10,
+                              height: 18,
+                            }}
+                          />
+                        ))}
+                      </Box>
+                    </Paper>
                   );
                 })}
-          </Grid>
+          </Box>
         </Box>
       </Root>
     </LayoutMenu>
