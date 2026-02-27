@@ -267,7 +267,7 @@ const HeroRow: FC<HeroRowProps> = ({ heroes }) => {
             width: 20,
             height: 12,
             borderRadius: 0.5,
-            backgroundImage: `url(https://api.opendota.com${h.img})`,
+            backgroundImage: `url(https://cdn.cloudflare.steamstatic.com${h.img})`,
             backgroundSize: "cover",
             backgroundPosition: "center",
           }}

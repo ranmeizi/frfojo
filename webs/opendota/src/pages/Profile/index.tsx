@@ -246,7 +246,9 @@ export const ProfileRecentMatches: FC = () => {
               (isRadiant && radiantWin) || (!isRadiant && !radiantWin);
 
             const hero = m.hero_id ? heroMap.get(m.hero_id) : undefined;
-            const heroImg = hero ? `https://api.opendota.com${hero.img}` : "";
+            const heroImg = hero
+              ? `https://cdn.cloudflare.steamstatic.com${hero.img}`
+              : "";
 
             return (
               <Box
@@ -360,7 +362,7 @@ export const ProfileTopHeroes: FC = () => {
           list.map((h) => {
             const hero = heroMap.get(h.hero_id);
             const heroImg = hero
-              ? `https://api.opendota.com${hero.img}`
+              ? `https://cdn.cloudflare.steamstatic.com${hero.img}`
               : "";
             const r = rankingMap.get(h.hero_id);
             const winrate =

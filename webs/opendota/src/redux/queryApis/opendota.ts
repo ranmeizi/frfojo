@@ -155,5 +155,15 @@ export const opendotaApi = createApi({
       }),
       keepUnusedDataFor: KEEP_MINUTE,
     }),
+
+    /**
+     * 查询英雄综合统计（/heroStats）
+     */
+    heroStats: builder.query<DTOs.Opendota.HeroStats[], void>({
+      query: () => ({
+        url: "/heroStats",
+      }),
+      keepUnusedDataFor: KEEP_MINUTE,
+    }),
   }),
 });

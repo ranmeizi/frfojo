@@ -179,12 +179,16 @@ const TeamBlock: FC<TeamBlockProps> = ({
       >
         {players.map((p, index) => {
           const hero = p.hero_id ? heroMap.get(p.hero_id) : undefined;
-          const heroImg = hero ? `https://api.opendota.com${hero.img}` : "";
-          const isSelected = selected?.account_id === p.account_id;
+          const heroImg = hero
+            ? `https://cdn.cloudflare.steamstatic.com${hero.img}`
+            : "";
+          const isSelected =
+            selected?.player_slot !== undefined &&
+            selected.player_slot === p.player_slot;
 
           return (
             <Stack
-              key={`${p.account_id}-${index}`}
+              key={p.player_slot ?? index}
               direction="row"
               spacing={1.5}
               alignItems="center"
@@ -244,22 +248,39 @@ const PlayerDetail: FC<PlayerDetailProps> = ({
   itemByKey,
 }) => {
   const hero = player.hero_id ? heroMap.get(player.hero_id) : undefined;
-  const heroImg = hero ? `https://api.opendota.com${hero.img}` : "";
+  const heroImg = hero
+    ? `https://cdn.cloudflare.steamstatic.com${hero.img}`
+    : "";
 
-  const itemIds = [
+  const mainSlots = [
     player.item_0,
     player.item_1,
     player.item_2,
     player.item_3,
     player.item_4,
     player.item_5,
-  ].filter((id) => typeof id === "number") as number[];
+  ];
 
-  const items = itemIds.map((id) => {
+  const backpackSlots = [
+    player.backpack_0,
+    player.backpack_1,
+    player.backpack_2,
+  ];
+
+  const neutralSlots = [player.item_neutral];
+
+  const mapSlot = (id: number | null | undefined) => {
+    if (typeof id !== "number") {
+      return { id: undefined as number | undefined, key: undefined, meta: undefined as DTOs.Opendota.ConstantsItem | undefined };
+    }
     const key = keyById.get(id);
     const meta = key ? itemByKey.get(key) : undefined;
     return { id, key, meta };
-  });
+  };
+
+  const mainItems = mainSlots.map(mapSlot);
+  const backpackItems = backpackSlots.map(mapSlot);
+  const neutralItems = neutralSlots.map(mapSlot);
 
   return (
     <Box>
@@ -311,35 +332,131 @@ const PlayerDetail: FC<PlayerDetailProps> = ({
               物品栏
             </Typography>
             <Stack direction="row" spacing={1}>
-              {items.length === 0
-                ? "无"
-                : items.map(({ id, key, meta }) => (
-                    <Box key={id} sx={{ width: 36 }}>
-                      {key ? (
-                        <Tooltip
-                          title={
-                            <Box>
-                              <Typography variant="body2">
-                                {meta?.dname || key}
-                              </Typography>
-                              {meta?.lore ? (
-                                <Typography
-                                  variant="caption"
-                                  color="text.secondary"
-                                >
-                                  {meta.lore}
-                                </Typography>
-                              ) : null}
-                            </Box>
-                          }
-                        >
-                          <Box>
-                            <Item itemName={key} />
-                          </Box>
-                        </Tooltip>
-                      ) : null}
-                    </Box>
-                  ))}
+              {mainItems.map(({ key, meta }, index) => (
+                <Box key={`main-${index}`} sx={{ width: 36 }}>
+                  {key ? (
+                    <Tooltip
+                      title={
+                        <Box>
+                          <Typography variant="body2">
+                            {meta?.dname || key}
+                          </Typography>
+                          {meta?.lore ? (
+                            <Typography
+                              variant="caption"
+                              color="text.secondary"
+                            >
+                              {meta.lore}
+                            </Typography>
+                          ) : null}
+                        </Box>
+                      }
+                    >
+                      <Box>
+                        <Item itemName={key} />
+                      </Box>
+                    </Tooltip>
+                  ) : (
+                    <Box
+                      sx={{
+                        width: "100%",
+                        height: "100%",
+                        borderRadius: 0.5,
+                        background:
+                          "linear-gradient(145deg, #1b1f23, #0e1114)",
+                        boxShadow:
+                          "inset 0 0 0 1px rgba(255,255,255,0.06)",
+                        opacity: 0.35,
+                      }}
+                    />
+                  )}
+                </Box>
+              ))}
+            </Stack>
+            <Typography variant="body2" sx={{ mt: 1, mb: 0.5 }}>
+              背包 / 中立物品
+            </Typography>
+            <Stack direction="row" spacing={1} alignItems="center">
+              {backpackItems.map(({ key, meta }, index) => (
+                <Box key={`bp-${index}`} sx={{ width: 28 }}>
+                  {key ? (
+                    <Tooltip
+                      title={
+                        <Box>
+                          <Typography variant="body2">
+                            {meta?.dname || key}
+                          </Typography>
+                          {meta?.lore ? (
+                            <Typography
+                              variant="caption"
+                              color="text.secondary"
+                            >
+                              {meta.lore}
+                            </Typography>
+                          ) : null}
+                        </Box>
+                      }
+                    >
+                      <Box>
+                        <Item itemName={key} />
+                      </Box>
+                    </Tooltip>
+                  ) : (
+                    <Box
+                      sx={{
+                        width: "100%",
+                        height: "100%",
+                        borderRadius: 0.5,
+                        background:
+                          "linear-gradient(145deg, #1b1f23, #0e1114)",
+                        boxShadow:
+                          "inset 0 0 0 1px rgba(255,255,255,0.06)",
+                        opacity: 0.35,
+                      }}
+                    />
+                  )}
+                </Box>
+              ))}
+              {neutralItems.map(({ key, meta }, index) => (
+                <Box key={`nt-${index}`} sx={{ width: 28, ml: 1 }}>
+                  {key ? (
+                    <Tooltip
+                      title={
+                        <Box>
+                          <Typography variant="body2">
+                            {meta?.dname || key}
+                          </Typography>
+                          {meta?.lore ? (
+                            <Typography
+                              variant="caption"
+                              color="text.secondary"
+                            >
+                              {meta.lore}
+                            </Typography>
+                          ) : null}
+                        </Box>
+                      }
+                    >
+                      <Box>
+                        <Item itemName={key} />
+                      </Box>
+                    </Tooltip>
+                  ) : (
+                    <Box
+                      sx={{
+                        width: "100%",
+                        height: "100%",
+                        borderRadius: 0.5,
+                        background:
+                          "linear-gradient(145deg, #1b1f23, #0e1114)",
+                        boxShadow:
+                          "inset 0 0 0 1px rgba(255,255,255,0.06)",
+                        opacity: 0.35,
+                      }}
+                    />
+                  )}
+                </Box>
+              ))}
             </Stack>
           </Box>
         </Box>

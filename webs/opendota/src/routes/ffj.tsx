@@ -7,6 +7,7 @@ import Search from "@/pages/Search";
 import Match from "@/pages/Match";
 import MatchesPage from "@/pages/Matches";
 import HeroesPage from "@/pages/Heroes";
+import HeroDetailPage from "@/pages/HeroDetail";
 import { LayoutMenu } from "@frfojo/components";
 
 const routes: RouteObject[] = [
@@ -46,6 +47,10 @@ const routes: RouteObject[] = [
       {
         path: "/ffj/heroes",
         element: <HeroesPage />,
+      },
+      {
+        path: "/ffj/heroes/:hero_id",
+        element: <HeroDetailPage />,
       },
       {
         path: "/ffj/*",

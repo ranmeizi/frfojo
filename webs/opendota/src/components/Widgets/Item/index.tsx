@@ -17,15 +17,17 @@ const Root = styled("div")(() => ({
   paddingTop: "73%",
   boxSizing: "border-box",
   position: "relative",
+  borderRadius: 4,
+  background: "linear-gradient(145deg, #1b1f23, #0e1114)",
+  boxShadow:
+    "inset 0 0 0 1px rgba(255,255,255,0.06), 0 0 4px rgba(0,0,0,0.9)",
 
   ".item-img": {
-    height: "100%",
-    width: "100%",
     position: "absolute",
+    inset: 2,
+    borderRadius: 3,
     backgroundRepeat: "no-repeat",
     backgroundSize: "100% 100%",
-    top: 0,
-    left: 0,
   },
 }));
 
@@ -48,7 +50,7 @@ const Item: FC<ItemProps> = ({ itemId, itemName }) => {
     }
 
     return undefined;
-  }, []);
+  }, [itemName, itemId]);
 
   const src = name ? getUrl(name) : "";
 

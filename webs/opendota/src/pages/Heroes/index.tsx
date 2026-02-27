@@ -1,6 +1,6 @@
 import { FC, useMemo } from "react";
 import { Box, Chip, Paper, Skeleton, Typography, styled } from "@mui/material";
-import Grid from "@mui/material/Grid";
+import { useNavigate } from "react-router-dom";
 import { LayoutMenu } from "@frfojo/components";
 import LogoMenu from "@/components/LogoMenu";
 import NavBar from "@/components/NavBar";
@@ -17,6 +17,7 @@ const Root = styled("div")(() => ({
 const CARD_HEIGHT = 220;
 
 const HeroesPage: FC = () => {
+  const navigate = useNavigate();
   const { data, isFetching } = opendotaApi.useConstantsHeroesQuery();
 
   const heroes = useMemo(() => {
@@ -65,18 +66,19 @@ const HeroesPage: FC = () => {
                   </Paper>
                 ))
               : heroes.map((hero) => {
-                  const img = `https://api.opendota.com${hero.img}`;
+                  const img = `https://cdn.cloudflare.steamstatic.com${hero.img}`;
                   return (
                     <Paper
                       key={hero.id}
                       sx={{
                         p: 1.5,
-                        cursor: "default",
+                        cursor: "pointer",
                         bgcolor: "background.paper",
                         height: CARD_HEIGHT,
                         display: "flex",
                         flexDirection: "column",
                       }}
+                      onClick={() => navigate(`/ffj/heroes/${hero.id}`)}
                     >
                       <Box
                         sx={{
