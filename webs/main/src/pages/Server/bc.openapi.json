@@ -1,0 +1,5025 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "默认模块",
+    "description": "仿 Discord 的服务器 / 频道 / 聊天 / 成员 模块。",
+    "version": "1.0.0"
+  },
+  "tags": [],
+  "paths": {
+    "/auth/sendEmailCode": {
+      "post": {
+        "summary": "email 验证码",
+        "deprecated": false,
+        "description": "1. 向用户发送用于Email验证的邮件\n2. 通过固定传参的模板实现\n3. 限制每分钟调用次数\n",
+        "tags": [],
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "title": "",
+                    "description": "邮箱"
+                  }
+                },
+                "required": [
+                  "email"
+                ]
+              },
+              "examples": {}
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Res"
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/auth/emaillogin": {
+      "post": {
+        "summary": "用户登陆(email)",
+        "deprecated": false,
+        "description": "用户不用密码，使用邮箱验证登陆",
+        "tags": [],
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "title": "",
+                    "description": "邮箱(用户名)"
+                  },
+                  "code": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "email",
+                  "code"
+                ]
+              },
+              "examples": {}
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {}
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/auth/forgotChangePassword": {
+      "post": {
+        "summary": "忘记密码",
+        "deprecated": false,
+        "description": "",
+        "tags": [],
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "description": "邮箱"
+                  },
+                  "code": {
+                    "type": "string"
+                  },
+                  "password": {
+                    "type": "string",
+                    "description": "密码"
+                  }
+                },
+                "required": [
+                  "code",
+                  "password",
+                  "email"
+                ]
+              },
+              "examples": {}
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {}
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/auth/login": {
+      "post": {
+        "summary": "用户登录",
+        "deprecated": false,
+        "description": "",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "",
+            "example": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IjM2MDk2OTg4NUBxcS5jb20iLCJzdWIiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJ1c2VySWQiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJpYXQiOjE3Njc2ODA1NTksImV4cCI6MTc3MTI4MDU1OX0.Clu1ITkfUDZiplKtEDeyzYMwAeYj8dDhL-qNQ0HYeOc",
+            "schema": {
+              "type": "string",
+              "default": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IjM2MDk2OTg4NUBxcS5jb20iLCJzdWIiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJ1c2VySWQiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJpYXQiOjE3Njc2ODA1NTksImV4cCI6MTc3MTI4MDU1OX0.Clu1ITkfUDZiplKtEDeyzYMwAeYj8dDhL-qNQ0HYeOc"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "username": {
+                    "type": "string",
+                    "description": "用户名，有用户名则忽略邮箱"
+                  },
+                  "password": {
+                    "type": "string",
+                    "title": "",
+                    "description": "密码  加密"
+                  }
+                },
+                "required": [
+                  "password",
+                  "username"
+                ]
+              },
+              "examples": {}
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string"
+                    },
+                    "msg": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/LoginResult"
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "msg",
+                    "data"
+                  ]
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/auth/logout": {
+      "post": {
+        "summary": "用户登出",
+        "deprecated": true,
+        "description": "",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "",
+            "example": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IjM2MDk2OTg4NUBxcS5jb20iLCJzdWIiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJ1c2VySWQiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJpYXQiOjE3Njc2ODA1NTksImV4cCI6MTc3MTI4MDU1OX0.Clu1ITkfUDZiplKtEDeyzYMwAeYj8dDhL-qNQ0HYeOc",
+            "schema": {
+              "type": "string",
+              "default": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IjM2MDk2OTg4NUBxcS5jb20iLCJzdWIiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJ1c2VySWQiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJpYXQiOjE3Njc2ODA1NTksImV4cCI6MTc3MTI4MDU1OX0.Clu1ITkfUDZiplKtEDeyzYMwAeYj8dDhL-qNQ0HYeOc"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {}
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/auth/refresh": {
+      "post": {
+        "summary": "刷新token",
+        "deprecated": false,
+        "description": "",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "",
+            "example": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IjM2MDk2OTg4NUBxcS5jb20iLCJzdWIiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJ1c2VySWQiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJpYXQiOjE3Njc2ODA1NTksImV4cCI6MTc3MTI4MDU1OX0.Clu1ITkfUDZiplKtEDeyzYMwAeYj8dDhL-qNQ0HYeOc",
+            "schema": {
+              "type": "string",
+              "default": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IjM2MDk2OTg4NUBxcS5jb20iLCJzdWIiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJ1c2VySWQiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJpYXQiOjE3Njc2ODA1NTksImV4cCI6MTc3MTI4MDU1OX0.Clu1ITkfUDZiplKtEDeyzYMwAeYj8dDhL-qNQ0HYeOc"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "refreshToken": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "refreshToken"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string"
+                    },
+                    "msg": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/LoginResult"
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "msg",
+                    "data"
+                  ]
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/auth/emailsignup": {
+      "post": {
+        "summary": "用户注册(邮箱)",
+        "deprecated": false,
+        "description": "",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "",
+            "example": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IjM2MDk2OTg4NUBxcS5jb20iLCJzdWIiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJ1c2VySWQiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJpYXQiOjE3Njc2ODA1NTksImV4cCI6MTc3MTI4MDU1OX0.Clu1ITkfUDZiplKtEDeyzYMwAeYj8dDhL-qNQ0HYeOc",
+            "schema": {
+              "type": "string",
+              "default": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IjM2MDk2OTg4NUBxcS5jb20iLCJzdWIiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJ1c2VySWQiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJpYXQiOjE3Njc2ODA1NTksImV4cCI6MTc3MTI4MDU1OX0.Clu1ITkfUDZiplKtEDeyzYMwAeYj8dDhL-qNQ0HYeOc"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "title": "",
+                    "description": "邮箱"
+                  },
+                  "password": {
+                    "type": "string",
+                    "title": "",
+                    "description": "密码"
+                  },
+                  "verifyCode": {
+                    "type": "string",
+                    "description": "验证码"
+                  }
+                },
+                "required": [
+                  "email",
+                  "password",
+                  "verifyCode"
+                ]
+              },
+              "examples": {}
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Res"
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/auth/changePassword": {
+      "post": {
+        "summary": "修改密码(输入旧密码)",
+        "deprecated": false,
+        "description": "",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "",
+            "example": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IjM2MDk2OTg4NUBxcS5jb20iLCJzdWIiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJ1c2VySWQiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJpYXQiOjE3Njc2ODA1NTksImV4cCI6MTc3MTI4MDU1OX0.Clu1ITkfUDZiplKtEDeyzYMwAeYj8dDhL-qNQ0HYeOc",
+            "schema": {
+              "type": "string",
+              "default": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IjM2MDk2OTg4NUBxcS5jb20iLCJzdWIiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJ1c2VySWQiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJpYXQiOjE3Njc2ODA1NTksImV4cCI6MTc3MTI4MDU1OX0.Clu1ITkfUDZiplKtEDeyzYMwAeYj8dDhL-qNQ0HYeOc"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "oldPassword": {
+                    "type": "string",
+                    "description": "旧密码"
+                  },
+                  "newPassword": {
+                    "type": "string",
+                    "description": "新密码"
+                  }
+                },
+                "required": [
+                  "oldPassword",
+                  "newPassword"
+                ]
+              },
+              "examples": {}
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {}
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/auth/checkAuthorization": {
+      "post": {
+        "summary": "检查权限",
+        "deprecated": true,
+        "description": "",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "",
+            "example": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IjM2MDk2OTg4NUBxcS5jb20iLCJzdWIiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJ1c2VySWQiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJpYXQiOjE3Njc2ODA1NTksImV4cCI6MTc3MTI4MDU1OX0.Clu1ITkfUDZiplKtEDeyzYMwAeYj8dDhL-qNQ0HYeOc",
+            "schema": {
+              "type": "string",
+              "default": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IjM2MDk2OTg4NUBxcS5jb20iLCJzdWIiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJ1c2VySWQiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJpYXQiOjE3Njc2ODA1NTksImV4cCI6MTc3MTI4MDU1OX0.Clu1ITkfUDZiplKtEDeyzYMwAeYj8dDhL-qNQ0HYeOc"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "resource": {
+                    "type": "string"
+                  },
+                  "action": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "resource",
+                  "action"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string"
+                    },
+                    "msg": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "authorized": {
+                          "type": "boolean"
+                        }
+                      },
+                      "required": [
+                        "authorized"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "msg",
+                    "data"
+                  ]
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/users/list": {
+      "get": {
+        "summary": "查询用户列表",
+        "deprecated": false,
+        "description": "",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "current",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "sortBy",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sortOrder",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "ASC",
+                "DESC"
+              ],
+              "default": "DESC"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "description": "状态",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "active",
+                "inactive",
+                "locked"
+              ]
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "description": "Search term for username, email, firstName, or lastName",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "",
+            "example": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IjM2MDk2OTg4NUBxcS5jb20iLCJzdWIiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJ1c2VySWQiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJpYXQiOjE3Njc2ODA1NTksImV4cCI6MTc3MTI4MDU1OX0.Clu1ITkfUDZiplKtEDeyzYMwAeYj8dDhL-qNQ0HYeOc",
+            "schema": {
+              "type": "string",
+              "default": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IjM2MDk2OTg4NUBxcS5jb20iLCJzdWIiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJ1c2VySWQiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJpYXQiOjE3Njc2ODA1NTksImV4cCI6MTc3MTI4MDU1OX0.Clu1ITkfUDZiplKtEDeyzYMwAeYj8dDhL-qNQ0HYeOc"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string"
+                    },
+                    "msg": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "total": {
+                          "type": "number"
+                        },
+                        "current": {
+                          "type": "number"
+                        },
+                        "pageSize": {
+                          "type": "number"
+                        },
+                        "list": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/QueryUsers"
+                          }
+                        }
+                      },
+                      "required": [
+                        "total",
+                        "current",
+                        "pageSize",
+                        "list"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "msg",
+                    "data"
+                  ]
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      },
+      "post": {
+        "summary": "测试formdata",
+        "deprecated": false,
+        "description": "",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "",
+            "example": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IjM2MDk2OTg4NUBxcS5jb20iLCJzdWIiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJ1c2VySWQiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJpYXQiOjE3Njc2ODA1NTksImV4cCI6MTc3MTI4MDU1OX0.Clu1ITkfUDZiplKtEDeyzYMwAeYj8dDhL-qNQ0HYeOc",
+            "schema": {
+              "type": "string",
+              "default": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IjM2MDk2OTg4NUBxcS5jb20iLCJzdWIiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJ1c2VySWQiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJpYXQiOjE3Njc2ODA1NTksImV4cCI6MTc3MTI4MDU1OX0.Clu1ITkfUDZiplKtEDeyzYMwAeYj8dDhL-qNQ0HYeOc"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name1": {
+                    "example": "",
+                    "type": "string"
+                  },
+                  "files": {
+                    "example": "",
+                    "type": "string"
+                  },
+                  "phone1": {
+                    "example": "",
+                    "type": "string"
+                  },
+                  "name2": {
+                    "example": "",
+                    "type": "string"
+                  },
+                  "phone2": {
+                    "example": "",
+                    "type": "string"
+                  }
+                }
+              },
+              "examples": {}
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {}
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/users/create": {
+      "post": {
+        "summary": "创建用户",
+        "deprecated": false,
+        "description": "",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "",
+            "example": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IjM2MDk2OTg4NUBxcS5jb20iLCJzdWIiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJ1c2VySWQiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJpYXQiOjE3Njc2ODA1NTksImV4cCI6MTc3MTI4MDU1OX0.Clu1ITkfUDZiplKtEDeyzYMwAeYj8dDhL-qNQ0HYeOc",
+            "schema": {
+              "type": "string",
+              "default": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IjM2MDk2OTg4NUBxcS5jb20iLCJzdWIiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJ1c2VySWQiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJpYXQiOjE3Njc2ODA1NTksImV4cCI6MTc3MTI4MDU1OX0.Clu1ITkfUDZiplKtEDeyzYMwAeYj8dDhL-qNQ0HYeOc"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "username": {
+                    "type": "string",
+                    "description": "用户名"
+                  },
+                  "email": {
+                    "type": "string",
+                    "title": "",
+                    "description": "邮箱"
+                  },
+                  "password": {
+                    "type": "string",
+                    "title": "",
+                    "description": "密码"
+                  },
+                  "nickname": {
+                    "type": "string",
+                    "title": "",
+                    "description": "昵称"
+                  },
+                  "picture": {
+                    "type": "string",
+                    "title": "",
+                    "description": "头像"
+                  }
+                },
+                "required": [
+                  "password",
+                  "username"
+                ]
+              },
+              "examples": {}
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string"
+                    },
+                    "msg": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/QueryUsers"
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "msg",
+                    "data"
+                  ]
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/users/getUserById": {
+      "get": {
+        "summary": "按ID查询用户",
+        "deprecated": false,
+        "description": "",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "description": "ID 编号",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "",
+            "example": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IjM2MDk2OTg4NUBxcS5jb20iLCJzdWIiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJ1c2VySWQiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJpYXQiOjE3Njc2ODA1NTksImV4cCI6MTc3MTI4MDU1OX0.Clu1ITkfUDZiplKtEDeyzYMwAeYj8dDhL-qNQ0HYeOc",
+            "schema": {
+              "type": "string",
+              "default": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IjM2MDk2OTg4NUBxcS5jb20iLCJzdWIiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJ1c2VySWQiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJpYXQiOjE3Njc2ODA1NTksImV4cCI6MTc3MTI4MDU1OX0.Clu1ITkfUDZiplKtEDeyzYMwAeYj8dDhL-qNQ0HYeOc"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string"
+                    },
+                    "msg": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/QueryUsers"
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "msg",
+                    "data"
+                  ]
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/users/update": {
+      "post": {
+        "summary": "修改用户",
+        "deprecated": false,
+        "description": "",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "",
+            "example": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IjM2MDk2OTg4NUBxcS5jb20iLCJzdWIiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJ1c2VySWQiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJpYXQiOjE3Njc2ODA1NTksImV4cCI6MTc3MTI4MDU1OX0.Clu1ITkfUDZiplKtEDeyzYMwAeYj8dDhL-qNQ0HYeOc",
+            "schema": {
+              "type": "string",
+              "default": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IjM2MDk2OTg4NUBxcS5jb20iLCJzdWIiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJ1c2VySWQiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJpYXQiOjE3Njc2ODA1NTksImV4cCI6MTc3MTI4MDU1OX0.Clu1ITkfUDZiplKtEDeyzYMwAeYj8dDhL-qNQ0HYeOc"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "description": "ID 编号"
+                  },
+                  "status": {
+                    "type": "string",
+                    "title": "",
+                    "description": "状态 active-正常 inactive-失效 locked-锁定"
+                  },
+                  "picture": {
+                    "type": "string",
+                    "title": "",
+                    "description": "头像"
+                  },
+                  "nickname": {
+                    "type": "string",
+                    "title": "",
+                    "description": "昵称"
+                  }
+                },
+                "required": [
+                  "id"
+                ]
+              },
+              "examples": {}
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string"
+                    },
+                    "msg": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/QueryUsers"
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "msg",
+                    "data"
+                  ]
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/users/delete": {
+      "post": {
+        "summary": "删除用户",
+        "deprecated": false,
+        "description": "",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "",
+            "example": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IjM2MDk2OTg4NUBxcS5jb20iLCJzdWIiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJ1c2VySWQiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJpYXQiOjE3Njc2ODA1NTksImV4cCI6MTc3MTI4MDU1OX0.Clu1ITkfUDZiplKtEDeyzYMwAeYj8dDhL-qNQ0HYeOc",
+            "schema": {
+              "type": "string",
+              "default": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IjM2MDk2OTg4NUBxcS5jb20iLCJzdWIiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJ1c2VySWQiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJpYXQiOjE3Njc2ODA1NTksImV4cCI6MTc3MTI4MDU1OX0.Clu1ITkfUDZiplKtEDeyzYMwAeYj8dDhL-qNQ0HYeOc"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "description": "ID 编号"
+                  }
+                },
+                "required": [
+                  "id"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string"
+                    },
+                    "msg": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "string",
+                      "description": "返回删除的id"
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "msg",
+                    "data"
+                  ]
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/users/getRoles": {
+      "get": {
+        "summary": "获取用户所有角色",
+        "deprecated": false,
+        "description": "",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "",
+            "example": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IjM2MDk2OTg4NUBxcS5jb20iLCJzdWIiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJ1c2VySWQiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJpYXQiOjE3Njc2ODA1NTksImV4cCI6MTc3MTI4MDU1OX0.Clu1ITkfUDZiplKtEDeyzYMwAeYj8dDhL-qNQ0HYeOc",
+            "schema": {
+              "type": "string",
+              "default": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IjM2MDk2OTg4NUBxcS5jb20iLCJzdWIiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJ1c2VySWQiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJpYXQiOjE3Njc2ODA1NTksImV4cCI6MTc3MTI4MDU1OX0.Clu1ITkfUDZiplKtEDeyzYMwAeYj8dDhL-qNQ0HYeOc"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "description": "ID 编号"
+                  }
+                },
+                "required": [
+                  "id"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string"
+                    },
+                    "msg": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/QueryRoles"
+                      }
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "msg",
+                    "data"
+                  ]
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/users/bindRole": {
+      "post": {
+        "summary": "绑定角色",
+        "deprecated": false,
+        "description": "",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "",
+            "example": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IjM2MDk2OTg4NUBxcS5jb20iLCJzdWIiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJ1c2VySWQiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJpYXQiOjE3Njc2ODA1NTksImV4cCI6MTc3MTI4MDU1OX0.Clu1ITkfUDZiplKtEDeyzYMwAeYj8dDhL-qNQ0HYeOc",
+            "schema": {
+              "type": "string",
+              "default": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IjM2MDk2OTg4NUBxcS5jb20iLCJzdWIiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJ1c2VySWQiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJpYXQiOjE3Njc2ODA1NTksImV4cCI6MTc3MTI4MDU1OX0.Clu1ITkfUDZiplKtEDeyzYMwAeYj8dDhL-qNQ0HYeOc"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "userId": {
+                    "type": "string"
+                  },
+                  "roleId": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "userId",
+                  "roleId"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Res"
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/users/removeRole": {
+      "post": {
+        "summary": "解除角色",
+        "deprecated": false,
+        "description": "",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "",
+            "example": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IjM2MDk2OTg4NUBxcS5jb20iLCJzdWIiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJ1c2VySWQiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJpYXQiOjE3Njc2ODA1NTksImV4cCI6MTc3MTI4MDU1OX0.Clu1ITkfUDZiplKtEDeyzYMwAeYj8dDhL-qNQ0HYeOc",
+            "schema": {
+              "type": "string",
+              "default": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IjM2MDk2OTg4NUBxcS5jb20iLCJzdWIiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJ1c2VySWQiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJpYXQiOjE3Njc2ODA1NTksImV4cCI6MTc3MTI4MDU1OX0.Clu1ITkfUDZiplKtEDeyzYMwAeYj8dDhL-qNQ0HYeOc"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "userId": {
+                    "type": "string"
+                  },
+                  "roleId": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "userId",
+                  "roleId"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Res"
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/users/getCurrentUser": {
+      "get": {
+        "summary": "获取当前用户",
+        "deprecated": false,
+        "description": "",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "",
+            "example": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IjM2MDk2OTg4NUBxcS5jb20iLCJzdWIiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJ1c2VySWQiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJpYXQiOjE3Njc2ODA1NTksImV4cCI6MTc3MTI4MDU1OX0.Clu1ITkfUDZiplKtEDeyzYMwAeYj8dDhL-qNQ0HYeOc",
+            "schema": {
+              "type": "string",
+              "default": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IjM2MDk2OTg4NUBxcS5jb20iLCJzdWIiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJ1c2VySWQiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJpYXQiOjE3Njc2ODA1NTksImV4cCI6MTc3MTI4MDU1OX0.Clu1ITkfUDZiplKtEDeyzYMwAeYj8dDhL-qNQ0HYeOc"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string"
+                    },
+                    "msg": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "user": {
+                          "$ref": "#/components/schemas/QueryUsers",
+                          "description": "用户信息"
+                        },
+                        "permissions": {
+                          "type": "array",
+                          "items": {
+                            "type": "string",
+                            "description": "权限名"
+                          },
+                          "description": "权限数组"
+                        }
+                      },
+                      "required": [
+                        "user",
+                        "permissions"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "msg",
+                    "data"
+                  ]
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/users/permissions": {
+      "get": {
+        "summary": "获取当前用户权限",
+        "deprecated": false,
+        "description": "",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "",
+            "example": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IjM2MDk2OTg4NUBxcS5jb20iLCJzdWIiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJ1c2VySWQiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJpYXQiOjE3Njc2ODA1NTksImV4cCI6MTc3MTI4MDU1OX0.Clu1ITkfUDZiplKtEDeyzYMwAeYj8dDhL-qNQ0HYeOc",
+            "schema": {
+              "type": "string",
+              "default": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IjM2MDk2OTg4NUBxcS5jb20iLCJzdWIiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJ1c2VySWQiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJpYXQiOjE3Njc2ODA1NTksImV4cCI6MTc3MTI4MDU1OX0.Clu1ITkfUDZiplKtEDeyzYMwAeYj8dDhL-qNQ0HYeOc"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string"
+                    },
+                    "msg": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/QueryPermissions"
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "msg",
+                    "data"
+                  ]
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/users/changePassword": {
+      "post": {
+        "summary": "修改密码(管理员)",
+        "deprecated": false,
+        "description": "这个接口需要特殊权限，例如 【修改用户密码】 权限，正常不应该是一个广泛的权限\n管理员直接用输入的密码进行修改",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "",
+            "example": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IjM2MDk2OTg4NUBxcS5jb20iLCJzdWIiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJ1c2VySWQiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJpYXQiOjE3Njc2ODA1NTksImV4cCI6MTc3MTI4MDU1OX0.Clu1ITkfUDZiplKtEDeyzYMwAeYj8dDhL-qNQ0HYeOc",
+            "schema": {
+              "type": "string",
+              "default": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IjM2MDk2OTg4NUBxcS5jb20iLCJzdWIiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJ1c2VySWQiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJpYXQiOjE3Njc2ODA1NTksImV4cCI6MTc3MTI4MDU1OX0.Clu1ITkfUDZiplKtEDeyzYMwAeYj8dDhL-qNQ0HYeOc"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "newPassword": {
+                    "type": "string",
+                    "description": "新密码"
+                  }
+                },
+                "required": [
+                  "newPassword"
+                ]
+              },
+              "examples": {}
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Res"
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/roles/list": {
+      "get": {
+        "summary": "查询角色列表",
+        "deprecated": false,
+        "description": "",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "current",
+            "in": "query",
+            "description": "页码",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "description": "分页大小",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "sortBy",
+            "in": "query",
+            "description": "排序字段",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sortOrder",
+            "in": "query",
+            "description": "升序降序 默认 asc",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "ASC",
+                "DESC"
+              ],
+              "default": "ASC"
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "description": "查询关键词",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "",
+            "example": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IjM2MDk2OTg4NUBxcS5jb20iLCJzdWIiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJ1c2VySWQiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJpYXQiOjE3Njc2ODA1NTksImV4cCI6MTc3MTI4MDU1OX0.Clu1ITkfUDZiplKtEDeyzYMwAeYj8dDhL-qNQ0HYeOc",
+            "schema": {
+              "type": "string",
+              "default": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IjM2MDk2OTg4NUBxcS5jb20iLCJzdWIiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJ1c2VySWQiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJpYXQiOjE3Njc2ODA1NTksImV4cCI6MTc3MTI4MDU1OX0.Clu1ITkfUDZiplKtEDeyzYMwAeYj8dDhL-qNQ0HYeOc"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string"
+                    },
+                    "msg": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "total": {
+                          "type": "number"
+                        },
+                        "current": {
+                          "type": "number"
+                        },
+                        "pageSize": {
+                          "type": "number"
+                        },
+                        "list": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/QueryRoles"
+                          }
+                        }
+                      },
+                      "required": [
+                        "total",
+                        "current",
+                        "pageSize",
+                        "list"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "msg",
+                    "data"
+                  ]
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/roles/create": {
+      "post": {
+        "summary": "创建角色",
+        "deprecated": false,
+        "description": "",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "",
+            "example": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IjM2MDk2OTg4NUBxcS5jb20iLCJzdWIiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJ1c2VySWQiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJpYXQiOjE3Njc2ODA1NTksImV4cCI6MTc3MTI4MDU1OX0.Clu1ITkfUDZiplKtEDeyzYMwAeYj8dDhL-qNQ0HYeOc",
+            "schema": {
+              "type": "string",
+              "default": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IjM2MDk2OTg4NUBxcS5jb20iLCJzdWIiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJ1c2VySWQiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJpYXQiOjE3Njc2ODA1NTksImV4cCI6MTc3MTI4MDU1OX0.Clu1ITkfUDZiplKtEDeyzYMwAeYj8dDhL-qNQ0HYeOc"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "name"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string"
+                    },
+                    "msg": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/QueryRoles"
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "msg",
+                    "data"
+                  ]
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/roles/getRoleById": {
+      "get": {
+        "summary": "按ID查询角色",
+        "deprecated": false,
+        "description": "",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "",
+            "example": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IjM2MDk2OTg4NUBxcS5jb20iLCJzdWIiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJ1c2VySWQiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJpYXQiOjE3Njc2ODA1NTksImV4cCI6MTc3MTI4MDU1OX0.Clu1ITkfUDZiplKtEDeyzYMwAeYj8dDhL-qNQ0HYeOc",
+            "schema": {
+              "type": "string",
+              "default": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IjM2MDk2OTg4NUBxcS5jb20iLCJzdWIiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJ1c2VySWQiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJpYXQiOjE3Njc2ODA1NTksImV4cCI6MTc3MTI4MDU1OX0.Clu1ITkfUDZiplKtEDeyzYMwAeYj8dDhL-qNQ0HYeOc"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "description": "ID 编号"
+                  }
+                },
+                "required": [
+                  "id"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {}
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/roles/update": {
+      "post": {
+        "summary": "修改角色",
+        "deprecated": false,
+        "description": "",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "",
+            "example": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IjM2MDk2OTg4NUBxcS5jb20iLCJzdWIiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJ1c2VySWQiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJpYXQiOjE3Njc2ODA1NTksImV4cCI6MTc3MTI4MDU1OX0.Clu1ITkfUDZiplKtEDeyzYMwAeYj8dDhL-qNQ0HYeOc",
+            "schema": {
+              "type": "string",
+              "default": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IjM2MDk2OTg4NUBxcS5jb20iLCJzdWIiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJ1c2VySWQiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJpYXQiOjE3Njc2ODA1NTksImV4cCI6MTc3MTI4MDU1OX0.Clu1ITkfUDZiplKtEDeyzYMwAeYj8dDhL-qNQ0HYeOc"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "id"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string"
+                    },
+                    "msg": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/QueryRoles"
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "msg",
+                    "data"
+                  ]
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/roles/delete": {
+      "post": {
+        "summary": "删除角色",
+        "deprecated": false,
+        "description": "",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "",
+            "example": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IjM2MDk2OTg4NUBxcS5jb20iLCJzdWIiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJ1c2VySWQiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJpYXQiOjE3Njc2ODA1NTksImV4cCI6MTc3MTI4MDU1OX0.Clu1ITkfUDZiplKtEDeyzYMwAeYj8dDhL-qNQ0HYeOc",
+            "schema": {
+              "type": "string",
+              "default": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IjM2MDk2OTg4NUBxcS5jb20iLCJzdWIiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJ1c2VySWQiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJpYXQiOjE3Njc2ODA1NTksImV4cCI6MTc3MTI4MDU1OX0.Clu1ITkfUDZiplKtEDeyzYMwAeYj8dDhL-qNQ0HYeOc"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "description": "ID 编号"
+                  }
+                },
+                "required": [
+                  "id"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string"
+                    },
+                    "msg": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "msg",
+                    "data"
+                  ]
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/roles/getPermissions": {
+      "get": {
+        "summary": "获取角色所有的权限",
+        "deprecated": false,
+        "description": "",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "roleId",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "",
+            "example": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IjM2MDk2OTg4NUBxcS5jb20iLCJzdWIiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJ1c2VySWQiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJpYXQiOjE3Njc2ODA1NTksImV4cCI6MTc3MTI4MDU1OX0.Clu1ITkfUDZiplKtEDeyzYMwAeYj8dDhL-qNQ0HYeOc",
+            "schema": {
+              "type": "string",
+              "default": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IjM2MDk2OTg4NUBxcS5jb20iLCJzdWIiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJ1c2VySWQiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJpYXQiOjE3Njc2ODA1NTksImV4cCI6MTc3MTI4MDU1OX0.Clu1ITkfUDZiplKtEDeyzYMwAeYj8dDhL-qNQ0HYeOc"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string"
+                    },
+                    "msg": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/QueryPermissions"
+                      }
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "msg",
+                    "data"
+                  ]
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/roles/bindPermission": {
+      "post": {
+        "summary": "绑定权限",
+        "deprecated": false,
+        "description": "",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "",
+            "example": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IjM2MDk2OTg4NUBxcS5jb20iLCJzdWIiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJ1c2VySWQiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJpYXQiOjE3Njc2ODA1NTksImV4cCI6MTc3MTI4MDU1OX0.Clu1ITkfUDZiplKtEDeyzYMwAeYj8dDhL-qNQ0HYeOc",
+            "schema": {
+              "type": "string",
+              "default": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IjM2MDk2OTg4NUBxcS5jb20iLCJzdWIiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJ1c2VySWQiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJpYXQiOjE3Njc2ODA1NTksImV4cCI6MTc3MTI4MDU1OX0.Clu1ITkfUDZiplKtEDeyzYMwAeYj8dDhL-qNQ0HYeOc"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "roleId": {
+                    "type": "string"
+                  },
+                  "permissionId": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "roleId",
+                  "permissionId"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Res"
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/roles/removePromission": {
+      "post": {
+        "summary": "解除权限",
+        "deprecated": false,
+        "description": "",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "",
+            "example": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IjM2MDk2OTg4NUBxcS5jb20iLCJzdWIiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJ1c2VySWQiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJpYXQiOjE3Njc2ODA1NTksImV4cCI6MTc3MTI4MDU1OX0.Clu1ITkfUDZiplKtEDeyzYMwAeYj8dDhL-qNQ0HYeOc",
+            "schema": {
+              "type": "string",
+              "default": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IjM2MDk2OTg4NUBxcS5jb20iLCJzdWIiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJ1c2VySWQiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJpYXQiOjE3Njc2ODA1NTksImV4cCI6MTc3MTI4MDU1OX0.Clu1ITkfUDZiplKtEDeyzYMwAeYj8dDhL-qNQ0HYeOc"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "roleId": {
+                    "type": "string"
+                  },
+                  "permissionId": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "roleId",
+                  "permissionId"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Res"
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/permissions/list": {
+      "get": {
+        "summary": "查询权限列表",
+        "deprecated": false,
+        "description": "",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "current",
+            "in": "query",
+            "description": "页码",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "description": "分页大小",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sortBy",
+            "in": "query",
+            "description": "排序字段",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sortOrder",
+            "in": "query",
+            "description": "升序降序 默认 asc",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "ASC",
+                "DESC"
+              ],
+              "default": "DESC"
+            }
+          },
+          {
+            "name": "resource",
+            "in": "query",
+            "description": "资源筛选",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "action",
+            "in": "query",
+            "description": "操作筛选",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "",
+            "example": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IjM2MDk2OTg4NUBxcS5jb20iLCJzdWIiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJ1c2VySWQiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJpYXQiOjE3Njc2ODA1NTksImV4cCI6MTc3MTI4MDU1OX0.Clu1ITkfUDZiplKtEDeyzYMwAeYj8dDhL-qNQ0HYeOc",
+            "schema": {
+              "type": "string",
+              "default": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IjM2MDk2OTg4NUBxcS5jb20iLCJzdWIiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJ1c2VySWQiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJpYXQiOjE3Njc2ODA1NTksImV4cCI6MTc3MTI4MDU1OX0.Clu1ITkfUDZiplKtEDeyzYMwAeYj8dDhL-qNQ0HYeOc"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {}
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/permissions/create": {
+      "post": {
+        "summary": "创建权限",
+        "deprecated": false,
+        "description": "",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "",
+            "example": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IjM2MDk2OTg4NUBxcS5jb20iLCJzdWIiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJ1c2VySWQiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJpYXQiOjE3Njc2ODA1NTksImV4cCI6MTc3MTI4MDU1OX0.Clu1ITkfUDZiplKtEDeyzYMwAeYj8dDhL-qNQ0HYeOc",
+            "schema": {
+              "type": "string",
+              "default": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IjM2MDk2OTg4NUBxcS5jb20iLCJzdWIiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJ1c2VySWQiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJpYXQiOjE3Njc2ODA1NTksImV4cCI6MTc3MTI4MDU1OX0.Clu1ITkfUDZiplKtEDeyzYMwAeYj8dDhL-qNQ0HYeOc"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  },
+                  "resource": {
+                    "type": "string"
+                  },
+                  "action": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "name",
+                  "resource",
+                  "action"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string"
+                    },
+                    "msg": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "total": {
+                          "type": "number"
+                        },
+                        "current": {
+                          "type": "number"
+                        },
+                        "pageSize": {
+                          "type": "number"
+                        },
+                        "list": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/QueryPermissions"
+                          }
+                        }
+                      },
+                      "required": [
+                        "total",
+                        "current",
+                        "pageSize",
+                        "list"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "msg",
+                    "data"
+                  ]
+                },
+                "example": {
+                  "code": "47",
+                  "msg": "cillum occaecat fugiat",
+                  "data": {
+                    "total": 59,
+                    "current": 41,
+                    "pageSize": 10,
+                    "list": [
+                      {
+                        "id": "-YXNoCpam_UCiRyKjLsaC",
+                        "name": "谈静怡",
+                        "description": "低日期族林。农保转素节派声候太。体变我将间什。眼带了置老。委开各品。",
+                        "resource": "laborum sit in consequat",
+                        "action": "adipisicing in est",
+                        "isSystem": true,
+                        "createdAt": "2025-04-17 10:08:35",
+                        "updatedAt": "2025-05-04"
+                      },
+                      {
+                        "id": "ZU9GlOHQYSiSwCgUKUsmO",
+                        "name": "随静",
+                        "description": "养名象分组统无改在。放世样说除火。细命据。什色做市太计最报物。西与住。叫对性器。",
+                        "resource": "Ut eiusmod nisi nostrud velit",
+                        "action": "et",
+                        "isSystem": true,
+                        "createdAt": "2024-08-26 10:23:35",
+                        "updatedAt": "2024-05-09"
+                      },
+                      {
+                        "id": "6wB5pAEKWIO2wJpvJC7rr",
+                        "name": "狄家豪",
+                        "description": "京争使子六各生。好取林界先西记被。众基万。",
+                        "resource": "eiusmod aliqua cillum",
+                        "action": "reprehenderit labore esse",
+                        "isSystem": true,
+                        "createdAt": "2024-06-06 01:16:16",
+                        "updatedAt": "2024-06-21"
+                      }
+                    ]
+                  }
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/permissions/getPermissionById": {
+      "get": {
+        "summary": "按ID查询权限",
+        "deprecated": false,
+        "description": "",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "description": "ID 编号",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "",
+            "example": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IjM2MDk2OTg4NUBxcS5jb20iLCJzdWIiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJ1c2VySWQiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJpYXQiOjE3Njc2ODA1NTksImV4cCI6MTc3MTI4MDU1OX0.Clu1ITkfUDZiplKtEDeyzYMwAeYj8dDhL-qNQ0HYeOc",
+            "schema": {
+              "type": "string",
+              "default": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IjM2MDk2OTg4NUBxcS5jb20iLCJzdWIiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJ1c2VySWQiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJpYXQiOjE3Njc2ODA1NTksImV4cCI6MTc3MTI4MDU1OX0.Clu1ITkfUDZiplKtEDeyzYMwAeYj8dDhL-qNQ0HYeOc"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string"
+                    },
+                    "msg": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/QueryPermissions"
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "msg",
+                    "data"
+                  ]
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/permissions/update": {
+      "post": {
+        "summary": "修改权限",
+        "deprecated": false,
+        "description": "",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "",
+            "example": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IjM2MDk2OTg4NUBxcS5jb20iLCJzdWIiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJ1c2VySWQiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJpYXQiOjE3Njc2ODA1NTksImV4cCI6MTc3MTI4MDU1OX0.Clu1ITkfUDZiplKtEDeyzYMwAeYj8dDhL-qNQ0HYeOc",
+            "schema": {
+              "type": "string",
+              "default": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IjM2MDk2OTg4NUBxcS5jb20iLCJzdWIiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJ1c2VySWQiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJpYXQiOjE3Njc2ODA1NTksImV4cCI6MTc3MTI4MDU1OX0.Clu1ITkfUDZiplKtEDeyzYMwAeYj8dDhL-qNQ0HYeOc"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "description": "ID 编号"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "id"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string"
+                    },
+                    "msg": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/QueryPermissions"
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "msg",
+                    "data"
+                  ]
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/permissions/delete": {
+      "post": {
+        "summary": "删除权限",
+        "deprecated": false,
+        "description": "",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "",
+            "example": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IjM2MDk2OTg4NUBxcS5jb20iLCJzdWIiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJ1c2VySWQiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJpYXQiOjE3Njc2ODA1NTksImV4cCI6MTc3MTI4MDU1OX0.Clu1ITkfUDZiplKtEDeyzYMwAeYj8dDhL-qNQ0HYeOc",
+            "schema": {
+              "type": "string",
+              "default": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IjM2MDk2OTg4NUBxcS5jb20iLCJzdWIiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJ1c2VySWQiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJpYXQiOjE3Njc2ODA1NTksImV4cCI6MTc3MTI4MDU1OX0.Clu1ITkfUDZiplKtEDeyzYMwAeYj8dDhL-qNQ0HYeOc"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "description": "ID 编号"
+                  }
+                },
+                "required": [
+                  "id"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string"
+                    },
+                    "msg": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "msg",
+                    "data"
+                  ]
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/momoro/mvp/getCurrentStatus": {
+      "get": {
+        "summary": "获取当前mvp击杀信息",
+        "deprecated": false,
+        "description": "从 redis 取出所有有效的 mvp 击杀信息",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "",
+            "example": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IjM2MDk2OTg4NUBxcS5jb20iLCJzdWIiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJ1c2VySWQiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJpYXQiOjE3Njc2ODA1NTksImV4cCI6MTc3MTI4MDU1OX0.Clu1ITkfUDZiplKtEDeyzYMwAeYj8dDhL-qNQ0HYeOc",
+            "schema": {
+              "type": "string",
+              "default": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IjM2MDk2OTg4NUBxcS5jb20iLCJzdWIiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJ1c2VySWQiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJpYXQiOjE3Njc2ODA1NTksImV4cCI6MTc3MTI4MDU1OX0.Clu1ITkfUDZiplKtEDeyzYMwAeYj8dDhL-qNQ0HYeOc"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string"
+                    },
+                    "msg": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/MvpDeathNote"
+                      }
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "msg",
+                    "data"
+                  ]
+                },
+                "example": {
+                  "code": "77",
+                  "msg": "dolore eiusmod",
+                  "data": [
+                    {
+                      "id": "mY2_sVi5B1eZh4tQYj1WG",
+                      "death_time": "2026-01-04 04:08:30",
+                      "killer": "reprehenderit cillum"
+                    },
+                    {
+                      "id": "gNkeC83Q69YMMcTmXlCy6",
+                      "death_time": "2025-10-19 22:50:07",
+                      "killer": "reprehenderit dolore do ut Excepteur"
+                    },
+                    {
+                      "id": "5r2ElzaPkFISEGCc-3Ut0",
+                      "death_time": "2025-03-22 05:11:39",
+                      "killer": "culpa"
+                    }
+                  ]
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/momoro/rewards/list": {
+      "get": {
+        "summary": "查询物品获取列表",
+        "deprecated": false,
+        "description": "",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "search",
+            "in": "query",
+            "description": "object/objectId/subject 模糊查询",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "type",
+            "in": "query",
+            "description": "类型,可多选 0-mvp 1-获取 2-偷窃 查询时应该默认凋落物 1,2",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "current",
+            "in": "query",
+            "description": "1",
+            "required": false,
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "description": "20",
+            "required": false,
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "",
+            "example": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IjM2MDk2OTg4NUBxcS5jb20iLCJzdWIiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJ1c2VySWQiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJpYXQiOjE3Njc2ODA1NTksImV4cCI6MTc3MTI4MDU1OX0.Clu1ITkfUDZiplKtEDeyzYMwAeYj8dDhL-qNQ0HYeOc",
+            "schema": {
+              "type": "string",
+              "default": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IjM2MDk2OTg4NUBxcS5jb20iLCJzdWIiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJ1c2VySWQiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJpYXQiOjE3Njc2ODA1NTksImV4cCI6MTc3MTI4MDU1OX0.Clu1ITkfUDZiplKtEDeyzYMwAeYj8dDhL-qNQ0HYeOc"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {},
+                  "required": [
+                    "01JW8F8D5F256KMQSFFDN6AVFX"
+                  ]
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/momoro/ingamenews/push": {
+      "post": {
+        "summary": "推送游戏内消息",
+        "deprecated": false,
+        "description": "分类 type 选择是存 mysql 还是 redis",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "",
+            "example": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IjM2MDk2OTg4NUBxcS5jb20iLCJzdWIiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJ1c2VySWQiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJpYXQiOjE3Njc2ODA1NTksImV4cCI6MTc3MTI4MDU1OX0.Clu1ITkfUDZiplKtEDeyzYMwAeYj8dDhL-qNQ0HYeOc",
+            "schema": {
+              "type": "string",
+              "default": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IjM2MDk2OTg4NUBxcS5jb20iLCJzdWIiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJ1c2VySWQiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJpYXQiOjE3Njc2ODA1NTksImV4cCI6MTc3MTI4MDU1OX0.Clu1ITkfUDZiplKtEDeyzYMwAeYj8dDhL-qNQ0HYeOc"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/PushNoteData"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Res"
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/momoro/getRewardRank": {
+      "get": {
+        "summary": "查看掉落排名",
+        "deprecated": false,
+        "description": "",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "",
+            "example": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IjM2MDk2OTg4NUBxcS5jb20iLCJzdWIiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJ1c2VySWQiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJpYXQiOjE3Njc2ODA1NTksImV4cCI6MTc3MTI4MDU1OX0.Clu1ITkfUDZiplKtEDeyzYMwAeYj8dDhL-qNQ0HYeOc",
+            "schema": {
+              "type": "string",
+              "default": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IjM2MDk2OTg4NUBxcS5jb20iLCJzdWIiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJ1c2VySWQiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJpYXQiOjE3Njc2ODA1NTksImV4cCI6MTc3MTI4MDU1OX0.Clu1ITkfUDZiplKtEDeyzYMwAeYj8dDhL-qNQ0HYeOc"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string"
+                    },
+                    "msg": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/RewardRankItem"
+                      }
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "msg",
+                    "data"
+                  ]
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/momoro/reward/statistic": {
+      "get": {
+        "summary": "查询掉落统计",
+        "deprecated": false,
+        "description": "",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "search",
+            "in": "query",
+            "description": "精确匹配",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "type",
+            "in": "query",
+            "description": "1-按人物 2-按物品",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "",
+            "example": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IjM2MDk2OTg4NUBxcS5jb20iLCJzdWIiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJ1c2VySWQiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJpYXQiOjE3Njc2ODA1NTksImV4cCI6MTc3MTI4MDU1OX0.Clu1ITkfUDZiplKtEDeyzYMwAeYj8dDhL-qNQ0HYeOc",
+            "schema": {
+              "type": "string",
+              "default": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IjM2MDk2OTg4NUBxcS5jb20iLCJzdWIiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJ1c2VySWQiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJpYXQiOjE3Njc2ODA1NTksImV4cCI6MTc3MTI4MDU1OX0.Clu1ITkfUDZiplKtEDeyzYMwAeYj8dDhL-qNQ0HYeOc"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string"
+                    },
+                    "msg": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "subject": {
+                            "type": "string",
+                            "title": "主体"
+                          },
+                          "cnt": {
+                            "type": "string",
+                            "title": "计数"
+                          }
+                        },
+                        "required": [
+                          "subject",
+                          "cnt"
+                        ]
+                      }
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "msg",
+                    "data"
+                  ]
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/momoro/getLastestTs": {
+      "get": {
+        "summary": "获取最新ts",
+        "deprecated": false,
+        "description": "",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "",
+            "example": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IjM2MDk2OTg4NUBxcS5jb20iLCJzdWIiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJ1c2VySWQiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJpYXQiOjE3Njc2ODA1NTksImV4cCI6MTc3MTI4MDU1OX0.Clu1ITkfUDZiplKtEDeyzYMwAeYj8dDhL-qNQ0HYeOc",
+            "schema": {
+              "type": "string",
+              "default": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IjM2MDk2OTg4NUBxcS5jb20iLCJzdWIiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJ1c2VySWQiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJpYXQiOjE3Njc2ODA1NTksImV4cCI6MTc3MTI4MDU1OX0.Clu1ITkfUDZiplKtEDeyzYMwAeYj8dDhL-qNQ0HYeOc"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {}
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/momoro/captureTask": {
+      "get": {
+        "summary": "自动抓news",
+        "deprecated": false,
+        "description": "",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "",
+            "example": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IjM2MDk2OTg4NUBxcS5jb20iLCJzdWIiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJ1c2VySWQiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJpYXQiOjE3Njc2ODA1NTksImV4cCI6MTc3MTI4MDU1OX0.Clu1ITkfUDZiplKtEDeyzYMwAeYj8dDhL-qNQ0HYeOc",
+            "schema": {
+              "type": "string",
+              "default": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IjM2MDk2OTg4NUBxcS5jb20iLCJzdWIiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJ1c2VySWQiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJpYXQiOjE3Njc2ODA1NTksImV4cCI6MTc3MTI4MDU1OX0.Clu1ITkfUDZiplKtEDeyzYMwAeYj8dDhL-qNQ0HYeOc"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {}
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/momoro/captureRequest": {
+      "get": {
+        "summary": "下发抓取任务",
+        "deprecated": false,
+        "description": "",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "",
+            "example": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IjM2MDk2OTg4NUBxcS5jb20iLCJzdWIiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJ1c2VySWQiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJpYXQiOjE3Njc2ODA1NTksImV4cCI6MTc3MTI4MDU1OX0.Clu1ITkfUDZiplKtEDeyzYMwAeYj8dDhL-qNQ0HYeOc",
+            "schema": {
+              "type": "string",
+              "default": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IjM2MDk2OTg4NUBxcS5jb20iLCJzdWIiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJ1c2VySWQiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJpYXQiOjE3Njc2ODA1NTksImV4cCI6MTc3MTI4MDU1OX0.Clu1ITkfUDZiplKtEDeyzYMwAeYj8dDhL-qNQ0HYeOc"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {}
+                }
+              }
+            }
+          }
+        },
+        "security": []
+      }
+    },
+    "/auth/google-login": {
+      "post": {
+        "summary": "Google快捷登录",
+        "deprecated": false,
+        "description": "去拿google openid\n去自己库里对比，登陆\n得到1种正确结果\n1. 老用户已绑定 -> 登陆  00000 返回 登陆token\n错误结果\n1. 未找到 -> 登陆失败 000500，提示用户进入注册页，走注册流程\n",
+        "tags": [],
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "code": {
+                    "type": "string",
+                    "description": "谷歌授权code"
+                  }
+                },
+                "required": [
+                  "code"
+                ]
+              },
+              "examples": {}
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string"
+                    },
+                    "msg": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/LoginResult"
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "msg",
+                    "data"
+                  ]
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/": {
+      "post": {
+        "summary": "绑定Google账号",
+        "deprecated": false,
+        "description": "1. 密码登录绑定(用户需要密码登录后，进行账号绑定)\n2. token 绑定, 登陆时绑定(看看是否需要单独出一个接口)\n3. 临时token绑定(上一步前端会拿到一个token,用户点击确认回传,后端对token数据进行校验绑定)",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "",
+            "example": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IjM2MDk2OTg4NUBxcS5jb20iLCJzdWIiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJ1c2VySWQiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJpYXQiOjE3Njc2ODA1NTksImV4cCI6MTc3MTI4MDU1OX0.Clu1ITkfUDZiplKtEDeyzYMwAeYj8dDhL-qNQ0HYeOc",
+            "schema": {
+              "type": "string",
+              "default": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IjM2MDk2OTg4NUBxcS5jb20iLCJzdWIiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJ1c2VySWQiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJpYXQiOjE3Njc2ODA1NTksImV4cCI6MTc3MTI4MDU1OX0.Clu1ITkfUDZiplKtEDeyzYMwAeYj8dDhL-qNQ0HYeOc"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {}
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/email/callback": {
+      "get": {
+        "summary": "邮箱验证回调",
+        "deprecated": false,
+        "description": "",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "",
+            "example": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IjM2MDk2OTg4NUBxcS5jb20iLCJzdWIiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJ1c2VySWQiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJpYXQiOjE3Njc2ODA1NTksImV4cCI6MTc3MTI4MDU1OX0.Clu1ITkfUDZiplKtEDeyzYMwAeYj8dDhL-qNQ0HYeOc",
+            "schema": {
+              "type": "string",
+              "default": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IjM2MDk2OTg4NUBxcS5jb20iLCJzdWIiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJ1c2VySWQiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJpYXQiOjE3Njc2ODA1NTksImV4cCI6MTc3MTI4MDU1OX0.Clu1ITkfUDZiplKtEDeyzYMwAeYj8dDhL-qNQ0HYeOc"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {}
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/kook/sendTextMessage": {
+      "post": {
+        "summary": "发送文字消息",
+        "deprecated": false,
+        "description": "",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "",
+            "example": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IjM2MDk2OTg4NUBxcS5jb20iLCJzdWIiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJ1c2VySWQiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJpYXQiOjE3Njc2ODA1NTksImV4cCI6MTc3MTI4MDU1OX0.Clu1ITkfUDZiplKtEDeyzYMwAeYj8dDhL-qNQ0HYeOc",
+            "schema": {
+              "type": "string",
+              "default": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IjM2MDk2OTg4NUBxcS5jb20iLCJzdWIiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJ1c2VySWQiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJpYXQiOjE3Njc2ODA1NTksImV4cCI6MTc3MTI4MDU1OX0.Clu1ITkfUDZiplKtEDeyzYMwAeYj8dDhL-qNQ0HYeOc"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "target_id": {
+                    "type": "string",
+                    "description": "目标频道id"
+                  },
+                  "content": {
+                    "type": "string",
+                    "description": "文字内容 不超过8000字"
+                  },
+                  "quote": {
+                    "type": "string",
+                    "description": "回复某条消息的msgId"
+                  },
+                  "nonce": {
+                    "type": "string",
+                    "description": "nonce,服务器不做处理原样返回"
+                  },
+                  "temp_target_id": {
+                    "type": "string",
+                    "description": "用户 id,如果传了，代表该消息是临时消息，该消息不会存数据库，但是会在频道内只给该用户推送临时消息。用于在频道内针对用户的操作进行单独的回应通知等。"
+                  },
+                  "template_id": {
+                    "type": "string",
+                    "description": "模板消息id, 如果使用了，content会作为模板消息的input，参见模板消息"
+                  },
+                  "reply_msg_id": {
+                    "type": "string",
+                    "description": "当前消息回复的用户5分钟内发送到相同频道的消息的msg_id，如果是当前开发者的第一次回复，扣减当日发送量按n分之一条计算"
+                  }
+                },
+                "required": [
+                  "content",
+                  "target_id"
+                ]
+              },
+              "examples": {}
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {}
+                }
+              }
+            }
+          }
+        },
+        "security": []
+      }
+    },
+    "/kook/connect": {
+      "post": {
+        "summary": "登录kook机器人",
+        "deprecated": false,
+        "description": "",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "",
+            "example": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IjM2MDk2OTg4NUBxcS5jb20iLCJzdWIiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJ1c2VySWQiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJpYXQiOjE3Njc2ODA1NTksImV4cCI6MTc3MTI4MDU1OX0.Clu1ITkfUDZiplKtEDeyzYMwAeYj8dDhL-qNQ0HYeOc",
+            "schema": {
+              "type": "string",
+              "default": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IjM2MDk2OTg4NUBxcS5jb20iLCJzdWIiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJ1c2VySWQiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJpYXQiOjE3Njc2ODA1NTksImV4cCI6MTc3MTI4MDU1OX0.Clu1ITkfUDZiplKtEDeyzYMwAeYj8dDhL-qNQ0HYeOc"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {}
+                }
+              }
+            }
+          }
+        },
+        "security": []
+      }
+    },
+    "/kook/disconnect": {
+      "post": {
+        "summary": "下线kook机器人",
+        "deprecated": false,
+        "description": "",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "",
+            "example": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IjM2MDk2OTg4NUBxcS5jb20iLCJzdWIiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJ1c2VySWQiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJpYXQiOjE3Njc2ODA1NTksImV4cCI6MTc3MTI4MDU1OX0.Clu1ITkfUDZiplKtEDeyzYMwAeYj8dDhL-qNQ0HYeOc",
+            "schema": {
+              "type": "string",
+              "default": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IjM2MDk2OTg4NUBxcS5jb20iLCJzdWIiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJ1c2VySWQiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJpYXQiOjE3Njc2ODA1NTksImV4cCI6MTc3MTI4MDU1OX0.Clu1ITkfUDZiplKtEDeyzYMwAeYj8dDhL-qNQ0HYeOc"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {}
+                }
+              }
+            }
+          }
+        },
+        "security": []
+      }
+    },
+    "/discord/pullNews": {
+      "post": {
+        "summary": "拉取历史信息",
+        "deprecated": false,
+        "description": "",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "",
+            "example": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IjM2MDk2OTg4NUBxcS5jb20iLCJzdWIiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJ1c2VySWQiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJpYXQiOjE3Njc2ODA1NTksImV4cCI6MTc3MTI4MDU1OX0.Clu1ITkfUDZiplKtEDeyzYMwAeYj8dDhL-qNQ0HYeOc",
+            "schema": {
+              "type": "string",
+              "default": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IjM2MDk2OTg4NUBxcS5jb20iLCJzdWIiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJ1c2VySWQiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJpYXQiOjE3Njc2ODA1NTksImV4cCI6MTc3MTI4MDU1OX0.Clu1ITkfUDZiplKtEDeyzYMwAeYj8dDhL-qNQ0HYeOc"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {}
+                }
+              }
+            }
+          }
+        },
+        "security": []
+      }
+    },
+    "/discord/sendTextMessage": {
+      "post": {
+        "summary": "发送文字消息",
+        "deprecated": false,
+        "description": "",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "",
+            "example": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IjM2MDk2OTg4NUBxcS5jb20iLCJzdWIiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJ1c2VySWQiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJpYXQiOjE3Njc2ODA1NTksImV4cCI6MTc3MTI4MDU1OX0.Clu1ITkfUDZiplKtEDeyzYMwAeYj8dDhL-qNQ0HYeOc",
+            "schema": {
+              "type": "string",
+              "default": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IjM2MDk2OTg4NUBxcS5jb20iLCJzdWIiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJ1c2VySWQiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJpYXQiOjE3Njc2ODA1NTksImV4cCI6MTc3MTI4MDU1OX0.Clu1ITkfUDZiplKtEDeyzYMwAeYj8dDhL-qNQ0HYeOc"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "target_id": {
+                    "type": "string",
+                    "description": "目标频道id"
+                  },
+                  "content": {
+                    "type": "string",
+                    "description": "文字内容 不超过8000字"
+                  },
+                  "quote": {
+                    "type": "string",
+                    "description": "回复某条消息的msgId"
+                  },
+                  "nonce": {
+                    "type": "string",
+                    "description": "nonce,服务器不做处理原样返回"
+                  },
+                  "temp_target_id": {
+                    "type": "string",
+                    "description": "用户 id,如果传了，代表该消息是临时消息，该消息不会存数据库，但是会在频道内只给该用户推送临时消息。用于在频道内针对用户的操作进行单独的回应通知等。"
+                  },
+                  "template_id": {
+                    "type": "string",
+                    "description": "模板消息id, 如果使用了，content会作为模板消息的input，参见模板消息"
+                  },
+                  "reply_msg_id": {
+                    "type": "string",
+                    "description": "当前消息回复的用户5分钟内发送到相同频道的消息的msg_id，如果是当前开发者的第一次回复，扣减当日发送量按n分之一条计算"
+                  }
+                },
+                "required": [
+                  "content",
+                  "target_id"
+                ]
+              },
+              "examples": {}
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {}
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/discord/connect": {
+      "post": {
+        "summary": "登录discord机器人",
+        "deprecated": false,
+        "description": "",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "",
+            "example": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IjM2MDk2OTg4NUBxcS5jb20iLCJzdWIiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJ1c2VySWQiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJpYXQiOjE3Njc2ODA1NTksImV4cCI6MTc3MTI4MDU1OX0.Clu1ITkfUDZiplKtEDeyzYMwAeYj8dDhL-qNQ0HYeOc",
+            "schema": {
+              "type": "string",
+              "default": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IjM2MDk2OTg4NUBxcS5jb20iLCJzdWIiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJ1c2VySWQiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJpYXQiOjE3Njc2ODA1NTksImV4cCI6MTc3MTI4MDU1OX0.Clu1ITkfUDZiplKtEDeyzYMwAeYj8dDhL-qNQ0HYeOc"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {}
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/discord/disconnect": {
+      "post": {
+        "summary": "下线discord机器人",
+        "deprecated": false,
+        "description": "",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "",
+            "example": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IjM2MDk2OTg4NUBxcS5jb20iLCJzdWIiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJ1c2VySWQiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJpYXQiOjE3Njc2ODA1NTksImV4cCI6MTc3MTI4MDU1OX0.Clu1ITkfUDZiplKtEDeyzYMwAeYj8dDhL-qNQ0HYeOc",
+            "schema": {
+              "type": "string",
+              "default": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IjM2MDk2OTg4NUBxcS5jb20iLCJzdWIiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJ1c2VySWQiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJpYXQiOjE3Njc2ODA1NTksImV4cCI6MTc3MTI4MDU1OX0.Clu1ITkfUDZiplKtEDeyzYMwAeYj8dDhL-qNQ0HYeOc"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {}
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/bc/servers/list": {
+      "get": {
+        "summary": "查询当前用户加入的服务器列表",
+        "deprecated": false,
+        "description": "",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "current",
+            "in": "query",
+            "description": "当前页码，从 1 开始",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "description": "每页数量",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "description": "按服务器名称 / 描述模糊搜索",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "",
+            "required": false,
+            "example": "Bearer {token}",
+            "schema": {
+              "type": "string",
+              "default": "Bearer {token}"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string"
+                    },
+                    "msg": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "total": {
+                          "type": "number"
+                        },
+                        "current": {
+                          "type": "number"
+                        },
+                        "pageSize": {
+                          "type": "number"
+                        },
+                        "list": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/BcServer"
+                          }
+                        }
+                      },
+                      "required": [
+                        "total",
+                        "current",
+                        "pageSize",
+                        "list"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "msg",
+                    "data"
+                  ]
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/bc/servers/create": {
+      "post": {
+        "summary": "创建服务器",
+        "deprecated": false,
+        "description": "",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "",
+            "required": false,
+            "example": "Bearer {token}",
+            "schema": {
+              "type": "string",
+              "default": "Bearer {token}"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "description": "服务器名称"
+                  },
+                  "description": {
+                    "type": "string",
+                    "description": "服务器描述",
+                    "nullable": true
+                  },
+                  "icon": {
+                    "type": "string",
+                    "description": "服务器图标 URL",
+                    "nullable": true
+                  },
+                  "isPublic": {
+                    "type": "boolean",
+                    "description": "是否公开可搜索"
+                  }
+                },
+                "required": [
+                  "name"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string"
+                    },
+                    "msg": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/BcServer"
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "msg",
+                    "data"
+                  ]
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/bc/servers/getById": {
+      "get": {
+        "summary": "按 ID 查询服务器详情",
+        "deprecated": false,
+        "description": "",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "description": "服务器 ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "",
+            "required": false,
+            "example": "Bearer {token}",
+            "schema": {
+              "type": "string",
+              "default": "Bearer {token}"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string"
+                    },
+                    "msg": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/BcServer"
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "msg",
+                    "data"
+                  ]
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/bc/servers/search": {
+      "get": {
+        "summary": "搜索服务器（用于“发现/加入服务器”）",
+        "deprecated": false,
+        "description": "",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "keyword",
+            "in": "query",
+            "description": "搜索关键字（名称 / 描述）",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "current",
+            "in": "query",
+            "description": "当前页码，从 1 开始",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "description": "每页数量",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "",
+            "required": false,
+            "example": "Bearer {token}",
+            "schema": {
+              "type": "string",
+              "default": "Bearer {token}"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string"
+                    },
+                    "msg": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "total": {
+                          "type": "number"
+                        },
+                        "current": {
+                          "type": "number"
+                        },
+                        "pageSize": {
+                          "type": "number"
+                        },
+                        "list": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/BcServer"
+                          }
+                        }
+                      },
+                      "required": [
+                        "total",
+                        "current",
+                        "pageSize",
+                        "list"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "msg",
+                    "data"
+                  ]
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/bc/servers/join": {
+      "post": {
+        "summary": "加入服务器",
+        "deprecated": false,
+        "description": "根据服务器 ID 和可选的邀请码加入服务器。",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "",
+            "required": false,
+            "example": "Bearer {token}",
+            "schema": {
+              "type": "string",
+              "default": "Bearer {token}"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "serverId": {
+                    "type": "string",
+                    "description": "服务器 ID"
+                  },
+                  "inviteCode": {
+                    "type": "string",
+                    "description": "邀请码（若服务器为仅邀请）",
+                    "nullable": true
+                  }
+                },
+                "required": [
+                  "serverId"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string"
+                    },
+                    "msg": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/BcServer"
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "msg",
+                    "data"
+                  ]
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/bc/channels/list": {
+      "get": {
+        "summary": "查询服务器下的频道列表（侧边栏）",
+        "deprecated": false,
+        "description": "",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "serverId",
+            "in": "query",
+            "description": "服务器 ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "",
+            "required": false,
+            "example": "Bearer {token}",
+            "schema": {
+              "type": "string",
+              "default": "Bearer {token}"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string"
+                    },
+                    "msg": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/BcChannel"
+                      }
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "msg",
+                    "data"
+                  ]
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/bc/messages/list": {
+      "get": {
+        "summary": "查询频道消息列表（聊天记录）",
+        "deprecated": false,
+        "description": "",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "serverId",
+            "in": "query",
+            "description": "服务器 ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "channelId",
+            "in": "query",
+            "description": "频道 ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "before",
+            "in": "query",
+            "description": "查询某条消息 ID 之前的历史消息，用于上滑加载",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "after",
+            "in": "query",
+            "description": "查询某条消息 ID 之后的新消息，用于向下加载",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "每次拉取数量，默认 50",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "",
+            "required": false,
+            "example": "Bearer {token}",
+            "schema": {
+              "type": "string",
+              "default": "Bearer {token}"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string"
+                    },
+                    "msg": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "total": {
+                          "type": "number"
+                        },
+                        "current": {
+                          "type": "number",
+                          "description": "对滚动加载可以忽略，也可视为页码"
+                        },
+                        "pageSize": {
+                          "type": "number"
+                        },
+                        "list": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/BcMessage"
+                          }
+                        }
+                      },
+                      "required": [
+                        "total",
+                        "current",
+                        "pageSize",
+                        "list"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "msg",
+                    "data"
+                  ]
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/bc/messages/send": {
+      "post": {
+        "summary": "发送频道消息",
+        "deprecated": false,
+        "description": "",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "",
+            "required": false,
+            "example": "Bearer {token}",
+            "schema": {
+              "type": "string",
+              "default": "Bearer {token}"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "serverId": {
+                    "type": "string",
+                    "description": "服务器 ID"
+                  },
+                  "channelId": {
+                    "type": "string",
+                    "description": "频道 ID"
+                  },
+                  "content": {
+                    "type": "string",
+                    "description": "消息内容"
+                  },
+                  "replyTo": {
+                    "type": "string",
+                    "description": "回复的消息 ID",
+                    "nullable": true
+                  }
+                },
+                "required": [
+                  "serverId",
+                  "channelId",
+                  "content"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string"
+                    },
+                    "msg": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/BcMessage"
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "msg",
+                    "data"
+                  ]
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/bc/members/list": {
+      "get": {
+        "summary": "查询服务器成员列表（右侧成员栏）",
+        "deprecated": false,
+        "description": "",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "serverId",
+            "in": "query",
+            "description": "服务器 ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "description": "按昵称 / 用户名模糊搜索",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "current",
+            "in": "query",
+            "description": "当前页码，从 1 开始",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "description": "每页数量",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "",
+            "required": false,
+            "example": "Bearer {token}",
+            "schema": {
+              "type": "string",
+              "default": "Bearer {token}"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string"
+                    },
+                    "msg": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "total": {
+                          "type": "number"
+                        },
+                        "current": {
+                          "type": "number"
+                        },
+                        "pageSize": {
+                          "type": "number"
+                        },
+                        "list": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/BcMember"
+                          }
+                        }
+                      },
+                      "required": [
+                        "total",
+                        "current",
+                        "pageSize",
+                        "list"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "msg",
+                    "data"
+                  ]
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/bc/servers/leave": {
+      "post": {
+        "summary": "退出服务器",
+        "deprecated": false,
+        "description": "当前用户主动退出指定服务器。",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "",
+            "required": true,
+            "example": "Bearer {token}",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "serverId": {
+                    "type": "string",
+                    "description": "服务器 ID"
+                  }
+                },
+                "required": [
+                  "serverId"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Res"
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/bc/channels/update": {
+      "post": {
+        "summary": "修改频道信息",
+        "deprecated": false,
+        "description": "更新频道的名称、主题、类型、父级分类或排序位置。需要相应的权限。",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "",
+            "required": true,
+            "example": "Bearer {token}",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "description": "频道 ID"
+                  },
+                  "name": {
+                    "type": "string",
+                    "description": "频道名称"
+                  },
+                  "topic": {
+                    "type": "string",
+                    "description": "频道主题 / 描述",
+                    "nullable": true
+                  },
+                  "type": {
+                    "type": "string",
+                    "description": "频道类型 text|voice|category",
+                    "enum": [
+                      "text",
+                      "voice",
+                      "category"
+                    ]
+                  },
+                  "parentId": {
+                    "type": "string",
+                    "description": "父级频道 ID（分类）",
+                    "nullable": true
+                  },
+                  "position": {
+                    "type": "number",
+                    "description": "排序位置"
+                  }
+                },
+                "required": [
+                  "id"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string"
+                    },
+                    "msg": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/BcChannel"
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "msg",
+                    "data"
+                  ]
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/bc/channels/delete": {
+      "post": {
+        "summary": "删除频道",
+        "deprecated": false,
+        "description": "删除指定的频道。需要相应的权限。",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "",
+            "required": true,
+            "example": "Bearer {token}",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "description": "频道 ID"
+                  }
+                },
+                "required": [
+                  "id"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Res"
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/bc/messages/update": {
+      "post": {
+        "summary": "编辑消息",
+        "deprecated": false,
+        "description": "修改自己发送的消息内容。",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "",
+            "required": true,
+            "example": "Bearer {token}",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "description": "消息 ID"
+                  },
+                  "content": {
+                    "type": "string",
+                    "description": "新的消息内容"
+                  }
+                },
+                "required": [
+                  "id",
+                  "content"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string"
+                    },
+                    "msg": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/BcMessage"
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "msg",
+                    "data"
+                  ]
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/bc/messages/delete": {
+      "post": {
+        "summary": "删除消息",
+        "deprecated": false,
+        "description": "删除自己发送的消息。",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "",
+            "required": true,
+            "example": "Bearer {token}",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "description": "消息 ID"
+                  }
+                },
+                "required": [
+                  "id"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Res"
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/momoro/run": {
+      "get": {
+        "summary": " 测试入口",
+        "deprecated": false,
+        "description": "",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "",
+            "example": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IjM2MDk2OTg4NUBxcS5jb20iLCJzdWIiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJ1c2VySWQiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJpYXQiOjE3Njc2ODA1NTksImV4cCI6MTc3MTI4MDU1OX0.Clu1ITkfUDZiplKtEDeyzYMwAeYj8dDhL-qNQ0HYeOc",
+            "schema": {
+              "type": "string",
+              "default": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IjM2MDk2OTg4NUBxcS5jb20iLCJzdWIiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJ1c2VySWQiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJpYXQiOjE3Njc2ODA1NTksImV4cCI6MTc3MTI4MDU1OX0.Clu1ITkfUDZiplKtEDeyzYMwAeYj8dDhL-qNQ0HYeOc"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {}
+                }
+              }
+            }
+          }
+        },
+        "security": []
+      }
+    },
+    "/langchain/testChat": {
+      "get": {
+        "summary": "测试chat",
+        "deprecated": false,
+        "description": "",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "content",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "",
+            "example": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IjM2MDk2OTg4NUBxcS5jb20iLCJzdWIiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJ1c2VySWQiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJpYXQiOjE3Njc2ODA1NTksImV4cCI6MTc3MTI4MDU1OX0.Clu1ITkfUDZiplKtEDeyzYMwAeYj8dDhL-qNQ0HYeOc",
+            "schema": {
+              "type": "string",
+              "default": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IjM2MDk2OTg4NUBxcS5jb20iLCJzdWIiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJ1c2VySWQiOiJkMTFiYWE5MC01YmUxLTQ3MDEtYWM1YS00ZjM4NjVkMWI1M2MiLCJpYXQiOjE3Njc2ODA1NTksImV4cCI6MTc3MTI4MDU1OX0.Clu1ITkfUDZiplKtEDeyzYMwAeYj8dDhL-qNQ0HYeOc"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {}
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "BcUser": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "用户 ID"
+          },
+          "username": {
+            "type": "string",
+            "description": "用户名"
+          },
+          "nickname": {
+            "type": "string",
+            "description": "昵称",
+            "nullable": true
+          },
+          "avatar": {
+            "type": "string",
+            "description": "头像 URL",
+            "nullable": true
+          }
+        },
+        "required": [
+          "id",
+          "username"
+        ]
+      },
+      "BcServer": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "服务器 ID"
+          },
+          "name": {
+            "type": "string",
+            "description": "服务器名称"
+          },
+          "description": {
+            "type": "string",
+            "description": "服务器描述",
+            "nullable": true
+          },
+          "icon": {
+            "type": "string",
+            "description": "服务器图标 URL",
+            "nullable": true
+          },
+          "ownerId": {
+            "type": "string",
+            "description": "创建者用户 ID"
+          },
+          "isPublic": {
+            "type": "boolean",
+            "description": "是否公开可被搜索"
+          },
+          "memberCount": {
+            "type": "number",
+            "description": "成员数量"
+          },
+          "createdAt": {
+            "type": "string",
+            "description": "创建时间"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "ownerId",
+          "isPublic",
+          "memberCount",
+          "createdAt"
+        ]
+      },
+      "BcChannel": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "频道 ID"
+          },
+          "serverId": {
+            "type": "string",
+            "description": "所属服务器 ID"
+          },
+          "name": {
+            "type": "string",
+            "description": "频道名称"
+          },
+          "topic": {
+            "type": "string",
+            "description": "频道主题 / 描述",
+            "nullable": true
+          },
+          "type": {
+            "type": "string",
+            "description": "频道类型 text|voice|category",
+            "enum": [
+              "text",
+              "voice",
+              "category"
+            ]
+          },
+          "parentId": {
+            "type": "string",
+            "description": "父级频道 ID（分类）",
+            "nullable": true
+          },
+          "position": {
+            "type": "number",
+            "description": "排序位置"
+          }
+        },
+        "required": [
+          "id",
+          "serverId",
+          "name",
+          "type"
+        ]
+      },
+      "BcMessage": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "消息 ID"
+          },
+          "serverId": {
+            "type": "string",
+            "description": "服务器 ID"
+          },
+          "channelId": {
+            "type": "string",
+            "description": "频道 ID"
+          },
+          "author": {
+            "$ref": "#/components/schemas/BcUser"
+          },
+          "content": {
+            "type": "string",
+            "description": "消息内容"
+          },
+          "replyTo": {
+            "type": "string",
+            "description": "被回复的消息 ID",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "description": "发送时间"
+          },
+          "editedAt": {
+            "type": "string",
+            "description": "编辑时间",
+            "nullable": true
+          }
+        },
+        "required": [
+          "id",
+          "serverId",
+          "channelId",
+          "author",
+          "content",
+          "createdAt"
+        ]
+      },
+      "BcMember": {
+        "type": "object",
+        "properties": {
+          "user": {
+            "$ref": "#/components/schemas/BcUser"
+          },
+          "roles": {
+            "type": "array",
+            "description": "在该服务器中的角色标签（不做权限设计，仅用于展示）",
+            "items": {
+              "type": "string"
+            }
+          },
+          "joinedAt": {
+            "type": "string",
+            "description": "加入时间"
+          },
+          "status": {
+            "type": "string",
+            "description": "在线状态",
+            "enum": [
+              "online",
+              "offline",
+              "idle",
+              "dnd"
+            ]
+          }
+        },
+        "required": [
+          "user",
+          "joinedAt",
+          "status"
+        ]
+      },
+      "Res": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "msg": {
+            "type": "string"
+          },
+          "data": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "integer"
+              },
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "array"
+              },
+              {
+                "type": "object"
+              },
+              {
+                "type": "number"
+              }
+            ],
+            "type": "null"
+          }
+        },
+        "required": [
+          "code",
+          "msg",
+          "data"
+        ]
+      },
+      "pagination": {
+        "type": "object",
+        "properties": {
+          "total": {
+            "type": "number"
+          },
+          "current": {
+            "type": "number"
+          },
+          "pageSize": {
+            "type": "number"
+          },
+          "list": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {}
+            }
+          }
+        },
+        "required": [
+          "total",
+          "current",
+          "pageSize",
+          "list"
+        ]
+      },
+      "QueryUsers": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "ID 编号"
+          },
+          "username": {
+            "type": "string",
+            "description": "用户名"
+          },
+          "nickname": {
+            "type": "string",
+            "description": "昵称",
+            "nullable": true
+          },
+          "email": {
+            "type": "string",
+            "description": "邮箱(用户名)"
+          },
+          "emailVerified": {
+            "type": "boolean",
+            "description": "邮箱是否验证"
+          },
+          "picture": {
+            "type": "string",
+            "description": "头像",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "inactive",
+              "locked"
+            ],
+            "description": "'active'|'inactive'|'locked'"
+          },
+          "createdAt": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "email",
+          "status",
+          "username",
+          "emailVerified"
+        ]
+      },
+      "QueryRoles": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "ID 编号"
+          },
+          "name": {
+            "type": "string",
+            "description": "角色名"
+          },
+          "description": {
+            "type": "string",
+            "description": "角色说明"
+          },
+          "isSystem": {
+            "type": "boolean",
+            "description": "Indicates if this is a system-defined role that cannot be modified"
+          },
+          "createdAt": {
+            "type": "string",
+            "description": "YYYY-MM-DD"
+          },
+          "updatedAt": {
+            "type": "string",
+            "description": "YYYY-MM-DD"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "isSystem",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "QueryPermissions": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "resource": {
+            "type": "string",
+            "description": "资源名"
+          },
+          "action": {
+            "type": "string",
+            "description": "操作名"
+          },
+          "isSystem": {
+            "type": "boolean"
+          },
+          "createdAt": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "resource",
+          "action",
+          "isSystem"
+        ]
+      },
+      "PushNoteData": {
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string",
+            "description": "唯一key以及rediskey"
+          },
+          "ts": {
+            "type": "number",
+            "description": "时间戳"
+          },
+          "subject": {
+            "type": "string",
+            "description": "谁"
+          },
+          "type": {
+            "type": "number",
+            "enum": [
+              0,
+              1,
+              2
+            ]
+          },
+          "object": {
+            "type": "string",
+            "description": "什么东西"
+          },
+          "objectId": {
+            "type": "string",
+            "description": "东西id"
+          },
+          "map": {
+            "type": "string",
+            "description": "mvp地图"
+          },
+          "origin": {
+            "type": "string",
+            "description": "原始消息"
+          }
+        },
+        "required": [
+          "key",
+          "ts",
+          "subject",
+          "type",
+          "object",
+          "origin"
+        ]
+      },
+      "MvpDeathNote": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Mvp编号"
+          },
+          "death_time": {
+            "type": "string",
+            "description": "死亡时间 YYYY-MM-DD HH:mm:ss"
+          },
+          "killer": {
+            "type": "string",
+            "description": "击杀人"
+          }
+        },
+        "required": [
+          "id",
+          "death_time",
+          "killer"
+        ]
+      },
+      "QueryRewardParams": {
+        "type": "object",
+        "properties": {
+          "search": {
+            "type": "string",
+            "description": "object/objectId/subject 模糊查询"
+          },
+          "type": {
+            "type": "string",
+            "description": "类型,可多选 0-mvp 1-获取 2-偷窃 查询时应该默认凋落物 1,2"
+          }
+        }
+      },
+      "RewardRankItem": {
+        "type": "object",
+        "properties": {
+          "subject": {
+            "type": "string"
+          },
+          "cnt": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "subject",
+          "cnt"
+        ]
+      },
+      "RewardStatisticParams": {
+        "type": "object",
+        "properties": {
+          "search": {
+            "type": "string",
+            "description": "精准查询 物品名/人物名"
+          },
+          "type": {
+            "type": "string",
+            "description": "1-按人物 2-按物品"
+          }
+        },
+        "required": [
+          "search",
+          "type"
+        ]
+      },
+      "LoginResult": {
+        "type": "object",
+        "properties": {
+          "access_token": {
+            "type": "string"
+          },
+          "refresh_token": {
+            "type": "string"
+          },
+          "expires_in": {
+            "type": "string"
+          },
+          "token_type": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "access_token",
+          "expires_in",
+          "token_type"
+        ]
+      }
+    },
+    "responses": {},
+    "securitySchemes": {}
+  },
+  "servers": [],
+  "security": []
+}

@@ -1,11 +1,10 @@
-import { FC, forwardRef, useEffect, useState } from "react";
+import { FC, forwardRef, useEffect, useMemo, useState } from "react";
 import { Box, Divider, styled, alpha } from "@mui/material";
 import { RichTreeView } from "@mui/x-tree-view/RichTreeView";
 import { TreeViewBaseItem } from "@mui/x-tree-view/models";
 import {
   TreeItem2Root,
   TreeItem2Props,
-  TreeItem2Checkbox,
   TreeItem2Label,
   TreeItem2GroupTransition,
   TreeItem2Content,
@@ -15,70 +14,84 @@ import { TreeItem2Provider } from "@mui/x-tree-view/TreeItem2Provider";
 import { TreeItem2Icon } from "@mui/x-tree-view/TreeItem2Icon";
 import { useTreeItem2 } from "@mui/x-tree-view/useTreeItem2/useTreeItem2";
 import { TreeItem2DragAndDropOverlay } from "@mui/x-tree-view/TreeItem2DragAndDropOverlay";
-import NumbersIcon from "@mui/icons-material/Numbers";
+import TagOutlinedIcon from "@mui/icons-material/TagOutlined";
+import VolumeUpOutlinedIcon from "@mui/icons-material/VolumeUpOutlined";
 import ImageBlackboard from "@/assets/blackboard.jpg";
 import { services } from "@/db/services/Menu.service";
 import { motion } from "framer-motion";
 import { yellow } from "@mui/material/colors";
 import { useNavigate } from "react-router-dom";
+import * as BcServices from "@/services/bc";
 
-const MUI_X_PRODUCTS: TreeViewBaseItem[] = [
-  {
-    id: "1",
-    label: "官方频道",
-    children: [
-      { id: "1-1", label: "〔📣〕产品公告" },
-      { id: "1-2", label: "〔ℹ️〕产品信息" },
-      { id: "1-3", label: "〔🆕〕近期新闻" },
-    ],
-  },
-  {
-    id: "2",
-    label: "门店",
-    children: [
-      { id: "2-1", label: "〔🥮〕月球B区嫦娥路店" },
-      { id: "2-2", label: "〔🔥〕火星对流层移动店" },
-      { id: "2-3", label: "〔👼〕西城区-毽子幼儿园店" },
-      { id: "2-4", label: "〔🌞〕太阳黑子区-A" },
-      { id: "2-5", label: "〔🧹〕宇宙尘埃店" },
-      { id: "2-6", label: "〔🏠〕我家店 (进群有礼)" },
-      { id: "2-7", label: "〔⚡〕凹凸电波店" },
-      { id: "2-8", label: "〔😴〕梦境超市店" },
-    ],
-  },
-  {
-    id: "3",
-    label: "顾客讨论区",
-    children: [
-      { id: "3-1", label: "〔👶〕婴幼儿交友基地" },
-      { id: "3-2", label: "〔🙋‍♂️〕青少年交友基地" },
-      { id: "3-3", label: "〔🧑‍🦰〕青年人交友基地" },
-      { id: "3-4", label: "〔🧔‍♂️〕中年人交友基地" },
-      { id: "3-5", label: "〔👨‍🦰〕中老年交友基地" },
-      { id: "3-6", label: "〔👵〕夕阳红交友基地" },
-      { id: "3-7", label: "〔🪦〕太平间交友墓地" },
-    ],
-  },
-  {
-    id: "4",
-    label: "投诉区",
-    children: [{ id: "4-1", label: "〔🚫〕投诉本" }],
-  },
-];
+type ChannelNode = TreeViewBaseItem & {
+  meta?: { kind: "category" | "channel"; type?: DTOs.Bc.Channel["type"] };
+};
 
-export const flatTree: TreeViewBaseItem[] = [];
+function toChannelTree(channels: DTOs.Bc.Channel[]): ChannelNode[] {
+  const categories = channels.filter((c) => c.type === "category");
+  const byCategory: Record<string, DTOs.Bc.Channel[]> = {};
+  const rootChannels: DTOs.Bc.Channel[] = [];
 
-function handleFlatTree(list: TreeViewBaseItem[]) {
-  for (const item of list) {
-    flatTree.push(item);
-
-    if (item.children) {
-      handleFlatTree(item.children);
+  for (const c of channels) {
+    if (c.type === "category") continue;
+    if (c.parentId) {
+      byCategory[c.parentId] ||= [];
+      byCategory[c.parentId].push(c);
+    } else {
+      rootChannels.push(c);
     }
   }
-}
 
-handleFlatTree(MUI_X_PRODUCTS);
+  const sortFn = (a: DTOs.Bc.Channel, b: DTOs.Bc.Channel) =>
+    (a.position || 0) - (b.position || 0);
+
+  const nodes: ChannelNode[] = [];
+
+  for (const cat of [...categories].sort(sortFn)) {
+    const children = (byCategory[cat.id] || []).sort(sortFn).map<ChannelNode>((c) => ({
+      id: c.id,
+      label: c.name,
+      meta: { kind: "channel", type: c.type },
+    }));
+    nodes.push({
+      id: cat.id,
+      label: cat.name,
+      children,
+      meta: { kind: "category" },
+    });
+  }
+
+  // 未分类频道按 type 分组（Discord 风格）
+  const texts = rootChannels.filter((c) => c.type === "text").sort(sortFn);
+  const voices = rootChannels.filter((c) => c.type === "voice").sort(sortFn);
+
+  if (texts.length) {
+    nodes.push({
+      id: "__text__",
+      label: "TEXT CHANNELS",
+      meta: { kind: "category" },
+      children: texts.map((c) => ({
+        id: c.id,
+        label: c.name,
+        meta: { kind: "channel", type: "text" },
+      })),
+    });
+  }
+  if (voices.length) {
+    nodes.push({
+      id: "__voice__",
+      label: "VOICE CHANNELS",
+      meta: { kind: "category" },
+      children: voices.map((c) => ({
+        id: c.id,
+        label: c.name,
+        meta: { kind: "channel", type: "voice" },
+      })),
+    });
+  }
+
+  return nodes;
+}
 
 const Root = styled("div")(() => ({
   // padding: theme.spacing(1),
@@ -87,12 +100,12 @@ const Root = styled("div")(() => ({
 const CustomTreeItem = forwardRef(
   (props: TreeItem2Props, ref: React.Ref<HTMLLIElement>) => {
     const { id, itemId, label, disabled, children, ...other } = props;
+    const meta = (other as any)?.meta as ChannelNode["meta"] | undefined;
 
     const {
       getRootProps,
       getContentProps,
       getIconContainerProps,
-      getCheckboxProps,
       getLabelProps,
       getGroupTransitionProps,
       getDragAndDropOverlayProps,
@@ -104,10 +117,30 @@ const CustomTreeItem = forwardRef(
     return (
       <TreeItem2Provider itemId={itemId}>
         <TreeItem2Root {...treeItemPrope}>
-          <TreeItem2Content {...getContentProps()} sx={{ padding: "4px" }}>
+          <TreeItem2Content
+            {...getContentProps()}
+            sx={(theme) => ({
+              padding: "2px 8px",
+              margin: "0 8px",
+              borderRadius: "6px",
+              minHeight: "32px",
+              color: alpha(theme.palette.text.primary, 0.92),
+              "&:hover": {
+                background: alpha(theme.palette.common.white, 0.06),
+              },
+              '&[data-selected="true"]': {
+                background: alpha(theme.palette.common.white, 0.12),
+              },
+            })}
+          >
             <TreeItem2IconContainer {...getIconContainerProps()}>
               <TreeItem2Icon status={status} />
-              {!children ? <NumbersIcon sx={{ fontSize: "20px" }} /> : null}
+              {!children && meta?.type === "text" ? (
+                <TagOutlinedIcon sx={{ fontSize: 18, opacity: 0.9 }} />
+              ) : null}
+              {!children && meta?.type === "voice" ? (
+                <VolumeUpOutlinedIcon sx={{ fontSize: 18, opacity: 0.9 }} />
+              ) : null}
             </TreeItem2IconContainer>
             <Box
               sx={{
@@ -115,10 +148,22 @@ const CustomTreeItem = forwardRef(
                 display: "flex",
                 gap: 1,
                 alignItems: "center",
+                minWidth: 0,
               }}
             >
-              <TreeItem2Checkbox {...getCheckboxProps()} />
-              <TreeItem2Label {...getLabelProps()} sx={{ fontSize: "14px" }} />
+              <TreeItem2Label
+                {...getLabelProps()}
+                sx={(theme) => ({
+                  fontSize: children ? 12 : 14,
+                  fontWeight: children ? 800 : 500,
+                  textTransform: children ? "uppercase" : "none",
+                  letterSpacing: children ? "0.4px" : "normal",
+                  color: children
+                    ? alpha(theme.palette.text.primary, 0.65)
+                    : alpha(theme.palette.text.primary, 0.92),
+                  minWidth: 0,
+                })}
+              />
             </Box>
             <TreeItem2DragAndDropOverlay {...getDragAndDropOverlayProps()} />
           </TreeItem2Content>
@@ -128,7 +173,7 @@ const CustomTreeItem = forwardRef(
         </TreeItem2Root>
       </TreeItem2Provider>
     );
-  }
+  },
 );
 
 type SidebarProps = {
@@ -137,28 +182,70 @@ type SidebarProps = {
 };
 const Sidebar: FC<SidebarProps> = (props) => {
   const [icon, setIcon] = useState<string | undefined>(undefined);
+  const [channels, setChannels] = useState<DTOs.Bc.Channel[]>([]);
 
   const navigate = useNavigate();
 
   useEffect(() => {
     if (props.serverId) {
       getIcon(props.serverId);
+      refreshChannels(props.serverId).catch(() => {});
     } else {
       setIcon(undefined);
+      setChannels([]);
     }
   }, [props.serverId]);
+
+  useEffect(() => {
+    const sid = props.serverId;
+    if (!sid) return;
+    const handler = () => {
+      refreshChannels(sid).catch(() => {});
+    };
+    window.addEventListener("bc:refreshChannels", handler);
+    return () => window.removeEventListener("bc:refreshChannels", handler);
+  }, [props.serverId, props.topic]);
 
   async function getIcon(id: string) {
     const doc = await services.getMenuById(id);
 
     if (doc) {
       setIcon(doc.src);
+    } else {
+      setIcon(undefined);
+    }
+  }
+
+  async function refreshChannels(serverId: string) {
+    const res = await BcServices.listChannels({ serverId });
+    if (res.code === "000000") {
+      const list = res.data || [];
+      setChannels(list);
+
+      // topic 不存在/已被删除时，自动跳到第一个 text 频道（否则第一个）
+      const ok = props.topic && list.some((c) => c.id === props.topic);
+      if (!ok) {
+        const first = list.find((c) => c.type === "text") || list[0];
+        if (first?.id) {
+          navigate(`/m/server/${serverId}/${first.id}`);
+        }
+      }
+    } else {
+      setChannels([]);
     }
   }
 
   function gotoTopic(topic: string) {
     navigate(`/m/server/${props.serverId}/${topic}`);
   }
+
+  const rawItems: ChannelNode[] = useMemo(() => toChannelTree(channels), [channels]);
+  const items: TreeViewBaseItem[] = rawItems;
+
+  const defaultExpandedItems = useMemo(
+    () => rawItems.filter((i) => i.children?.length).map((i) => i.id),
+    [rawItems]
+  );
 
   return (
     <Root>
@@ -322,16 +409,15 @@ const Sidebar: FC<SidebarProps> = (props) => {
         })}
       >
         <RichTreeView
-          defaultExpandedItems={MUI_X_PRODUCTS.map((item) => item.id)}
+          defaultExpandedItems={defaultExpandedItems}
           selectedItems={props.topic}
-          items={MUI_X_PRODUCTS}
+          items={items}
           slots={{ item: CustomTreeItem }}
-          isItemDisabled={(item) => item.id === "4-1"}
           onSelectedItemsChange={(event, itemIds) => {
-            console.log(event, "event");
-            if (itemIds && itemIds?.includes("-")) {
-              gotoTopic(itemIds);
-            }
+            void event;
+            if (!itemIds) return;
+            const isLeaf = channels.some((c) => c.id === itemIds);
+            if (isLeaf) gotoTopic(itemIds);
           }}
         />
       </Box>

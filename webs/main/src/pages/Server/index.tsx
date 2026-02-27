@@ -1,30 +1,19 @@
-import { FC, useEffect } from "react";
+import { FC } from "react";
 import LogoComp from "./Logo";
 import Sidebar from "./Sidebar";
-import { useNavigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import Header from "./Header";
 import { isMobile } from "@/utils/CONSTANTS";
 import { LayoutMenu } from "@frfojo/components";
+import ServerContent from "./Content";
 
 const Server: FC = () => {
   const params = useParams<{ serverId: string; topic?: string }>();
 
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    if (!params?.topic) {
-      redirect();
-    }
-  }, [params?.serverId]);
-
-  function redirect() {
-    navigate(`/m/server/${params.serverId}/1-1`);
-  }
-
   const logo = <LogoComp />;
   const sidebar = <Sidebar serverId={params.serverId} topic={params.topic} />;
   const header = <Header />;
-  const content = <div></div>;
+  const content = <ServerContent />;
   return (
     <LayoutMenu
       logo={logo}
@@ -37,17 +26,7 @@ const Server: FC = () => {
 
 const MobileClient: FC = () => {
   const params = useParams<{ serverId: string; topic?: string }>();
-  const navigate = useNavigate();
 
-  useEffect(() => {
-    if (!params?.topic) {
-      redirect();
-    }
-  }, [params?.serverId]);
-
-  function redirect() {
-    navigate(`/m/server/${params.serverId}/1-1`);
-  }
   const logo = <LogoComp />;
   const sidebar = <Sidebar serverId={params.serverId} topic={params.topic} />;
 
