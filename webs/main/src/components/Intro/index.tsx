@@ -6,6 +6,12 @@ import {
   TooltipProps,
   keyframes,
   alpha,
+  Link,
+  Box,
+  Chip,
+  Divider,
+  Stack,
+  Typography,
 } from "@mui/material";
 import { Logo } from "@frfojo/components";
 import IconCode from "@/assets/web-command.png";
@@ -64,6 +70,8 @@ const BootstrapTooltip = styled(({ className, ...props }: TooltipProps) => (
 ))(({ theme }) => ({
   [`& .${tooltipClasses.tooltip}`]: {
     backgroundColor: theme.palette.background.paper,
+    padding: 0,
+    maxWidth: 340,
   },
   [`& .${tooltipClasses.arrow}`]: {
     color: theme.palette.background.paper,
@@ -71,40 +79,134 @@ const BootstrapTooltip = styled(({ className, ...props }: TooltipProps) => (
 }));
 
 const StyledIntro = styled("div")(({ theme }) => ({
-  padding: theme.spacing(1),
-  width: "250px",
-  height: "300px",
+  padding: theme.spacing(1.25),
+  width: "280px",
+  maxHeight: "280px",
   display: "flex",
   flexDirection: "column",
   alignItems: "center",
 
-  ".content": {
-    marginTop: "8px",
-    paddingTop: "8px",
-    borderTop: "1px solid #666",
+  ".card": {
     width: "100%",
+    flex: 1,
+    minHeight: 0,
+    borderRadius: 12,
+    padding: theme.spacing(1.25),
+    background: alpha(theme.palette.common.black, 0.06),
+    border: `1px solid ${alpha(theme.palette.common.black, 0.18)}`,
+    display: "flex",
+    flexDirection: "column",
+    gap: theme.spacing(0.75),
+  },
+
+  ".scroll": {
+    flex: 1,
+    minHeight: 0,
+    overflowY: "auto",
+    paddingRight: theme.spacing(0.5),
+  },
+
+  ".chips": {
+    display: "flex",
+    flexWrap: "wrap",
+    gap: theme.spacing(0.5),
+  },
+
+  ".desc": {
+    color: alpha(theme.palette.text.primary, 0.78),
+    lineHeight: 1.45,
+  },
+
+  ".list": {
+    margin: 0,
+    paddingLeft: theme.spacing(2),
+    color: alpha(theme.palette.text.primary, 0.86),
+    lineHeight: 1.55,
+  },
+
+  ".footer": {
+    marginTop: "auto",
+    paddingTop: theme.spacing(0.75),
   },
 }));
 
 const Introduce: FC = () => {
   const intro = (
     <StyledIntro>
-      <Logo title="Boboan"></Logo>
-      <div className="content">
-        <div>这只是一个壳子哦</div>
-        <div> TODO</div>
-        <ul>
-          <li>Drop</li>
-          <li>i18n</li>
-          <li>theme</li>
-          <li>SubApp layout</li>
-          <li>集成garfish</li>
-        </ul>
+      <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <Logo title="Boboan"></Logo>
+      </Box>
+
+      <div className="card">
+        <div className="scroll">
+          <Typography fontWeight={900} fontSize={14} sx={{ mb: 0.25 }}>
+            自用工具箱 · 微前端壳
+          </Typography>
+
+          <Typography variant="body2" className="desc">
+            一个自用的 Web/Tauri 应用集合。主应用负责布局、登录与全局状态，并通过 Garfish
+            挂载子应用。
+          </Typography>
+
+          <Box sx={{ mt: 1 }}>
+            <div className="chips">
+              <Chip size="small" variant="outlined" label="Tauri" />
+              <Chip size="small" variant="outlined" label="Vite + React" />
+              <Chip size="small" variant="outlined" label="MUI" />
+              <Chip size="small" variant="outlined" label="Garfish" />
+            </div>
+          </Box>
+
+          <Divider sx={{ my: 1 }} />
+
+          <Stack spacing={0.75}>
+            <Typography variant="caption" color="text.secondary" fontWeight={800}>
+              Modules
+            </Typography>
+            <ul className="list">
+              <li>main：主应用壳子（Layout/App 状态/路由）</li>
+              <li>opendota：数据展示子应用</li>
+              <li>bobo-tool：工具集子应用</li>
+              <li>server：仿 Discord 的服务器/频道/聊天 Demo（/bc 接口）</li>
+            </ul>
+          </Stack>
+        </div>
+
+        <div className="footer">
+          <Typography variant="caption" color="text.secondary">
+            博客
+          </Typography>
+          <Box>
+            <Link
+              href="https://ranmeizi.github.io/boboan.github.io/"
+              target="_blank"
+              rel="noreferrer"
+              underline="hover"
+              sx={{ fontSize: 13, fontWeight: 700 }}
+            >
+              ranmeizi.github.io/boboan.github.io
+            </Link>
+          </Box>
+        </div>
       </div>
     </StyledIntro>
   );
   return (
-    <BootstrapTooltip title={intro} placement="right-start">
+    <BootstrapTooltip
+      title={intro}
+      placement="right-start"
+      PopperProps={{
+        modifiers: [
+          { name: "preventOverflow", options: { padding: 8 } },
+          {
+            name: "flip",
+            options: {
+              fallbackPlacements: ["right", "left-start", "left", "bottom-start"],
+            },
+          },
+        ],
+      }}
+    >
       <FakeBtn />
     </BootstrapTooltip>
   );
