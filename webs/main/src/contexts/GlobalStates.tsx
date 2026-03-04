@@ -7,7 +7,7 @@ import {
   useEffect,
 } from "react";
 import * as BaseServices from "@/services/base";
-import { clearToken } from "@frfojo/common/request";
+import { clearToken, getToken } from "@frfojo/common/request";
 import { useAppRxDBState } from "@/db/hook/useAppRXDBState";
 
 type GlobalStates = {
@@ -30,7 +30,9 @@ export function GlobalStatesProvider({ children }: PropsWithChildren) {
   const value = { user };
 
   useEffect(() => {
-    // 一开始去请求一下
+    // 没有 token 就不请求，避免无意义的 401/403
+    const token = getToken();
+    if (!token?.access_token) return;
     user.getCurrentUser();
     user.getPermissions();
   }, []);
@@ -42,7 +44,7 @@ function useUser() {
   const [info = null, setInfo] =
     useAppRxDBState<DTOs.BoboanNetBase.UserDto | null>("app_state_user");
   const [permissions = [], setPermissions] = useAppRxDBState<string[]>(
-    "app_state_permissions"
+    "app_state_permissions",
   );
 
   // 获取当前用户

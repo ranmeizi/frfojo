@@ -65,6 +65,12 @@ export default function Login() {
   const redirect_uri = searchParams.get("redirect_uri") || HOMEPAGE_URL;
 
   function redirectFn() {
+    // redirect_uri 可能是完整 URL（例如从 location.href encode 过来的）
+    // 完整 URL 用 location.replace 做真正的 redirect；站内 path 再用 navigate
+    if (/^https?:\/\//i.test(redirect_uri)) {
+      location.replace(redirect_uri);
+      return;
+    }
     navigate(redirect_uri, { replace: true });
   }
 
@@ -95,7 +101,6 @@ export default function Login() {
   async function onSignIn(data: SigninFormType) {
     const res = await signin(data);
     if (res.code === "000000") {
-      alert("1");
       await handleLogInSuccess(res);
     } else {
       message.error(res.msg);
@@ -210,7 +215,6 @@ export default function Login() {
         key={type}
         formRef={formRef}
         onSubmit={async (data) => {
-          alert(JSON.stringify(data));
           if (type === "signin") {
             await onSignIn(data);
           } else {
