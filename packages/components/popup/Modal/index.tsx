@@ -1,5 +1,5 @@
 import { ReactNode } from "react";
-import { methods, ModalMethodOptions } from "./methods";
+import { methods, ModalMethodOptions, rawModalMethods } from "./methods";
 import { ButtonProps } from "@mui/material";
 
 export type ModalProps = {
@@ -34,3 +34,5 @@ export type ModalProps = {
 export const Modal = {
   ...methods,
 };
+
+export { rawModalMethods };

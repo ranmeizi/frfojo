@@ -1,6 +1,7 @@
 import { ButtonProps } from "@mui/material";
 import { ReactNode } from "react";
 import { ConfirmModal } from "./confirm";
+import { getPopupBridge } from "../bridge";
 
 export type ModalMethodOptions = {
   /** 标题 */
@@ -31,30 +32,42 @@ export type ModalMethodOptions = {
   cancelButtonProps?: ButtonProps;
 };
 
+function rawConfirm(options: ModalMethodOptions) {
+  let node: ReactNode;
+  let close: () => void;
+  const task = new Promise((resolve, reject) => {
+    close = reject;
+    node = (
+      <ConfirmModal
+        key={Math.random()}
+        resolve={resolve}
+        reject={reject}
+        {...options}
+      />
+    );
+  });
+
+  window.__BOCOMP_POPUP_EVENT_BUS__.emit(
+    window.__BOCOMP_POPUP_EVENT_BUS__.TYPES.MESSAGE,
+    {
+      task,
+      node,
+    }
+  );
+
+  return { close: close! };
+}
+
+export const rawModalMethods = {
+  confirm: rawConfirm,
+};
+
 export const methods = {
   confirm(options: ModalMethodOptions) {
-    let node;
-    let close;
-    const task = new Promise((resolve, reject) => {
-      close = reject;
-      node = (
-        <ConfirmModal
-          key={Math.random()}
-          resolve={resolve}
-          reject={reject}
-          {...options}
-        />
-      );
-    });
-
-    window.__BOCOMP_POPUP_EVENT_BUS__.emit(
-      window.__BOCOMP_POPUP_EVENT_BUS__.TYPES.MESSAGE,
-      {
-        task,
-        node,
-      }
-    );
-
-    return { close };
+    const bridge = getPopupBridge();
+    if (bridge?.modal?.confirm) {
+      return bridge.modal.confirm(options);
+    }
+    return rawConfirm(options);
   },
 };

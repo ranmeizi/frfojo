@@ -1,8 +1,18 @@
-import { FC, ReactNode, useEffect, useRef, useState } from "react";
-import { alpha, styled } from "@mui/material";
+import { FC, ReactNode, useEffect, useState } from "react";
+import {
+  alpha,
+  Box,
+  Drawer,
+  IconButton,
+  styled,
+  useMediaQuery,
+  useTheme,
+} from "@mui/material";
 import { MotionProps } from "framer-motion";
 import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 import DragIndicatorIcon from "@mui/icons-material/DragIndicator";
+import MenuIcon from "@mui/icons-material/Menu";
+import CloseIcon from "@mui/icons-material/Close";
 
 const HEADER_HEIGHT = 48;
 const SIDEBAR_WIDTH = () => {
@@ -117,6 +127,62 @@ const Root = styled(PanelGroup)(({ theme }) => ({
   },
 }));
 
+const MobileRoot = styled("div")(({ theme }) => ({
+  height: "100%",
+  width: "100%",
+  display: "flex",
+  flexDirection: "column",
+  background: theme.palette.app?.app_paper_content,
+
+  ".ffj-layout-menu__mobile-header": {
+    height: HEADER_HEIGHT + "px",
+    display: "flex",
+    alignItems: "center",
+    gap: theme.spacing(1),
+    paddingLeft: theme.spacing(1),
+    paddingRight: theme.spacing(1),
+    borderBottom: `1px solid ${alpha(theme.palette.common.black, 0.25)}`,
+    background: alpha(theme.palette.common.black, 0.06),
+  },
+
+  ".ffj-layout-menu__mobile-header-content": {
+    flex: 1,
+    minWidth: 0,
+    height: "100%",
+    display: "flex",
+    alignItems: "center",
+  },
+
+  ".ffj-layout-menu__mobile-view": {
+    flex: 1,
+    minHeight: 0,
+    ...topShadow(),
+  },
+
+  ".ffj-layout-menu__mobile-drawer-paper": {
+    width: 280,
+    maxWidth: "85vw",
+    background: theme.palette.app?.app_pager_menu,
+    display: "flex",
+    flexDirection: "column",
+  },
+
+  ".ffj-layout-menu__mobile-drawer-header": {
+    height: HEADER_HEIGHT + "px",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingLeft: theme.spacing(1),
+    paddingRight: theme.spacing(1),
+  },
+
+  ".ffj-layout-menu__mobile-drawer-body": {
+    flex: 1,
+    minHeight: 0,
+    ...topShadow(),
+  },
+}));
+
 export const transition: MotionProps["transition"] = {
   duration: 0.3,
 };
@@ -142,19 +208,30 @@ const MenuLayout: FC<MenuLayoutProps> = ({
     content = children;
   }
 
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+
   const [hover, setHover] = useState(false);
   const [dragging, setDragging] = useState(false);
+  const [drawerOpen, setDrawerOpen] = useState(false);
+
+  useEffect(() => {
+    console.log("isMobile", isMobile);
+    if (!isMobile) {
+      setDrawerOpen(false);
+    }
+  }, [isMobile]);
 
   useEffect(() => {
     let observer = null;
-    if (sidebar) {
+    if (!isMobile && sidebar) {
       let el = document.querySelector(".ffj-layout-resize-handle");
 
       observer = new MutationObserver((mutations) => {
         mutations.forEach((mutation) => {
           if (mutation.type === "attributes") {
             const v = (mutation.target as HTMLElement).getAttribute(
-              mutation.attributeName!
+              mutation.attributeName!,
             );
             setHover(v === "hover");
           }
@@ -173,6 +250,64 @@ const MenuLayout: FC<MenuLayoutProps> = ({
       }
     };
   }, [sidebar]);
+
+  if (isMobile) {
+    return (
+      <MobileRoot>
+        {/* mobile top bar */}
+        <div className="ffj-layout-menu__mobile-header" data-tauri-drag-region>
+          {sidebar ? (
+            <IconButton
+              size="small"
+              onClick={() => setDrawerOpen(true)}
+              sx={{ color: alpha(theme.palette.text.primary, 0.8) }}
+            >
+              <MenuIcon fontSize="small" />
+            </IconButton>
+          ) : null}
+
+          <div
+            className="ffj-layout-menu__mobile-header-content"
+            data-tauri-drag-region
+          >
+            {header || logo}
+          </div>
+        </div>
+
+        {/* content */}
+        <div className="ffj-layout-menu__mobile-view">{content}</div>
+
+        {/* sidebar drawer */}
+        {sidebar ? (
+          <Drawer
+            anchor="left"
+            open={drawerOpen}
+            onClose={() => setDrawerOpen(false)}
+            PaperProps={{
+              className: "ffj-layout-menu__mobile-drawer-paper" as any,
+            }}
+          >
+            <div
+              className="ffj-layout-menu__mobile-drawer-header"
+              data-tauri-drag-region
+            >
+              <Box sx={{ display: "flex", alignItems: "center", minWidth: 0 }}>
+                {logo}
+              </Box>
+              <IconButton
+                size="small"
+                onClick={() => setDrawerOpen(false)}
+                sx={{ color: alpha(theme.palette.text.primary, 0.8) }}
+              >
+                <CloseIcon fontSize="small" />
+              </IconButton>
+            </div>
+            <div className="ffj-layout-menu__mobile-drawer-body">{sidebar}</div>
+          </Drawer>
+        ) : null}
+      </MobileRoot>
+    );
+  }
 
   return (
     <Root autoSaveId={widthAutoSaveId} direction="horizontal">

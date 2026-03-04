@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unsafe-function-type */
-import { Box, styled } from "@mui/material";
+import { Box, styled, alpha, useMediaQuery, useTheme } from "@mui/material";
 import SigninForm from "./SigninForm";
 import { AnimatePresence } from "framer-motion";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -25,7 +25,8 @@ const HOMEPAGE_URL = "/";
 const Root = styled(Box)(() => ({
   background: `url(${BGImg})`,
   backgroundRepeat: "no-repeat",
-  backgroundSize: "100% 100%",
+  backgroundSize: "cover",
+  backgroundPosition: "center",
   height: "100vh",
   width: "100vw",
   position: "relative",
@@ -50,6 +51,8 @@ type SignupFormType = {
 };
 
 export default function Login() {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const [type, setType] = useState<"signin" | "signup" | undefined>();
 
   const [searchParams] = useSearchParams();
@@ -92,6 +95,7 @@ export default function Login() {
   async function onSignIn(data: SigninFormType) {
     const res = await signin(data);
     if (res.code === "000000") {
+      alert("1");
       await handleLogInSuccess(res);
     } else {
       message.error(res.msg);
@@ -143,6 +147,17 @@ export default function Login() {
             }}
             animate={{ opacity: 1, transform: "translateY(0px)", zIndex: 100 }}
             exit={{ opacity: 0, transform: "translateY(-100px)", zIndex: 0 }}
+            style={
+              isMobile
+                ? {
+                    position: "relative",
+                    top: "auto",
+                    right: "auto",
+                    left: "auto",
+                    bottom: "auto",
+                  }
+                : undefined
+            }
           >
             <SigninForm
               onGoSignup={() => {
@@ -165,6 +180,17 @@ export default function Login() {
             }}
             animate={{ opacity: 1, transform: "translateY(0px)", zIndex: 100 }}
             exit={{ opacity: 0, transform: "translateY(-100px)", zIndex: 0 }}
+            style={
+              isMobile
+                ? {
+                    position: "relative",
+                    top: "auto",
+                    right: "auto",
+                    left: "auto",
+                    bottom: "auto",
+                  }
+                : undefined
+            }
           >
             <SignupForm
               onGoSignin={() => {
@@ -184,6 +210,7 @@ export default function Login() {
         key={type}
         formRef={formRef}
         onSubmit={async (data) => {
+          alert(JSON.stringify(data));
           if (type === "signin") {
             await onSignIn(data);
           } else {
@@ -192,14 +219,19 @@ export default function Login() {
           return true;
         }}
         style={{
-          width: "66%",
+          width: isMobile ? "100%" : "66%",
           height: "100%",
           display: "flex",
           justifyContent: "center",
-          alignItems: "center",
+          alignItems: isMobile ? "flex-start" : "center",
           position: "absolute",
           top: "0",
-          right: "0",
+          right: isMobile ? "auto" : "0",
+          left: isMobile ? "0" : "auto",
+          paddingTop: isMobile ? 64 : 0,
+          paddingBottom: isMobile ? 24 : 0,
+          overflowY: isMobile ? "auto" : "visible",
+          background: isMobile ? alpha("#000", 0.35) : "transparent",
         }}
       >
         <AnimatePresence>{renderform}</AnimatePresence>
@@ -220,7 +252,7 @@ function useHiddenLoginHandler(redirectFn: Function) {
           // 跳转
           redirectFn();
           message.success(
-            `登录成功,欢迎 ${user.info?.nickname || "匿名"} 大大`
+            `登录成功,欢迎 ${user.info?.nickname || "匿名"} 大大`,
           );
         }
       }

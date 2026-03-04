@@ -94,6 +94,10 @@ function toChannelTree(channels: DTOs.Bc.Channel[]): ChannelNode[] {
 }
 
 const Root = styled("div")(() => ({
+  height: "100%",
+  maxHeight: "100dvh",
+  display: "flex",
+  flexDirection: "column",
   // padding: theme.spacing(1),
 }));
 
@@ -242,10 +246,26 @@ const Sidebar: FC<SidebarProps> = (props) => {
   const rawItems: ChannelNode[] = useMemo(() => toChannelTree(channels), [channels]);
   const items: TreeViewBaseItem[] = rawItems;
 
-  const defaultExpandedItems = useMemo(
-    () => rawItems.filter((i) => i.children?.length).map((i) => i.id),
-    [rawItems]
-  );
+  const allExpandableIds = useMemo(() => {
+    const ids: string[] = [];
+    const walk = (list: TreeViewBaseItem[]) => {
+      for (const it of list) {
+        if (it.children?.length) {
+          ids.push(it.id);
+          walk(it.children);
+        }
+      }
+    };
+    walk(items);
+    return ids;
+  }, [items]);
+
+  const [expandedItems, setExpandedItems] = useState<string[]>([]);
+
+  // 默认展开全部（数据变化时重置为全展开）
+  useEffect(() => {
+    setExpandedItems(allExpandableIds);
+  }, [allExpandableIds]);
 
   return (
     <Root>
@@ -405,11 +425,17 @@ const Sidebar: FC<SidebarProps> = (props) => {
       <Divider />
       <Box
         sx={(theme) => ({
+          flex: 1,
+          minHeight: 0,
+          maxHeight: `calc(100dvh - 80px)`,
+          overflowY: "auto",
+          overscrollBehavior: "contain",
           paddingBottom: theme.spacing(2),
         })}
       >
         <RichTreeView
-          defaultExpandedItems={defaultExpandedItems}
+          expandedItems={expandedItems}
+          onExpandedItemsChange={(_, itemIds) => setExpandedItems(itemIds)}
           selectedItems={props.topic}
           items={items}
           slots={{ item: CustomTreeItem }}

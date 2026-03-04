@@ -90,7 +90,14 @@ const SideBar: FC = () => {
         justifyContent: "space-between",
       })}
     >
-      <Box>
+      <Box
+        sx={{
+          flex: 1,
+          minHeight: 0,
+          display: "flex",
+          flexDirection: "column",
+        }}
+      >
         <a onClick={() => navigate("/m/homepage")}>
           <Introduce />
         </a>
@@ -102,47 +109,56 @@ const SideBar: FC = () => {
           })}
         />
         <ContextMenu>
-          <ColumnsStorage
-            value={list}
-            onChange={MenuService.services.resetMenu}
-            renderWrapper={(item, dom) => {
-              let child: React.ReactNode = dom;
-
-              // 判断是活动路由？
-              child = (
-                <WrapActiveRoute isActive={item.id === activeId}>
-                  {child}
-                </WrapActiveRoute>
-              );
-
-              // 添加点击
-              if (item.path) {
-                child = <a onClick={() => navigate(item.path!)}>{child}</a>;
-              }
-
-              // 添加 tooltip
-              if (item.tooltip && !isMobile) {
-                child = (
-                  <BootstrapTooltip
-                    title={item.tooltip}
-                    placement="right-start"
-                  >
-                    <div>{child}</div>
-                  </BootstrapTooltip>
-                );
-              }
-
-              // barge
-              if (item.id === "dota2") {
-                child = (
-                  <StyledBadge badgeContent={1} color="error">
-                    {child}
-                  </StyledBadge>
-                );
-              }
-              return child;
+          <Box
+            sx={{
+              flex: 1,
+              minHeight: 0,
+              overflowY: "auto",
+              overscrollBehavior: "contain",
             }}
-          />
+          >
+            <ColumnsStorage
+              value={list}
+              onChange={MenuService.services.resetMenu}
+              renderWrapper={(item, dom) => {
+                let child: React.ReactNode = dom;
+
+                // 判断是活动路由？
+                child = (
+                  <WrapActiveRoute isActive={item.id === activeId}>
+                    {child}
+                  </WrapActiveRoute>
+                );
+
+                // 添加点击
+                if (item.path) {
+                  child = <a onClick={() => navigate(item.path!)}>{child}</a>;
+                }
+
+                // 添加 tooltip
+                if (item.tooltip && !isMobile) {
+                  child = (
+                    <BootstrapTooltip
+                      title={item.tooltip}
+                      placement="right-start"
+                    >
+                      <div>{child}</div>
+                    </BootstrapTooltip>
+                  );
+                }
+
+                // barge
+                if (item.id === "dota2") {
+                  child = (
+                    <StyledBadge badgeContent={1} color="error">
+                      {child}
+                    </StyledBadge>
+                  );
+                }
+                return child;
+              }}
+            />
+          </Box>
         </ContextMenu>
         <Divider
           sx={({ spacing }) => ({

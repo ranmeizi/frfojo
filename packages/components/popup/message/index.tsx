@@ -1,4 +1,4 @@
-import { methods, MessageMethodOptions } from "./methods";
+import { methods, MessageMethodOptions, rawMessageMethods } from "./methods";
 import { SnackbarProvider } from "notistack";
 
 export const message = {
@@ -6,3 +6,5 @@ export const message = {
 };
 
 export { SnackbarProvider };
+
+export { rawMessageMethods };

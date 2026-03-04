@@ -16,6 +16,11 @@ const Root = styled(Paper)(({ theme }) => ({
   borderRadius: theme.spacing(1),
   padding: theme.spacing(3),
   marginTop: "-100px",
+  [theme.breakpoints.down("sm")]: {
+    marginTop: 0,
+    padding: theme.spacing(2.5),
+    borderRadius: theme.spacing(1.25),
+  },
 }));
 
 type SignupFormProps = {
@@ -31,15 +36,15 @@ export default function SignupForm({
     <Root {...props}>
       <Box
         sx={{
-          width: "400px",
+          width: { xs: "min(92vw, 420px)", sm: "400px" },
           pb: 4,
           pt: 3,
         }}
       >
         <Box
           sx={{
-            pl: 5,
-            pr: 5,
+            pl: { xs: 2.5, sm: 5 },
+            pr: { xs: 2.5, sm: 5 },
             display: "flex",
             flexDirection: "column",
             alignItems: "center",

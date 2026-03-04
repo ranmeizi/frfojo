@@ -18,6 +18,11 @@ const Root = styled(Paper)(({ theme }) => ({
   borderRadius: theme.spacing(1),
   padding: theme.spacing(3),
   marginTop: "-100px",
+  [theme.breakpoints.down("sm")]: {
+    marginTop: 0,
+    padding: theme.spacing(2.5),
+    borderRadius: theme.spacing(1.25),
+  },
 }));
 
 type SigninFormProps = {
@@ -34,15 +39,15 @@ export default function LoginForm({
     <Root {...props}>
       <Box
         sx={{
-          width: "300px",
+          width: { xs: "min(92vw, 360px)", sm: "300px" },
           pb: 4,
           pt: 3,
         }}
       >
         <Box
           sx={{
-            pl: 5,
-            pr: 5,
+            pl: { xs: 2.5, sm: 5 },
+            pr: { xs: 2.5, sm: 5 },
             display: "flex",
             flexDirection: "column",
             gap: 2,

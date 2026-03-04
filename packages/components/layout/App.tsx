@@ -7,8 +7,8 @@ type AppLayoutProps = {
 };
 
 const StyledRoot = styled("div")(({ theme }) => ({
-  height: "100vh",
-  width: "100vw",
+  height: "100dvh",
+  width: "100dvw",
   display: "flex",
   flexDirection: "column",
 

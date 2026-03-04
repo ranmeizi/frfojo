@@ -1,29 +1,15 @@
 import { InternalAxiosRequestConfig } from "axios";
+import * as CryptoJS from "crypto-js";
 
 /**
- * 计算签名（优先使用 Web Crypto API）
+ * 计算签名（使用 crypto-js，兼容非 https 环境）
  */
 export async function calculateSignature(
   signString: string,
   appSecret: string,
 ): Promise<string> {
-  const subtle = (globalThis as any).crypto?.subtle;
-  const encoder = new TextEncoder();
-  const data = encoder.encode(signString);
-  const keyData = encoder.encode(appSecret);
-
-  const key = await subtle.importKey(
-    "raw",
-    keyData,
-    { name: "HMAC", hash: { name: "SHA-256" } },
-    false,
-    ["sign"],
-  );
-  const sig = await subtle.sign("HMAC", key, data);
-  const hashArray = Array.from(new Uint8Array(sig));
-  return hashArray
-    .map((b) => b.toString(16).padStart(2, "0"))
-    .join("")
+  return CryptoJS.HmacSHA256(signString, appSecret)
+    .toString(CryptoJS.enc.Hex)
     .toLowerCase();
 }
 
@@ -89,11 +75,14 @@ function normalizeValue(value: any): string {
 export async function beforeRequest(config: InternalAxiosRequestConfig<any>) {
   const timestamp = Date.now();
   const nonce = Math.floor(Math.random() * 1000000000);
-  const contentType = config.headers["content-type"];
+  const contentType =
+    config.headers["content-type"] || config.headers["Content-Type"];
+
+  console.log("beforeRequest", contentType, config);
 
   if (config.method?.toLocaleUpperCase() === "GET") {
     const sign = normalizeValue({
-      ...config.params,
+      ...(config.params || {}),
       timestamp,
       nonce,
     });
@@ -104,10 +93,10 @@ export async function beforeRequest(config: InternalAxiosRequestConfig<any>) {
     );
   } else if (
     config.method?.toLocaleUpperCase() === "POST" &&
-    contentType === "application/json"
+    contentType.indexOf("application/json") !== -1
   ) {
     const sign = normalizeValue({
-      ...config.data,
+      ...(config.data || {}),
       timestamp,
       nonce,
     });
@@ -118,10 +107,10 @@ export async function beforeRequest(config: InternalAxiosRequestConfig<any>) {
     );
   } else if (
     config.method?.toLocaleUpperCase() === "POST" &&
-    contentType === "application/x-www-form-urlencoded"
+    contentType.indexOf("application/x-www-form-urlencoded") !== -1
   ) {
     const sign = normalizeValue({
-      ...config.data,
+      ...(config.data || {}),
       file: undefined,
       files: undefined,
       timestamp,
@@ -133,10 +122,10 @@ export async function beforeRequest(config: InternalAxiosRequestConfig<any>) {
     );
   } else if (
     config.method?.toLocaleUpperCase() === "POST" &&
-    contentType === "multipart/form-data"
+    contentType.indexOf("multipart/form-data") !== -1
   ) {
     const sign = normalizeValue({
-      ...config.data,
+      ...(config.data || {}),
       file: undefined,
       files: undefined,
       timestamp,

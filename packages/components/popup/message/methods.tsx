@@ -3,6 +3,7 @@ import { SuccessMessage } from "./Success";
 import { WarningMessage } from "./Warning";
 import { ErrorMessage } from "./Error";
 import { InfoMessage } from "./Info";
+import { getPopupBridge } from "../bridge";
 
 export type MessageMethodOptions = {
   /** 自动关闭的延时，单位秒。设为 0 时不自动关闭 默认值 3 */
@@ -17,109 +18,97 @@ export type MessageMethodOptions = {
   onClose?: Function;
 };
 
+type EmitPayload = { task: Promise<unknown>; node: ReactNode };
+
+function emitMessage(payload: EmitPayload) {
+  window.__BOCOMP_POPUP_EVENT_BUS__.emit(
+    window.__BOCOMP_POPUP_EVENT_BUS__.TYPES.MESSAGE,
+    payload
+  );
+}
+
+function normalizeOptions(options: MessageMethodOptions | string): MessageMethodOptions {
+  if (typeof options === "string") return { content: options };
+  return options;
+}
+
+function rawSuccess(options: MessageMethodOptions | string) {
+  const opts = normalizeOptions(options);
+  let node: ReactNode;
+  const task = new Promise((resolve, reject) => {
+    node = <SuccessMessage resolve={resolve} reject={reject} {...opts} />;
+  });
+  emitMessage({ task, node: node! });
+  return task;
+}
+
+function rawWarning(options: MessageMethodOptions | string) {
+  const opts = normalizeOptions(options);
+  let node: ReactNode;
+  const task = new Promise((resolve, reject) => {
+    node = <WarningMessage resolve={resolve} reject={reject} {...opts} />;
+  });
+  emitMessage({ task, node: node! });
+  return task;
+}
+
+function rawError(options: MessageMethodOptions | string) {
+  const opts = normalizeOptions(options);
+  let node: ReactNode;
+  const task = new Promise((resolve, reject) => {
+    node = <ErrorMessage resolve={resolve} reject={reject} {...opts} />;
+  });
+  emitMessage({ task, node: node! });
+  return task;
+}
+
+function rawInfo(options: MessageMethodOptions | string) {
+  const opts = normalizeOptions(options);
+  let node: ReactNode;
+  let close: () => void;
+  const task = new Promise((resolve, reject) => {
+    close = reject;
+    node = <InfoMessage resolve={resolve} reject={reject} {...opts} />;
+  });
+  emitMessage({ task, node: node! });
+  return { close: close! };
+}
+
+// 给主应用 bridge 用：直接走 eventBus，不再二次桥接，避免递归
+export const rawMessageMethods = {
+  success: rawSuccess,
+  warning: rawWarning,
+  error: rawError,
+  info: rawInfo,
+};
+
 export const methods = {
   success(options: MessageMethodOptions | string) {
-    if (typeof options === "string") {
-      const content = options;
-      options = {
-        content,
-      };
+    const bridge = getPopupBridge();
+    if (bridge?.message?.success) {
+      return bridge.message.success(options);
     }
-
-    let node;
-    let close;
-
-    const task = new Promise((resolve, reject) => {
-      close = reject;
-      node = <SuccessMessage resolve={resolve} reject={reject} {...options} />;
-    });
-
-    window.__BOCOMP_POPUP_EVENT_BUS__.emit(
-      window.__BOCOMP_POPUP_EVENT_BUS__.TYPES.MESSAGE,
-      {
-        task,
-        node,
-      }
-    );
-
-    return task;
+    return rawSuccess(options);
   },
   warning(options: MessageMethodOptions | string) {
-    if (typeof options === "string") {
-      const content = options;
-      options = {
-        content,
-      };
+    const bridge = getPopupBridge();
+    if (bridge?.message?.warning) {
+      return bridge.message.warning(options);
     }
-
-    let node;
-    let close;
-
-    const task = new Promise((resolve, reject) => {
-      close = reject;
-      node = <WarningMessage resolve={resolve} reject={reject} {...options} />;
-    });
-
-    window.__BOCOMP_POPUP_EVENT_BUS__.emit(
-      window.__BOCOMP_POPUP_EVENT_BUS__.TYPES.MESSAGE,
-      {
-        task,
-        node,
-      }
-    );
-
-    return task;
+    return rawWarning(options);
   },
   error(options: MessageMethodOptions | string) {
-    if (typeof options === "string") {
-      const content = options;
-      options = {
-        content,
-      };
+    const bridge = getPopupBridge();
+    if (bridge?.message?.error) {
+      return bridge.message.error(options);
     }
-
-    let node;
-    let close;
-
-    const task = new Promise((resolve, reject) => {
-      close = reject;
-      node = <ErrorMessage resolve={resolve} reject={reject} {...options} />;
-    });
-
-    window.__BOCOMP_POPUP_EVENT_BUS__.emit(
-      window.__BOCOMP_POPUP_EVENT_BUS__.TYPES.MESSAGE,
-      {
-        task,
-        node,
-      }
-    );
-
-    return task;
+    return rawError(options);
   },
   info(options: MessageMethodOptions | string) {
-    if (typeof options === "string") {
-      const content = options;
-      options = {
-        content,
-      };
+    const bridge = getPopupBridge();
+    if (bridge?.message?.info) {
+      return bridge.message.info(options);
     }
-
-    let node;
-    let close;
-
-    const task = new Promise((resolve, reject) => {
-      close = reject;
-      node = <InfoMessage resolve={resolve} reject={reject} {...options} />;
-    });
-
-    window.__BOCOMP_POPUP_EVENT_BUS__.emit(
-      window.__BOCOMP_POPUP_EVENT_BUS__.TYPES.MESSAGE,
-      {
-        task,
-        node,
-      }
-    );
-
-    return { close };
+    return rawInfo(options);
   },
 };

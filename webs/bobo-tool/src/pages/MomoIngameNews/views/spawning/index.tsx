@@ -61,14 +61,22 @@ export default function Spawning() {
     const res = await captureRequest();
 
     if (res.code === "000000") {
-      alert(res.msg);
+      message.info(res.msg);
     } else {
-      alert(res.msg);
+      message.error(res.msg);
     }
   }
 
   useEffect(() => {
     getData();
+
+    console.log("__GARFISH__", window.__GARFISH__);
+    console.log("popupBridge@props", window.__GARFISH__?.props?.popupBridge);
+    console.log(
+      "popupBridge@props.props",
+      window.__GARFISH__?.props?.props?.popupBridge,
+    );
+    console.log("__BOCOMP_POPUP_BRIDGE__", window.__BOCOMP_POPUP_BRIDGE__);
   }, []);
 
   return (

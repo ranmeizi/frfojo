@@ -22,10 +22,16 @@ function App() {
   );
 }
 
-export const SubApp = function () {
+export const SubApp = function (props: any) {
   const theme = useAppTheme();
   const [height, setHeight] = useState(window.innerHeight);
   const [width, setWidth] = useState(window.innerWidth - 70);
+
+  useEffect(() => {
+    // Garfish 注入的 props 会通过 rootComponent 入参传入（常见是 props.props 这一层）
+    const subProps = props?.props ?? props;
+    (window as any).__BOCOMP_POPUP_BRIDGE__ = subProps?.popupBridge;
+  }, [props]);
 
   useEffect(() => {
     function onResize() {

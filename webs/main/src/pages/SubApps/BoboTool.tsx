@@ -4,6 +4,7 @@ import { styled } from "@mui/material";
 import Garfish, { interfaces } from "garfish";
 import { useLocation } from "react-router-dom";
 import { getPath } from "./utils";
+import { createPopupBridge } from "@/utils/popupBridge";
 
 const Root = styled("div")(() => ({
   position: "relative",
@@ -38,6 +39,7 @@ const BoboTool: FC<BoboToolProps> = () => {
       props: {
         width: rect?.width,
         height: rect?.height,
+        popupBridge: createPopupBridge(),
       },
     });
 

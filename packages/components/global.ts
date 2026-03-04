@@ -7,4 +7,5 @@ interface Window {
   ffj_loaded(): void;
 
   __BOCOMP_POPUP_EVENT_BUS__: any;
+  __BOCOMP_POPUP_BRIDGE__?: any;
 }

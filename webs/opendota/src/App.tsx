@@ -38,6 +38,11 @@ const withInitGuard: HOC_Expand<any> = (Component) => (props) => {
     // 启动 promise
     bootstrap.finally(() => setLoading(false));
   }, []);
+
+  useEffect(() => {
+    // 把主应用注入的 popupBridge 暴露给组件库（Garfish window 隔离下无法共享 host 的 window）
+    (window as any).__BOCOMP_POPUP_BRIDGE__ = subProps?.popupBridge;
+  }, [subProps?.popupBridge]);
   return loading ? (
     <Box
       sx={{

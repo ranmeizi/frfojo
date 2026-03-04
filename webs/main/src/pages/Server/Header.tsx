@@ -12,6 +12,7 @@ import {
   alpha,
   styled,
   useTheme,
+  useMediaQuery,
 } from "@mui/material";
 import TagOutlinedIcon from "@mui/icons-material/TagOutlined";
 import RefreshOutlinedIcon from "@mui/icons-material/RefreshOutlined";
@@ -32,6 +33,7 @@ const Header: FC = () => {
   const params = useParams<{ serverId: string; topic?: string }>();
   const navigate = useNavigate();
   const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const [channels, setChannels] = useState<DTOs.Bc.Channel[]>([]);
   const [memberSearch, setMemberSearch] = useState("");
 
@@ -74,6 +76,10 @@ const Header: FC = () => {
     window.dispatchEvent(
       new CustomEvent("bc:refreshMembers", { detail: { search } }),
     );
+  }
+
+  function toggleMembers() {
+    window.dispatchEvent(new CustomEvent("bc:toggleMembers"));
   }
 
   function emitRefreshChannels() {
@@ -143,20 +149,24 @@ const Header: FC = () => {
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
-          px: 2,
+          px: isMobile ? 1 : 2,
           gap: 2,
         }}
       >
         {/* 左侧：频道信息 */}
         <Box
-          sx={{ display: "flex", alignItems: "center", gap: 1.25, minWidth: 0 }}
+          sx={{ display: "flex", alignItems: "center", gap: 1, minWidth: 0 }}
         >
           <TagOutlinedIcon sx={{ opacity: 0.85 }} />
           <Box sx={{ minWidth: 0 }}>
-            <Typography fontWeight={800} noWrap sx={{ fontSize: 16 }}>
+            <Typography
+              fontWeight={800}
+              noWrap
+              sx={{ fontSize: isMobile ? 14 : 16 }}
+            >
               {channel ? `# ${channel.name}` : ""}
             </Typography>
-            {channel?.topic ? (
+            {channel?.topic && !isMobile ? (
               <Typography variant="caption" color="text.secondary" noWrap>
                 {channel.topic}
               </Typography>
@@ -169,37 +179,40 @@ const Header: FC = () => {
           sx={{
             display: "flex",
             alignItems: "center",
-            gap: 1.25,
+            gap: isMobile ? 0.75 : 1.25,
             flexShrink: 0,
           }}
         >
-          <Box
-            sx={{
-              px: 1.25,
-              py: 0.5,
-              borderRadius: 1.5,
-              background: alpha(theme.palette.common.black, 0.18),
-              width: 220,
-            }}
-          >
-            <TextField
-              fullWidth
-              variant="standard"
-              placeholder="搜索成员"
-              value={memberSearch}
-              onChange={(e) => setMemberSearch(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") refreshMembers(memberSearch.trim());
+          {/* 移动端不显示长输入框，改到成员抽屉里搜索 */}
+          {!isMobile ? (
+            <Box
+              sx={{
+                px: 1.25,
+                py: 0.5,
+                borderRadius: 1.5,
+                background: alpha(theme.palette.common.black, 0.18),
+                width: 220,
               }}
-              InputProps={{
-                disableUnderline: true,
-                sx: {
-                  fontSize: 13,
-                  color: alpha(theme.palette.text.primary, 0.9),
-                },
-              }}
-            />
-          </Box>
+            >
+              <TextField
+                fullWidth
+                variant="standard"
+                placeholder="搜索成员"
+                value={memberSearch}
+                onChange={(e) => setMemberSearch(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") refreshMembers(memberSearch.trim());
+                }}
+                InputProps={{
+                  disableUnderline: true,
+                  sx: {
+                    fontSize: 13,
+                    color: alpha(theme.palette.text.primary, 0.9),
+                  },
+                }}
+              />
+            </Box>
+          ) : null}
 
           <Box
             onClick={() => refreshMessages()}
@@ -220,9 +233,9 @@ const Header: FC = () => {
           </Box>
 
           <Box
-            onClick={() => refreshMembers(memberSearch.trim())}
+            onClick={() => toggleMembers()}
             role="button"
-            aria-label="refresh-members"
+            aria-label="toggle-members"
             style={{
               width: 34,
               height: 34,
@@ -242,8 +255,8 @@ const Header: FC = () => {
             role="button"
             aria-label="channel-settings"
             style={{
-              width: 34,
-              height: 34,
+              width: isMobile ? 30 : 34,
+              height: isMobile ? 30 : 34,
               borderRadius: 8,
               display: "flex",
               alignItems: "center",
@@ -261,8 +274,8 @@ const Header: FC = () => {
             role="button"
             aria-label="channel-delete"
             style={{
-              width: 34,
-              height: 34,
+              width: isMobile ? 30 : 34,
+              height: isMobile ? 30 : 34,
               borderRadius: 8,
               display: "flex",
               alignItems: "center",

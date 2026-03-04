@@ -3,7 +3,6 @@ import LogoComp from "./Logo";
 import Sidebar from "./Sidebar";
 import { useParams } from "react-router-dom";
 import Header from "./Header";
-import { isMobile } from "@/utils/CONSTANTS";
 import { LayoutMenu } from "@frfojo/components";
 import ServerContent from "./Content";
 
@@ -24,15 +23,4 @@ const Server: FC = () => {
   );
 };
 
-const MobileClient: FC = () => {
-  const params = useParams<{ serverId: string; topic?: string }>();
-
-  const logo = <LogoComp />;
-  const sidebar = <Sidebar serverId={params.serverId} topic={params.topic} />;
-
-  return <LayoutMenu header={logo} content={sidebar}></LayoutMenu>;
-};
-
-const Component = isMobile ? MobileClient : Server;
-
-export default Component;
+export default Server;

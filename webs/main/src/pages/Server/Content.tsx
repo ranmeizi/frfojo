@@ -8,6 +8,8 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
+  Drawer,
+  IconButton,
   Divider,
   List,
   Stack,
@@ -15,10 +17,12 @@ import {
   Typography,
   alpha,
   useTheme,
+  useMediaQuery,
 } from "@mui/material";
 import { AsyncButton, message } from "@frfojo/components";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import DeleteOutlineOutlinedIcon from "@mui/icons-material/DeleteOutlineOutlined";
+import CloseIcon from "@mui/icons-material/Close";
 import * as BcServices from "@/services/bc";
 
 function labelUser(u?: DTOs.Bc.User | null) {
@@ -31,6 +35,7 @@ export default function ServerContent() {
   const serverId = params.serverId;
   const channelId = params.topic;
   const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   const [channels, setChannels] = useState<DTOs.Bc.Channel[]>([]);
   const [members, setMembers] = useState<DTOs.Bc.Member[]>([]);
@@ -53,6 +58,8 @@ export default function ServerContent() {
   const [delMsgOpen, setDelMsgOpen] = useState(false);
   const [delMsgLoading, setDelMsgLoading] = useState(false);
   const [delMsgId, setDelMsgId] = useState<string | null>(null);
+
+  const [membersDrawerOpen, setMembersDrawerOpen] = useState(false);
 
   const selectedChannel = useMemo(
     () => channels.find((c) => c.id === channelId) || null,
@@ -245,17 +252,162 @@ export default function ServerContent() {
     const onRefreshChannels = () => {
       refreshChannels().catch(() => {});
     };
+    const onToggleMembers = () => {
+      if (isMobile) {
+        setMembersDrawerOpen((v) => !v);
+        // 打开时顺便拉一次（避免 stale）
+        if (!membersDrawerOpen) {
+          refreshMembers({ search: memberSearch }).catch(() => {});
+        }
+      } else {
+        // 桌面端保持右侧常驻，不做 toggle
+        refreshMembers({ search: memberSearch }).catch(() => {});
+      }
+    };
 
     window.addEventListener("bc:refreshMessages", onRefreshMessages);
     window.addEventListener("bc:refreshMembers", onRefreshMembers as EventListener);
     window.addEventListener("bc:refreshChannels", onRefreshChannels);
+    window.addEventListener("bc:toggleMembers", onToggleMembers);
     return () => {
       window.removeEventListener("bc:refreshMessages", onRefreshMessages);
       window.removeEventListener("bc:refreshMembers", onRefreshMembers as EventListener);
       window.removeEventListener("bc:refreshChannels", onRefreshChannels);
+      window.removeEventListener("bc:toggleMembers", onToggleMembers);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [serverId, channelId, memberSearch]);
+  }, [serverId, channelId, memberSearch, isMobile, membersDrawerOpen]);
+
+  useEffect(() => {
+    if (!isMobile) setMembersDrawerOpen(false);
+  }, [isMobile]);
+
+  const membersPanel = (
+    <Box
+      sx={{
+        width: 260,
+        flexShrink: 0,
+        display: "flex",
+        flexDirection: "column",
+        borderLeft: `1px solid ${alpha(theme.palette.common.black, 0.25)}`,
+        background: alpha(theme.palette.common.black, 0.12),
+        height: "100%",
+      }}
+    >
+      <Box
+        sx={{
+          height: 48,
+          px: 1.5,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          borderBottom: `1px solid ${alpha(theme.palette.common.black, 0.25)}`,
+        }}
+      >
+        <Typography fontWeight={800} sx={{ fontSize: 13, letterSpacing: "0.4px" }}>
+          成员 — {members.length}
+        </Typography>
+        <Typography variant="caption" color="text.secondary">
+          {loadingMembers ? "加载中…" : ""}
+        </Typography>
+      </Box>
+
+      <Divider />
+
+      <Box sx={{ flex: 1, minHeight: 0, overflow: "auto", px: 1 }}>
+        {(
+          [
+            ["online", "ONLINE"],
+            ["idle", "IDLE"],
+            ["dnd", "DO NOT DISTURB"],
+            ["offline", "OFFLINE"],
+          ] as const
+        ).map(([key, title]) => {
+          const list = memberGroups[key];
+          if (!list.length) return null;
+          return (
+            <Box key={key} sx={{ pt: 1.5 }}>
+              <Typography
+                sx={{
+                  px: 1,
+                  pb: 0.5,
+                  fontSize: 11,
+                  fontWeight: 800,
+                  letterSpacing: "0.6px",
+                  color: alpha(theme.palette.text.primary, 0.65),
+                }}
+              >
+                {title} — {list.length}
+              </Typography>
+              {list.map((m) => {
+                const name = labelUser(m.user);
+                return (
+                  <Box
+                    key={m.user.id}
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 1,
+                      px: 1,
+                      py: 0.75,
+                      borderRadius: 1,
+                      cursor: "default",
+                      "&:hover": {
+                        background: alpha(theme.palette.common.white, 0.06),
+                      },
+                    }}
+                  >
+                    <Box sx={{ position: "relative" }}>
+                      <Avatar
+                        src={m.user.avatar || undefined}
+                        sx={{
+                          width: 30,
+                          height: 30,
+                          fontSize: 11,
+                          bgcolor: alpha(theme.palette.primary.main, 0.35),
+                        }}
+                      >
+                        {initials(name)}
+                      </Avatar>
+                      <Box
+                        sx={{
+                          position: "absolute",
+                          right: -1,
+                          bottom: -1,
+                          width: 10,
+                          height: 10,
+                          borderRadius: "50%",
+                          background: statusColor(m.status),
+                          border: `2px solid ${alpha(theme.palette.common.black, 0.25)}`,
+                        }}
+                      />
+                    </Box>
+                    <Box sx={{ minWidth: 0 }}>
+                      <Typography
+                        sx={{
+                          fontSize: 13,
+                          fontWeight: 700,
+                          color: alpha(theme.palette.text.primary, 0.9),
+                        }}
+                        noWrap
+                      >
+                        {name}
+                      </Typography>
+                      {(m.roles || []).length ? (
+                        <Typography variant="caption" color="text.secondary" noWrap>
+                          {(m.roles || []).join(" · ")}
+                        </Typography>
+                      ) : null}
+                    </Box>
+                  </Box>
+                );
+              })}
+            </Box>
+          );
+        })}
+      </Box>
+    </Box>
+  );
 
   return (
     <Box sx={{ height: "100%" }}>
@@ -439,131 +591,68 @@ export default function ServerContent() {
           </Box>
         </Box>
 
-        {/* 右侧：成员栏 */}
+        {/* 右侧：成员栏（桌面常驻 / 手机抽屉） */}
+        {!isMobile ? membersPanel : null}
+      </Box>
+
+      {/* 手机：成员抽屉 */}
+      <Drawer
+        anchor="right"
+        open={membersDrawerOpen}
+        onClose={() => setMembersDrawerOpen(false)}
+        PaperProps={{
+          sx: {
+            width: 280,
+            maxWidth: "85vw",
+            background: alpha(theme.palette.common.black, 0.12),
+            borderLeft: `1px solid ${alpha(theme.palette.common.black, 0.25)}`,
+          },
+        }}
+      >
         <Box
           sx={{
-            width: 260,
-            flexShrink: 0,
+            height: 48,
+            px: 1,
             display: "flex",
-            flexDirection: "column",
-            borderLeft: `1px solid ${alpha(theme.palette.common.black, 0.25)}`,
-            background: alpha(theme.palette.common.black, 0.12),
+            alignItems: "center",
+            justifyContent: "space-between",
+            borderBottom: `1px solid ${alpha(theme.palette.common.black, 0.25)}`,
           }}
         >
+          <Typography fontWeight={800} sx={{ fontSize: 14 }}>
+            成员
+          </Typography>
+          <IconButton size="small" onClick={() => setMembersDrawerOpen(false)}>
+            <CloseIcon fontSize="small" />
+          </IconButton>
+        </Box>
+        <Box sx={{ p: 1 }}>
           <Box
             sx={{
-              height: 48,
-              px: 1.5,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              borderBottom: `1px solid ${alpha(theme.palette.common.black, 0.25)}`,
+              px: 1.25,
+              py: 0.75,
+              borderRadius: 1.5,
+              background: alpha(theme.palette.common.black, 0.18),
             }}
           >
-            <Typography fontWeight={800} sx={{ fontSize: 13, letterSpacing: "0.4px" }}>
-              成员 — {members.length}
-            </Typography>
-            <Typography variant="caption" color="text.secondary">
-              {loadingMembers ? "加载中…" : ""}
-            </Typography>
-          </Box>
-
-          <Divider />
-
-          <Box sx={{ flex: 1, minHeight: 0, overflow: "auto", px: 1 }}>
-            {(
-              [
-                ["online", "ONLINE"],
-                ["idle", "IDLE"],
-                ["dnd", "DO NOT DISTURB"],
-                ["offline", "OFFLINE"],
-              ] as const
-            ).map(([key, title]) => {
-              const list = memberGroups[key];
-              if (!list.length) return null;
-              return (
-                <Box key={key} sx={{ pt: 1.5 }}>
-                  <Typography
-                    sx={{
-                      px: 1,
-                      pb: 0.5,
-                      fontSize: 11,
-                      fontWeight: 800,
-                      letterSpacing: "0.6px",
-                      color: alpha(theme.palette.text.primary, 0.65),
-                    }}
-                  >
-                    {title} — {list.length}
-                  </Typography>
-                  {list.map((m) => {
-                    const name = labelUser(m.user);
-                    return (
-                      <Box
-                        key={m.user.id}
-                        sx={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: 1,
-                          px: 1,
-                          py: 0.75,
-                          borderRadius: 1,
-                          cursor: "default",
-                          "&:hover": {
-                            background: alpha(theme.palette.common.white, 0.06),
-                          },
-                        }}
-                      >
-                        <Box sx={{ position: "relative" }}>
-                          <Avatar
-                            src={m.user.avatar || undefined}
-                            sx={{
-                              width: 30,
-                              height: 30,
-                              fontSize: 11,
-                              bgcolor: alpha(theme.palette.primary.main, 0.35),
-                            }}
-                          >
-                            {initials(name)}
-                          </Avatar>
-                          <Box
-                            sx={{
-                              position: "absolute",
-                              right: -1,
-                              bottom: -1,
-                              width: 10,
-                              height: 10,
-                              borderRadius: "50%",
-                              background: statusColor(m.status),
-                              border: `2px solid ${alpha(theme.palette.common.black, 0.25)}`,
-                            }}
-                          />
-                        </Box>
-                        <Box sx={{ minWidth: 0 }}>
-                          <Typography
-                            sx={{
-                              fontSize: 13,
-                              fontWeight: 700,
-                              color: alpha(theme.palette.text.primary, 0.9),
-                            }}
-                            noWrap
-                          >
-                            {name}
-                          </Typography>
-                          {(m.roles || []).length ? (
-                            <Typography variant="caption" color="text.secondary" noWrap>
-                              {(m.roles || []).join(" · ")}
-                            </Typography>
-                          ) : null}
-                        </Box>
-                      </Box>
-                    );
-                  })}
-                </Box>
-              );
-            })}
+            <TextField
+              fullWidth
+              variant="standard"
+              placeholder="搜索成员"
+              value={memberSearch}
+              onChange={(e) => setMemberSearch(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") refreshMembers({ search: memberSearch.trim() });
+              }}
+              InputProps={{
+                disableUnderline: true,
+                sx: { fontSize: 13, color: alpha(theme.palette.text.primary, 0.9) },
+              }}
+            />
           </Box>
         </Box>
-      </Box>
+        {membersPanel}
+      </Drawer>
 
       {/* 编辑消息 */}
       <Dialog open={editMsgOpen} onClose={() => setEditMsgOpen(false)} maxWidth="sm" fullWidth>
