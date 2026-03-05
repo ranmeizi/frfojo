@@ -7,6 +7,7 @@ import HomePage from "@/pages/HomePage";
 import Server from "@/pages/Server";
 import Opendota from "@/pages/SubApps/Opendota";
 import BoboTool from "@/pages/SubApps/BoboTool";
+import UserCenter from "@/pages/SubApps/UserCenter";
 import Login from "@/pages/Login";
 
 function Redirect({ to }: any) {
@@ -53,6 +54,10 @@ const routes: RouteObject[] = [
       {
         path: "/m/sub/bobo-tool*",
         element: <BoboTool />,
+      },
+      {
+        path: "/m/sub/user-center*",
+        element: <UserCenter />,
       },
       // {
       //   path: "/m/*",

@@ -50,5 +50,14 @@ export function AppConfigProvider({ children }: PropsWithChildren) {
     }));
   }, [configList]);
 
+  useEffect(() => {
+    // 让子应用/非 React 层能感知主应用 themeMode（antd 暗黑模式等）
+    const mode = config.theme_mode || "light";
+    (window as any).__FFJ_THEME_MODE__ = mode;
+    window.dispatchEvent(
+      new CustomEvent("ffj:themeMode", { detail: { mode } }),
+    );
+  }, [config.theme_mode]);
+
   return <context.Provider value={config}>{children}</context.Provider>;
 }
