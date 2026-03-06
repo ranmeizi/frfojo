@@ -12,13 +12,14 @@
   "dependencies": {
     "@ant-design/icons": "^6.0.0",
     "@ant-design/pro-components": "^2.8.10",
-    "@garfish/bridge-react-v18": "^1.19.2",
     "@frfojo/common": "workspace:*",
-    "axios": "^1.10.0",
+    "@garfish/bridge-react-v18": "^1.19.2",
     "antd": "^5.27.0",
+    "axios": "^1.10.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "react-router-dom": "^6.26.0"
+    "react-router-dom": "^6.26.0",
+    "vite-plugin-dynamic-publicpath": "^1.1.2"
   },
   "devDependencies": {
     "@eslint/js": "^9.9.0",
