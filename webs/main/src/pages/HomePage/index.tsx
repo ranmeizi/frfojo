@@ -23,19 +23,25 @@ import { FC } from "react";
 import GoogleOAuthButton from "../Login/components/GoogleOAuthButton";
 import * as TitleAnime from "@/utils/flashTitle";
 import { useUserSelector } from "@/contexts/GlobalStates";
+import { useNavigate } from "react-router-dom";
 
 type HomePageProps = Record<string, never>;
 
 const HomePage: FC<HomePageProps> = () => {
   const user = useUserSelector();
+  const navigate = useNavigate();
 
-  function gotoAdmin() {
+  function gotoUserCenterStandalone() {
     const url = new URL(location.href);
     url.port = "8013";
     url.pathname = "/";
     url.search = "";
     url.hash = "";
     location.href = url.toString();
+  }
+
+  function gotoUserCenterMicroRoute() {
+    navigate("/m/sub/user-center/users");
   }
 
   function gotoBrowser() {
@@ -202,8 +208,21 @@ const HomePage: FC<HomePageProps> = () => {
           }}
         >
           <AccessArea require="F_WEB_HIDDEN_ADMIN" permissions={user.permissions || []}>
-            <Button size="small" variant="outlined" onClick={gotoAdmin}>
-              Admin
+            <Button
+              size="small"
+              variant="outlined"
+              onClick={gotoUserCenterStandalone}
+            >
+              UserCenter（独立）
+            </Button>
+          </AccessArea>
+          <AccessArea require="F_WEB_HIDDEN_ADMIN" permissions={user.permissions || []}>
+            <Button
+              size="small"
+              variant="outlined"
+              onClick={gotoUserCenterMicroRoute}
+            >
+              UserCenter（子应用）
             </Button>
           </AccessArea>
           <AccessArea
