@@ -5,13 +5,8 @@ import { useDynamicPublicPath } from "vite-plugin-dynamic-publicpath";
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [
-    react({ jsxRuntime: "automatic" }),
-    useDynamicPublicPath({
-      dynamicImportHandler: "window.__dynamic_handler__",
-      dynamicImportPreload: "window.__dynamic_preload__",
-    }),
-  ],
+  base: "./",
+  plugins: [react({ jsxRuntime: "automatic" })],
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "src"),
