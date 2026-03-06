@@ -1,10 +1,10 @@
 import React, { useMemo } from "react";
-import { ProLayout, PageContainer } from "@ant-design/pro-components";
+import { LayoutMenu } from "@frfojo/components";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { AppstoreOutlined, TeamOutlined, SafetyCertificateOutlined } from "@ant-design/icons";
 import { getRuntimeMode } from "../runtime/mode";
 import { useAuth } from "../auth/AuthContext";
-import { Button, Result } from "antd";
+import { Button, Menu, Result, Typography } from "antd";
 
 export default function MainLayout() {
   const location = useLocation();
@@ -37,42 +37,71 @@ export default function MainLayout() {
     );
   }
 
-  const route = useMemo(() => {
-    return {
-      path: "/",
-      routes: [
-        { path: "/users", name: "用户", icon: <TeamOutlined /> },
-        { path: "/roles", name: "角色", icon: <AppstoreOutlined /> },
-        { path: "/permissions", name: "权限", icon: <SafetyCertificateOutlined /> },
-      ],
-    };
-  }, []);
+  const menus = useMemo(
+    () => [
+      { key: "/users", label: "用户", icon: <TeamOutlined /> },
+      { key: "/roles", label: "角色", icon: <AppstoreOutlined /> },
+      { key: "/permissions", label: "权限", icon: <SafetyCertificateOutlined /> },
+    ],
+    [],
+  );
+
+  const selectedKey = useMemo(() => {
+    const p = location.pathname || "/";
+    const seg = "/" + (p.split("/")[1] || "users");
+    return menus.some((m) => m.key === seg) ? seg : "/users";
+  }, [location.pathname, menus]);
 
   return (
-    <ProLayout
-      title="UserCenter"
-      location={{ pathname: location.pathname }}
-      route={route as any}
-      fixSiderbar
-      layout="mix"
-      splitMenus={false}
-      menuItemRender={(item, dom) => {
-        return (
-          <a
-            onClick={(e) => {
-              e.preventDefault();
-              if (item.path) navigate(item.path);
-            }}
-          >
-            {dom}
-          </a>
-        );
-      }}
-    >
-      <PageContainer>
-        <Outlet />
-      </PageContainer>
-    </ProLayout>
+    <LayoutMenu
+      widthAutoSaveId="uc-layout"
+      logo={
+        <div style={{ paddingLeft: 12, paddingRight: 12, width: "100%" }}>
+          <Typography.Text strong style={{ color: "inherit" }}>
+            UserCenter
+          </Typography.Text>
+        </div>
+      }
+      sidebar={
+        <div style={{ padding: 8 }}>
+          <Menu
+            mode="inline"
+            selectedKeys={[selectedKey]}
+            items={menus as any}
+            onClick={(e) => navigate(e.key)}
+          />
+        </div>
+      }
+      header={
+        <div
+          style={{
+            width: "100%",
+            height: "100%",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            paddingLeft: 12,
+            paddingRight: 12,
+          }}
+        >
+          <Typography.Text>
+            {selectedKey === "/users"
+              ? "用户管理"
+              : selectedKey === "/roles"
+                ? "角色管理"
+                : "权限管理"}
+          </Typography.Text>
+          <Typography.Text type="secondary">
+            {auth.user?.username || auth.user?.email || auth.user?.id || ""}
+          </Typography.Text>
+        </div>
+      }
+      content={
+        <div style={{ padding: 12 }}>
+          <Outlet />
+        </div>
+      }
+    />
   );
 }
 

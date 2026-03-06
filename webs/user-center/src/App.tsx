@@ -6,6 +6,7 @@ import { AuthProvider } from "./auth/AuthContext";
 import { getRuntimeMode } from "./runtime/mode";
 import { getStandaloneToken } from "./request/token";
 import { getHostAuthBridge } from "./auth/hostBridge";
+import { createTheme, ThemeProvider } from "@mui/material/styles";
 
 type ThemeMode = "dark" | "light";
 
@@ -45,7 +46,38 @@ function AppShell({ themeMode }: { themeMode?: ThemeMode }) {
   const antdTheme = useMemo(() => {
     return {
       algorithm: mode === "dark" ? theme.darkAlgorithm : theme.defaultAlgorithm,
+      token:
+        mode === "dark"
+          ? {
+              colorBgBase: "#0b0f19",
+              colorBgLayout: "#0b0f19",
+              colorBgContainer: "#111827",
+              colorTextBase: "rgba(255,255,255,0.88)",
+            }
+          : {
+              colorBgBase: "#ffffff",
+              colorBgLayout: "#f6f7fb",
+              colorBgContainer: "#ffffff",
+            },
     } as const;
+  }, [mode]);
+
+  const muiTheme = useMemo(() => {
+    const base = createTheme({
+      palette: {
+        mode,
+        background:
+          mode === "dark"
+            ? { default: "#0b0f19", paper: "#111827" }
+            : { default: "#f6f7fb", paper: "#ffffff" },
+      },
+    });
+    // 给 LayoutMenu 的自定义 palette.app 提供运行时值（类型上用 any 绕过）
+    (base.palette as any).app = {
+      app_pager_menu: mode === "dark" ? "#0f172a" : "#ffffff",
+      app_paper_content: mode === "dark" ? "#0b0f19" : "#f6f7fb",
+    };
+    return base;
   }, [mode]);
 
   const router = useMemo(
@@ -130,9 +162,11 @@ function AppShell({ themeMode }: { themeMode?: ThemeMode }) {
 
   return (
     <AuthProvider value={authValue as any}>
-      <ConfigProvider theme={antdTheme}>
-        <RouterProvider router={router} />
-      </ConfigProvider>
+      <ThemeProvider theme={muiTheme}>
+        <ConfigProvider key={mode} theme={antdTheme}>
+          <RouterProvider router={router} />
+        </ConfigProvider>
+      </ThemeProvider>
     </AuthProvider>
   );
 }
