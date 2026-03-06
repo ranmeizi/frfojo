@@ -22,6 +22,7 @@ import { motion } from "framer-motion";
 import { yellow } from "@mui/material/colors";
 import { useNavigate } from "react-router-dom";
 import * as BcServices from "@/services/bc";
+import { SidebarLayout } from "@frfojo/components";
 
 type ChannelNode = TreeViewBaseItem & {
   meta?: { kind: "category" | "channel"; type?: DTOs.Bc.Channel["type"] };
@@ -92,14 +93,6 @@ function toChannelTree(channels: DTOs.Bc.Channel[]): ChannelNode[] {
 
   return nodes;
 }
-
-const Root = styled("div")(() => ({
-  height: "100%",
-  maxHeight: "100dvh",
-  display: "flex",
-  flexDirection: "column",
-  // padding: theme.spacing(1),
-}));
 
 const CustomTreeItem = forwardRef(
   (props: TreeItem2Props, ref: React.Ref<HTMLLIElement>) => {
@@ -267,187 +260,183 @@ const Sidebar: FC<SidebarProps> = (props) => {
     setExpandedItems(allExpandableIds);
   }, [allExpandableIds]);
 
-  return (
-    <Root>
-      <Box
-        sx={() => ({
-          // padding: theme.spacing(2),
-          background: `url(${ImageBlackboard})`,
-          height: "80px",
-          backgroundSize: "auto 100%",
-          position: "relative",
-          overflow: "hidden",
-        })}
-      >
-        {/* 运动图标 */}
-        {icon ? (
+  const header = (
+    <Box
+      sx={() => ({
+        background: `url(${ImageBlackboard})`,
+        height: "80px",
+        backgroundSize: "auto 100%",
+        position: "relative",
+        overflow: "hidden",
+      })}
+    >
+      {/* 运动图标 */}
+      {icon ? (
+        <motion.div
+          key={icon}
+          transition={{ duration: 1 }}
+          initial={{ transform: "translateY(50px)" }}
+          animate={{ transform: "translateY(0px)" }}
+        >
           <motion.div
-            key={icon}
-            transition={{ duration: 1 }}
-            initial={{ transform: "translateY(50px)" }}
-            animate={{ transform: "translateY(0px)" }}
+            transition={{
+              duration: 5,
+              ease: "linear",
+              times: [0, 0.25, 0.5, 0.75, 1],
+              repeat: Infinity,
+            }}
+            animate={{
+              transform: [
+                "translateY(0px)",
+                "translateY(-2px)",
+                "translateY(0px)",
+                "translateY(2px)",
+                "translateY(0px)",
+              ],
+            }}
           >
             <motion.div
               transition={{
-                duration: 5,
-                ease: "linear",
+                duration: 15,
+                ease: "backInOut",
                 times: [0, 0.25, 0.5, 0.75, 1],
                 repeat: Infinity,
               }}
               animate={{
                 transform: [
-                  "translateY(0px)",
-                  "translateY(-2px)",
-                  "translateY(0px)",
-                  "translateY(2px)",
-                  "translateY(0px)",
+                  "rotateZ(0)",
+                  "rotateZ(8deg)",
+                  "rotateZ(0)",
+                  "rotateZ(-8deg)",
+                  "rotateZ(0)",
                 ],
               }}
             >
-              <motion.div
-                transition={{
-                  duration: 15,
-                  ease: "backInOut",
-                  times: [0, 0.25, 0.5, 0.75, 1],
-                  repeat: Infinity,
-                }}
-                animate={{
-                  transform: [
-                    "rotateZ(0)",
-                    "rotateZ(8deg)",
-                    "rotateZ(0)",
-                    "rotateZ(-8deg)",
-                    "rotateZ(0)",
-                  ],
-                }}
-              >
-                <Box
-                  sx={(theme) => {
-                    const color = alpha(theme.palette.primary.dark, 0.6);
-                    const shadow = alpha(yellow["400"], 0.5);
-                    return {
+              <Box
+                sx={(theme) => {
+                  const color = alpha(theme.palette.primary.dark, 0.6);
+                  const shadow = alpha(yellow["400"], 0.5);
+                  return {
+                    position: "absolute",
+                    top: "15px",
+                    left: "28px",
+                    borderRadius: "25px",
+                    height: "56px",
+                    width: "50px",
+                    backgroundImage: `url(${icon})`,
+                    backgroundColor: color,
+                    backgroundSize: "40px 40px",
+                    backgroundPosition: "5px 8px",
+                    backgroundRepeat: "no-repeat",
+                    boxShadow: `0 0 5px 2px ${shadow}`,
+                    "::after": {
+                      content: "''",
                       position: "absolute",
-                      top: "15px",
-                      left: "28px",
-                      borderRadius: "25px",
-                      height: "56px",
-                      width: "50px",
-                      backgroundImage: `url(${icon})`,
-                      backgroundColor: color,
-                      backgroundSize: "40px 40px",
-                      backgroundPosition: "5px 8px",
-                      backgroundRepeat: "no-repeat",
-                      boxShadow: `0 0 5px 2px ${shadow}`,
-                      "::after": {
-                        content: "''",
-                        position: "absolute",
-                        bottom: "-6px",
-                        left: "20px",
-                        height: 0,
-                        width: 0,
-                        borderTop: `6px solid transparent`,
-                        borderLeft: `6px solid transparent`,
-                        borderRight: `6px solid transparent`,
-                        borderBottom: `8px solid ${color}`,
-                      },
-                    };
-                  }}
-                ></Box>
-              </motion.div>
+                      bottom: "-6px",
+                      left: "20px",
+                      height: 0,
+                      width: 0,
+                      borderTop: `6px solid transparent`,
+                      borderLeft: `6px solid transparent`,
+                      borderRight: `6px solid transparent`,
+                      borderBottom: `8px solid ${color}`,
+                    },
+                  };
+                }}
+              ></Box>
             </motion.div>
           </motion.div>
-        ) : null}
+        </motion.div>
+      ) : null}
 
+      <Box
+        sx={{
+          position: "absolute",
+          height: "100%",
+          width: "70%",
+          top: "0",
+          right: "0",
+          fontSize: "16px",
+          fontWeight: 900,
+          color: "#d2d2d2",
+        }}
+      >
         <Box
           sx={{
             position: "absolute",
-            height: "100%",
-            width: "70%",
-            top: "0",
-            right: "0",
-            fontSize: "16px",
-            fontWeight: 900,
-            color: "#d2d2d2",
+            left: "35px",
+            top: "17px",
+            transform: "rotate(5deg)",
           }}
         >
-          <Box
-            sx={{
-              position: "absolute",
-              left: "35px",
-              top: "17px",
-              transform: "rotate(5deg)",
-            }}
-          >
-            欢
-          </Box>
-          <Box
-            sx={{
-              position: "absolute",
-              left: "86px",
-              top: "16px",
-              transform: "rotate(2deg)",
-            }}
-          >
-            迎
-          </Box>
-          <Box
-            sx={{
-              position: "absolute",
-              left: "24px",
-              top: "42px",
-              transform: "rotate(-5deg)",
-            }}
-          >
-            新
-          </Box>
-          <Box
-            sx={{
-              position: "absolute",
-              left: "65px",
-              top: "40px",
-              transform: "rotate(-5deg)",
-            }}
-          >
-            同
-          </Box>
-          <Box
-            sx={{
-              position: "absolute",
-              left: "106px",
-              top: "39px",
-              transform: "rotate(-3deg)",
-            }}
-          >
-            学
-          </Box>
+          欢
+        </Box>
+        <Box
+          sx={{
+            position: "absolute",
+            left: "86px",
+            top: "16px",
+            transform: "rotate(2deg)",
+          }}
+        >
+          迎
+        </Box>
+        <Box
+          sx={{
+            position: "absolute",
+            left: "24px",
+            top: "42px",
+            transform: "rotate(-5deg)",
+          }}
+        >
+          新
+        </Box>
+        <Box
+          sx={{
+            position: "absolute",
+            left: "65px",
+            top: "40px",
+            transform: "rotate(-5deg)",
+          }}
+        >
+          同
+        </Box>
+        <Box
+          sx={{
+            position: "absolute",
+            left: "106px",
+            top: "39px",
+            transform: "rotate(-3deg)",
+          }}
+        >
+          学
         </Box>
       </Box>
-      <Divider />
-      <Box
-        sx={(theme) => ({
-          flex: 1,
-          minHeight: 0,
-          maxHeight: `calc(100dvh - 80px)`,
-          overflowY: "auto",
-          overscrollBehavior: "contain",
-          paddingBottom: theme.spacing(2),
-        })}
-      >
-        <RichTreeView
-          expandedItems={expandedItems}
-          onExpandedItemsChange={(_, itemIds) => setExpandedItems(itemIds)}
-          selectedItems={props.topic}
-          items={items}
-          slots={{ item: CustomTreeItem }}
-          onSelectedItemsChange={(event, itemIds) => {
-            void event;
-            if (!itemIds) return;
-            const isLeaf = channels.some((c) => c.id === itemIds);
-            if (isLeaf) gotoTopic(itemIds);
-          }}
-        />
-      </Box>
-    </Root>
+    </Box>
+  );
+
+  return (
+    <SidebarLayout
+      header={header}
+      divider
+      bodySx={(theme) => ({
+        paddingBottom: theme.spacing(2),
+      })}
+    >
+      <RichTreeView
+        expandedItems={expandedItems}
+        onExpandedItemsChange={(_, itemIds) => setExpandedItems(itemIds)}
+        selectedItems={props.topic}
+        items={items}
+        slots={{ item: CustomTreeItem }}
+        onSelectedItemsChange={(event, itemIds) => {
+          void event;
+          if (!itemIds) return;
+          const isLeaf = channels.some((c) => c.id === itemIds);
+          if (isLeaf) gotoTopic(itemIds);
+        }}
+      />
+    </SidebarLayout>
   );
 };
 

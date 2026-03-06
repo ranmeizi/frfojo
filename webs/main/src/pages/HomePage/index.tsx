@@ -1,6 +1,7 @@
 import { request } from "@frfojo/common/request";
 import { sleep } from "@frfojo/common/utils/delay";
 import {
+  AccessArea,
   LayoutMenu,
   Modal,
   message,
@@ -21,10 +22,26 @@ import {
 import { FC } from "react";
 import GoogleOAuthButton from "../Login/components/GoogleOAuthButton";
 import * as TitleAnime from "@/utils/flashTitle";
+import { useUserSelector } from "@/contexts/GlobalStates";
 
 type HomePageProps = Record<string, never>;
 
 const HomePage: FC<HomePageProps> = () => {
+  const user = useUserSelector();
+
+  function gotoAdmin() {
+    const url = new URL(location.href);
+    url.port = "8013";
+    url.pathname = "/";
+    url.search = "";
+    url.hash = "";
+    location.href = url.toString();
+  }
+
+  function gotoBrowser() {
+    location.href = `${location.origin}/api/browser`;
+  }
+
   async function open() {
     Modal.confirm({
       title: "开发者测试入口",
@@ -171,7 +188,35 @@ const HomePage: FC<HomePageProps> = () => {
   }
 
   return (
-    <LayoutMenu>
+    <LayoutMenu
+      header={
+        <Box
+          sx={{
+            width: "100%",
+            height: "100%",
+            px: 1.5,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "flex-end",
+            gap: 1,
+          }}
+        >
+          <AccessArea require="F_WEB_HIDDEN_ADMIN" permissions={user.permissions || []}>
+            <Button size="small" variant="outlined" onClick={gotoAdmin}>
+              Admin
+            </Button>
+          </AccessArea>
+          <AccessArea
+            require="F_WEB_HIDDEN_BROWSER"
+            permissions={user.permissions || []}
+          >
+            <Button size="small" variant="outlined" onClick={gotoBrowser}>
+              Browser
+            </Button>
+          </AccessArea>
+        </Box>
+      }
+    >
       <Box
         sx={{
           flex: 1,
