@@ -63,7 +63,7 @@ export default function MainLayout() {
         </div>
       }
       sidebar={
-        <div style={{ padding: 8 }}>
+        <div style={{ padding: 8, height: "100%" }}>
           <Menu
             mode="inline"
             selectedKeys={[selectedKey]}
@@ -97,7 +97,7 @@ export default function MainLayout() {
         </div>
       }
       content={
-        <div style={{ padding: 12 }}>
+        <div style={{ padding: 12, height: "100%", boxSizing: "border-box" }}>
           <Outlet />
         </div>
       }

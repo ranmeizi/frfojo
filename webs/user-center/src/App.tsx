@@ -7,6 +7,7 @@ import { getRuntimeMode } from "./runtime/mode";
 import { getStandaloneToken } from "./request/token";
 import { getHostAuthBridge } from "./auth/hostBridge";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
+import { CssBaseline } from "@mui/material";
 
 type ThemeMode = "dark" | "light";
 
@@ -26,6 +27,23 @@ function useThemeMode(propsMode?: ThemeMode) {
 
   useEffect(() => {
     if (propsMode && propsMode !== mode) setMode(propsMode);
+  }, [propsMode]);
+
+  // 没有主应用注入主题时：跟随系统主题变化
+  useEffect(() => {
+    const w = window as any;
+    const controlledByHost = Boolean(propsMode || w.__FFJ_THEME_MODE__);
+    if (controlledByHost || !window.matchMedia) return;
+    const mql = window.matchMedia("(prefers-color-scheme: dark)");
+    const onChange = () => setMode(mql.matches ? "dark" : "light");
+    onChange();
+    // safari 兼容
+    if (typeof mql.addEventListener === "function") {
+      mql.addEventListener("change", onChange);
+      return () => mql.removeEventListener("change", onChange);
+    }
+    mql.addListener(onChange);
+    return () => mql.removeListener(onChange);
   }, [propsMode]);
 
   useEffect(() => {
@@ -163,8 +181,19 @@ function AppShell({ themeMode }: { themeMode?: ThemeMode }) {
   return (
     <AuthProvider value={authValue as any}>
       <ThemeProvider theme={muiTheme}>
+        <CssBaseline />
         <ConfigProvider key={mode} theme={antdTheme}>
-          <RouterProvider router={router} />
+          <div
+            style={{
+              height: "100%",
+              minHeight: "100dvh",
+              width: "100%",
+              display: "flex",
+              flexDirection: "column",
+            }}
+          >
+            <RouterProvider router={router} />
+          </div>
         </ConfigProvider>
       </ThemeProvider>
     </AuthProvider>
@@ -172,7 +201,11 @@ function AppShell({ themeMode }: { themeMode?: ThemeMode }) {
 }
 
 export default function App() {
-  return <AppShell />;
+  return (
+    <div style={{ height: "100%", minHeight: "100dvh", width: "100%" }}>
+      <AppShell />
+    </div>
+  );
 }
 
 export function SubApp(props: any) {
@@ -183,7 +216,7 @@ export function SubApp(props: any) {
   (window as any).__FFJ_AUTH_BRIDGE__ = subProps?.authBridge;
 
   return (
-    <div style={{ height: "100%", width: "100%" }}>
+    <div style={{ height: "100%", minHeight: "100dvh", width: "100%" }}>
       <AppShell themeMode={subProps?.themeMode} />
     </div>
   );
