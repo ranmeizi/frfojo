@@ -13,9 +13,11 @@ type SearchBarProps = {
   value: string;
   onChange: (value: string) => void;
   onSubmit?: (value: string) => void;
+  onFocus?: () => void;
+  onBlur?: () => void;
 };
 
-const SearchBar: FC<SearchBarProps> = ({ value, onChange, onSubmit }) => {
+const SearchBar: FC<SearchBarProps> = ({ value, onChange, onSubmit, onFocus, onBlur }) => {
   function handleKeyDown(e: KeyboardEvent<HTMLInputElement>) {
     if (e.key === "Enter" && onSubmit) {
       onSubmit(value);
@@ -31,6 +33,8 @@ const SearchBar: FC<SearchBarProps> = ({ value, onChange, onSubmit }) => {
         value={value}
         onChange={(e) => onChange(e.target.value)}
         onKeyDown={handleKeyDown}
+        onFocus={() => onFocus?.()}
+        onBlur={() => onBlur?.()}
       />
       <Divider sx={{ height: 28, m: 0.5 }} orientation="vertical" />
       <IconButton

@@ -38,6 +38,7 @@ const NavBar: FC<NavBarProps> = () => {
   const [keyword, setKeyword] = useState("");
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const [searchActive, setSearchActive] = useState(false);
 
   function handleSubmit(value: string) {
     const next = value.trim();
@@ -53,7 +54,7 @@ const NavBar: FC<NavBarProps> = () => {
       <Box
         sx={{
           pointerEvents: "auto",
-          display: "flex",
+          display: isMobile && searchActive ? "none" : "flex",
           alignItems: "center",
           flexShrink: 0,
           overflowX: isMobile ? "auto" : "visible",
@@ -80,14 +81,21 @@ const NavBar: FC<NavBarProps> = () => {
         sx={{
           pointerEvents: "auto",
           flex: 1,
-          minWidth: isMobile ? 120 : 240,
-          maxWidth: isMobile ? 220 : 420,
+          minWidth: isMobile ? (searchActive ? 0 : 120) : 240,
+          maxWidth: isMobile ? (searchActive ? "100%" : 220) : 420,
+          transition: "max-width .18s ease, min-width .18s ease",
         }}
       >
         <SearchBar
           value={keyword}
           onChange={setKeyword}
           onSubmit={handleSubmit}
+          onFocus={() => {
+            if (isMobile) setSearchActive(true);
+          }}
+          onBlur={() => {
+            if (isMobile) setSearchActive(false);
+          }}
         />
       </Box>
     </Root>
