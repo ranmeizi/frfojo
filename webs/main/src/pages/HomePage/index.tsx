@@ -45,7 +45,7 @@ const HomePage: FC<HomePageProps> = () => {
   }
 
   function gotoBrowser() {
-    location.href = `${location.origin}/api/browser`;
+    location.href = `${location.origin}/api/browser/index.html`;
   }
 
   async function open() {
@@ -207,7 +207,10 @@ const HomePage: FC<HomePageProps> = () => {
             gap: 1,
           }}
         >
-          <AccessArea require="F_WEB_HIDDEN_ADMIN" permissions={user.permissions || []}>
+          <AccessArea
+            require="F_WEB_HIDDEN_ADMIN"
+            permissions={user.permissions || []}
+          >
             <Button
               size="small"
               variant="outlined"
@@ -216,7 +219,10 @@ const HomePage: FC<HomePageProps> = () => {
               UserCenter（独立）
             </Button>
           </AccessArea>
-          <AccessArea require="F_WEB_HIDDEN_ADMIN" permissions={user.permissions || []}>
+          <AccessArea
+            require="F_WEB_HIDDEN_ADMIN"
+            permissions={user.permissions || []}
+          >
             <Button
               size="small"
               variant="outlined"
