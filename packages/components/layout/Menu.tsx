@@ -12,7 +12,6 @@ import { MotionProps } from "framer-motion";
 import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 import DragIndicatorIcon from "@mui/icons-material/DragIndicator";
 import MenuIcon from "@mui/icons-material/Menu";
-import CloseIcon from "@mui/icons-material/Close";
 
 const HEADER_HEIGHT = 48;
 const SIDEBAR_WIDTH = () => {
@@ -158,29 +157,6 @@ const MobileRoot = styled("div")(({ theme }) => ({
     minHeight: 0,
     ...topShadow(),
   },
-
-  ".ffj-layout-menu__mobile-drawer-paper": {
-    width: 280,
-    maxWidth: "85vw",
-    background: theme.palette.app?.app_pager_menu,
-    display: "flex",
-    flexDirection: "column",
-  },
-
-  ".ffj-layout-menu__mobile-drawer-header": {
-    height: HEADER_HEIGHT + "px",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingLeft: theme.spacing(1),
-    paddingRight: theme.spacing(1),
-  },
-
-  ".ffj-layout-menu__mobile-drawer-body": {
-    flex: 1,
-    minHeight: 0,
-    ...topShadow(),
-  },
 }));
 
 export const transition: MotionProps["transition"] = {
@@ -284,25 +260,39 @@ const MenuLayout: FC<MenuLayoutProps> = ({
             open={drawerOpen}
             onClose={() => setDrawerOpen(false)}
             PaperProps={{
-              className: "ffj-layout-menu__mobile-drawer-paper" as any,
+              sx: {
+                width: 280,
+                maxWidth: "90vw",
+                background: theme.palette.app?.app_pager_menu,
+                display: "flex",
+                flexDirection: "column",
+              },
             }}
           >
-            <div
-              className="ffj-layout-menu__mobile-drawer-header"
+            <Box
+              sx={{
+                height: HEADER_HEIGHT + "px",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                paddingLeft: theme.spacing(1),
+                paddingRight: theme.spacing(1),
+              }}
               data-tauri-drag-region
             >
               <Box sx={{ display: "flex", alignItems: "center", minWidth: 0 }}>
                 {logo}
               </Box>
-              <IconButton
-                size="small"
-                onClick={() => setDrawerOpen(false)}
-                sx={{ color: alpha(theme.palette.text.primary, 0.8) }}
-              >
-                <CloseIcon fontSize="small" />
-              </IconButton>
-            </div>
-            <div className="ffj-layout-menu__mobile-drawer-body">{sidebar}</div>
+            </Box>
+            <Box
+              sx={{
+                flex: 1,
+                minHeight: 0,
+                ...topShadow(),
+              }}
+            >
+              {sidebar}
+            </Box>
           </Drawer>
         ) : null}
       </MobileRoot>

@@ -28,6 +28,11 @@ type ChannelNode = TreeViewBaseItem & {
   meta?: { kind: "category" | "channel"; type?: DTOs.Bc.Channel["type"] };
 };
 
+function formatChannelName(name: string, type?: DTOs.Bc.Channel["type"]) {
+  if (type === "text") return name.replace(/^#\s*/, "");
+  return name;
+}
+
 function toChannelTree(channels: DTOs.Bc.Channel[]): ChannelNode[] {
   const categories = channels.filter((c) => c.type === "category");
   const byCategory: Record<string, DTOs.Bc.Channel[]> = {};
@@ -51,7 +56,7 @@ function toChannelTree(channels: DTOs.Bc.Channel[]): ChannelNode[] {
   for (const cat of [...categories].sort(sortFn)) {
     const children = (byCategory[cat.id] || []).sort(sortFn).map<ChannelNode>((c) => ({
       id: c.id,
-      label: c.name,
+      label: formatChannelName(c.name, c.type),
       meta: { kind: "channel", type: c.type },
     }));
     nodes.push({
@@ -73,7 +78,7 @@ function toChannelTree(channels: DTOs.Bc.Channel[]): ChannelNode[] {
       meta: { kind: "category" },
       children: texts.map((c) => ({
         id: c.id,
-        label: c.name,
+        label: formatChannelName(c.name, c.type),
         meta: { kind: "channel", type: "text" },
       })),
     });
@@ -85,7 +90,7 @@ function toChannelTree(channels: DTOs.Bc.Channel[]): ChannelNode[] {
       meta: { kind: "category" },
       children: voices.map((c) => ({
         id: c.id,
-        label: c.name,
+        label: formatChannelName(c.name, c.type),
         meta: { kind: "channel", type: "voice" },
       })),
     });

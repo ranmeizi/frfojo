@@ -12,6 +12,9 @@ import Search from "./views/search";
 import Group from "./views/group";
 import { LayoutMenu } from "@frfojo/components";
 import Spawning from "./views/spawning";
+import StatObjectSubjectRank from "./views/statObjectSubjectRank";
+import MvpMonthlyTop10 from "./views/mvpMonthlyTop10";
+import MvpSubjectObjectDetail from "./views/mvpSubjectObjectDetail";
 
 export default function MomoIngameNews() {
   const [active, setActive] = useState(0);
@@ -26,6 +29,12 @@ export default function MomoIngameNews() {
         return <Group />;
       case 3:
         return <Spawning />;
+      case 4:
+        return <StatObjectSubjectRank />;
+      case 5:
+        return <MvpMonthlyTop10 />;
+      case 6:
+        return <MvpSubjectObjectDetail />;
       default:
         return "empty";
     }
@@ -66,6 +75,21 @@ export default function MomoIngameNews() {
       <ListItem disablePadding>
         <ListItemButton selected={active === 3} onClick={() => setActive(3)}>
           <ListItemText primary="MVP存活状态" />
+        </ListItemButton>
+      </ListItem>
+      <ListItem disablePadding>
+        <ListItemButton selected={active === 4} onClick={() => setActive(4)}>
+          <ListItemText primary="对象-主体排行" />
+        </ListItemButton>
+      </ListItem>
+      <ListItem disablePadding>
+        <ListItemButton selected={active === 5} onClick={() => setActive(5)}>
+          <ListItemText primary="月度MVP Top10" />
+        </ListItemButton>
+      </ListItem>
+      <ListItem disablePadding>
+        <ListItemButton selected={active === 6} onClick={() => setActive(6)}>
+          <ListItemText primary="MVP总榜明细" />
         </ListItemButton>
       </ListItem>
     </List>

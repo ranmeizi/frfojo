@@ -164,7 +164,7 @@ const Header: FC = () => {
               noWrap
               sx={{ fontSize: isMobile ? 14 : 16 }}
             >
-              {channel ? `# ${channel.name}` : ""}
+              {channel ? `${channel.name}` : ""}
             </Typography>
             {channel?.topic && !isMobile ? (
               <Typography variant="caption" color="text.secondary" noWrap>
