@@ -395,7 +395,7 @@ const config: Record<EnumMvpIndex, MvpConfig> = {
     respawn_map: {
       tur_dun04: {
         time_lower: min(60),
-        time_upper: min(70),
+        time_upper: min(90),
       },
     },
   },
@@ -487,8 +487,8 @@ const config: Record<EnumMvpIndex, MvpConfig> = {
     credibility: true,
     respawn_map: {
       ein_dun02: {
-        time_lower: min(117),
-        time_upper: min(127),
+        time_lower: min(125),
+        time_upper: min(135),
       },
     },
   },
