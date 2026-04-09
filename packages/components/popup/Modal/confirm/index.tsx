@@ -1,9 +1,8 @@
 import {
-  Button,
+  Box,
   Dialog,
   DialogActions,
   DialogContent,
-  DialogContentText,
   DialogTitle,
   Zoom,
 } from "@mui/material";
@@ -70,8 +69,20 @@ export const ConfirmModal: FC<ModalMethodOptions & PopupPromise> = ({
       }}
     >
       <DialogTitle>{options.title}</DialogTitle>
-      <DialogContent sx={{ width: options.width + "px" }}>
-        <DialogContentText>{options.content}</DialogContentText>
+      {/**
+       * MUI DialogContent 默认 flex:1 + overflowY:auto，会在内容区单独出滚动条；
+       * 复杂内容用 DialogContentText（p）也不合法。改为块级容器 + 取消内容区独立滚动，
+       * 超出时由外层 Paper 的 overflow 统一处理（整条弹窗一条滚动条，或内容不足时不出现）。
+       */}
+      <DialogContent
+        sx={{
+          width: options.width + "px",
+          maxWidth: "100%",
+          flex: "0 0 auto",
+          overflowY: "visible",
+        }}
+      >
+        <Box component="div">{options.content}</Box>
       </DialogContent>
       <DialogActions>
         <AsyncButton

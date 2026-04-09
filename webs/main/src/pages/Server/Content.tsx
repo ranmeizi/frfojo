@@ -96,6 +96,20 @@ export default function ServerContent() {
     }
   }
 
+  function statusLabel(status: DTOs.Bc.Member["status"]) {
+    switch (status) {
+      case "online":
+        return "在线";
+      case "idle":
+        return "离开";
+      case "dnd":
+        return "请勿打扰";
+      case "offline":
+      default:
+        return "离线";
+    }
+  }
+
   function initials(name: string) {
     const t = (name || "").trim();
     if (!t) return "?";
@@ -284,6 +298,8 @@ export default function ServerContent() {
 
   const membersPanel = (
     <Box
+      component="section"
+      aria-labelledby="server-members-heading"
       sx={{
         width: 260,
         flexShrink: 0,
@@ -304,7 +320,12 @@ export default function ServerContent() {
           borderBottom: `1px solid ${alpha(theme.palette.common.black, 0.25)}`,
         }}
       >
-        <Typography fontWeight={800} sx={{ fontSize: 13, letterSpacing: "0.4px" }}>
+        <Typography
+          id="server-members-heading"
+          component="h2"
+          fontWeight={800}
+          sx={{ fontSize: 13, letterSpacing: "0.4px" }}
+        >
           成员 — {members.length}
         </Typography>
         <Typography variant="caption" color="text.secondary">
@@ -370,6 +391,9 @@ export default function ServerContent() {
                         {initials(name)}
                       </Avatar>
                       <Box
+                        component="span"
+                        role="img"
+                        aria-label={`状态：${statusLabel(m.status)}`}
                         sx={{
                           position: "absolute",
                           right: -1,
@@ -415,27 +439,37 @@ export default function ServerContent() {
       <Box sx={{ display: "flex", height: "100%" }}>
         {/* 中间：聊天 */}
         <Box
+          component="section"
+          aria-label="聊天消息"
           sx={{
             flex: 1,
             minWidth: 0,
+            minHeight: 0,
             display: "flex",
             flexDirection: "column",
             background: alpha(theme.palette.common.black, 0.08),
           }}
         >
           {/* 消息区 */}
-          <Box sx={{ flex: 1, minHeight: 0, overflow: "auto", py: 1 }}>
+          <Box
+            role="log"
+            aria-label="频道消息列表"
+            aria-busy={loadingMessages}
+            sx={{ flex: 1, minHeight: 0, overflow: "auto", py: 1 }}
+          >
             {!serverId || !channelId ? (
               <Box sx={{ p: 2 }}>
                 <Alert severity="info">左侧选择频道后开始聊天。</Alert>
               </Box>
             ) : (
-              <List dense sx={{ px: 1 }}>
+              <List dense sx={{ px: 1 }} aria-label="消息">
                 {messages.map((m) => {
                   const authorName = labelUser(m.author);
                   return (
                     <Box
+                      component="article"
                       key={m.id}
+                      aria-label={`${authorName} 的消息`}
                       sx={{
                         display: "flex",
                         gap: 1.5,
@@ -451,6 +485,7 @@ export default function ServerContent() {
                       }}
                     >
                       <Avatar
+                        alt=""
                         src={m.author?.avatar || undefined}
                         sx={{
                           width: 38,
@@ -464,7 +499,7 @@ export default function ServerContent() {
 
                       <Box sx={{ minWidth: 0, flex: 1 }}>
                         <Stack direction="row" spacing={1} alignItems="baseline">
-                          <Typography fontWeight={800} sx={{ fontSize: 14 }} noWrap>
+                          <Typography fontWeight={800} sx={{ fontSize: 14 }} noWrap component="span">
                             {authorName}
                           </Typography>
                           <Typography variant="caption" color="text.secondary" noWrap>
@@ -494,42 +529,34 @@ export default function ServerContent() {
                           transition: "opacity 0.15s ease",
                         }}
                       >
-                        <Box
+                        <IconButton
+                          size="small"
                           onClick={() => openEditMessage(m)}
-                          role="button"
-                          aria-label="edit-message"
+                          aria-label={`编辑 ${authorName} 的这条消息`}
                           sx={{
                             width: 30,
                             height: 30,
                             borderRadius: 1,
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            cursor: "pointer",
                             background: alpha(theme.palette.common.black, 0.18),
                             "&:hover": { background: alpha(theme.palette.common.black, 0.28) },
                           }}
                         >
                           <EditOutlinedIcon sx={{ fontSize: 18, opacity: 0.9 }} />
-                        </Box>
-                        <Box
+                        </IconButton>
+                        <IconButton
+                          size="small"
                           onClick={() => openDeleteMessage(m.id)}
-                          role="button"
-                          aria-label="delete-message"
+                          aria-label={`删除 ${authorName} 的这条消息`}
                           sx={{
                             width: 30,
                             height: 30,
                             borderRadius: 1,
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            cursor: "pointer",
                             background: alpha(theme.palette.common.black, 0.18),
                             "&:hover": { background: alpha(theme.palette.error.main, 0.25) },
                           }}
                         >
                           <DeleteOutlineOutlinedIcon sx={{ fontSize: 18, opacity: 0.9 }} />
-                        </Box>
+                        </IconButton>
                       </Box>
                     </Box>
                   );
@@ -568,6 +595,12 @@ export default function ServerContent() {
                   if (e.key === "Enter") onSend();
                 }}
                 disabled={!serverId || !channelId}
+                inputProps={{
+                  "aria-label": selectedChannel
+                    ? `向频道 ${selectedChannel.name} 发送消息`
+                    : "输入消息",
+                  enterKeyHint: "send",
+                }}
                 InputProps={{
                   disableUnderline: true,
                   sx: {
@@ -580,6 +613,7 @@ export default function ServerContent() {
                 variant="text"
                 onClick={onSend}
                 disabled={!serverId || !channelId}
+                aria-label="发送消息"
                 sx={{ minWidth: 0, px: 1 }}
               >
                 发送
@@ -601,6 +635,8 @@ export default function ServerContent() {
         open={membersDrawerOpen}
         onClose={() => setMembersDrawerOpen(false)}
         PaperProps={{
+          component: "aside",
+          "aria-label": "成员列表",
           sx: {
             width: 280,
             maxWidth: "85vw",
@@ -622,7 +658,11 @@ export default function ServerContent() {
           <Typography fontWeight={800} sx={{ fontSize: 14 }}>
             成员
           </Typography>
-          <IconButton size="small" onClick={() => setMembersDrawerOpen(false)}>
+          <IconButton
+            size="small"
+            onClick={() => setMembersDrawerOpen(false)}
+            aria-label="关闭成员列表"
+          >
             <CloseIcon fontSize="small" />
           </IconButton>
         </Box>
@@ -644,6 +684,10 @@ export default function ServerContent() {
               onKeyDown={(e) => {
                 if (e.key === "Enter") refreshMembers({ search: memberSearch.trim() });
               }}
+              inputProps={{
+                "aria-label": "在成员列表中搜索",
+                enterKeyHint: "search",
+              }}
               InputProps={{
                 disableUnderline: true,
                 sx: { fontSize: 13, color: alpha(theme.palette.text.primary, 0.9) },
@@ -655,8 +699,14 @@ export default function ServerContent() {
       </Drawer>
 
       {/* 编辑消息 */}
-      <Dialog open={editMsgOpen} onClose={() => setEditMsgOpen(false)} maxWidth="sm" fullWidth>
-        <DialogTitle>编辑消息</DialogTitle>
+      <Dialog
+        open={editMsgOpen}
+        onClose={() => setEditMsgOpen(false)}
+        maxWidth="sm"
+        fullWidth
+        aria-labelledby="edit-msg-title"
+      >
+        <DialogTitle id="edit-msg-title">编辑消息</DialogTitle>
         <DialogContent>
           <TextField
             autoFocus
@@ -667,6 +717,8 @@ export default function ServerContent() {
             value={editMsgContent}
             onChange={(e) => setEditMsgContent(e.target.value)}
             sx={{ mt: 1 }}
+            label="消息内容"
+            inputProps={{ "aria-label": "编辑消息内容" }}
           />
         </DialogContent>
         <DialogActions>
@@ -680,10 +732,22 @@ export default function ServerContent() {
       </Dialog>
 
       {/* 删除消息 */}
-      <Dialog open={delMsgOpen} onClose={() => setDelMsgOpen(false)} maxWidth="xs" fullWidth>
-        <DialogTitle>删除消息</DialogTitle>
+      <Dialog
+        open={delMsgOpen}
+        onClose={() => setDelMsgOpen(false)}
+        maxWidth="xs"
+        fullWidth
+        aria-labelledby="del-msg-title"
+        aria-describedby="del-msg-desc"
+      >
+        <DialogTitle id="del-msg-title">删除消息</DialogTitle>
         <DialogContent>
-          <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+          <Typography
+            id="del-msg-desc"
+            variant="body2"
+            color="text.secondary"
+            sx={{ mt: 1 }}
+          >
             确认删除这条消息吗？删除后不可恢复。
           </Typography>
         </DialogContent>

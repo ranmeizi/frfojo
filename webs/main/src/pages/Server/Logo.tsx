@@ -66,15 +66,15 @@ const LogoComp: FC<LogoCompProps> = () => {
     <Root>
       <List
         component="nav"
-        aria-label="Device settings"
+        aria-label="冰棍口味选择"
         sx={{ bgcolor: "background.paper" }}
       >
         <ListItemButton
           id="lock-button"
           aria-haspopup="listbox"
           aria-controls="lock-menu"
-          aria-label="when device is locked"
-          aria-expanded={open ? "true" : undefined}
+          aria-label={`选择冰棍口味，当前为 ${options[selectedIndex]}`}
+          aria-expanded={open}
           onClick={handleClickListItem}
         >
           <ListItemText

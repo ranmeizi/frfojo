@@ -1,5 +1,5 @@
 import { FC, forwardRef, useEffect, useMemo, useState } from "react";
-import { Box, Divider, styled, alpha } from "@mui/material";
+import { Box, alpha } from "@mui/material";
 import { RichTreeView } from "@mui/x-tree-view/RichTreeView";
 import { TreeViewBaseItem } from "@mui/x-tree-view/models";
 import {
@@ -429,6 +429,7 @@ const Sidebar: FC<SidebarProps> = (props) => {
       })}
     >
       <RichTreeView
+        aria-label="频道树，选择文字或语音频道"
         expandedItems={expandedItems}
         onExpandedItemsChange={(_, itemIds) => setExpandedItems(itemIds)}
         selectedItems={props.topic}

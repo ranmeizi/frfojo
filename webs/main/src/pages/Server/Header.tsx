@@ -5,6 +5,8 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
+  FormControl,
+  InputLabel,
   MenuItem,
   Select,
   TextField,
@@ -13,6 +15,7 @@ import {
   styled,
   useTheme,
   useMediaQuery,
+  IconButton,
 } from "@mui/material";
 import TagOutlinedIcon from "@mui/icons-material/TagOutlined";
 import RefreshOutlinedIcon from "@mui/icons-material/RefreshOutlined";
@@ -23,6 +26,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { AsyncButton, message } from "@frfojo/components";
 import * as BcServices from "@/services/bc";
 
+/** 保持 div，避免与 LayoutMenu 内联 flex 产生 UA 样式差异 */
 const Root = styled("div")(() => ({
   display: "flex",
   alignItems: "center",
@@ -136,6 +140,8 @@ const Header: FC = () => {
 
   return (
     <Root
+      role="banner"
+      aria-label="当前频道与操作"
       style={{
         background: alpha(theme.palette.common.black, 0.1),
         borderBottom: `1px solid ${alpha(theme.palette.common.black, 0.25)}`,
@@ -157,14 +163,16 @@ const Header: FC = () => {
         <Box
           sx={{ display: "flex", alignItems: "center", gap: 1, minWidth: 0 }}
         >
-          <TagOutlinedIcon sx={{ opacity: 0.85 }} />
+          <TagOutlinedIcon sx={{ opacity: 0.85 }} aria-hidden />
           <Box sx={{ minWidth: 0 }}>
             <Typography
+              id="server-channel-title"
+              component="h1"
               fontWeight={800}
               noWrap
               sx={{ fontSize: isMobile ? 14 : 16 }}
             >
-              {channel ? `${channel.name}` : ""}
+              {channel ? channel.name : "\u00a0"}
             </Typography>
             {channel?.topic && !isMobile ? (
               <Typography variant="caption" color="text.secondary" noWrap>
@@ -203,6 +211,10 @@ const Header: FC = () => {
                 onKeyDown={(e) => {
                   if (e.key === "Enter") refreshMembers(memberSearch.trim());
                 }}
+                inputProps={{
+                  "aria-label": "搜索成员",
+                  enterKeyHint: "search",
+                }}
                 InputProps={{
                   disableUnderline: true,
                   sx: {
@@ -214,79 +226,66 @@ const Header: FC = () => {
             </Box>
           ) : null}
 
-          <Box
+          <IconButton
+            size="small"
             onClick={() => refreshMessages()}
-            role="button"
-            aria-label="refresh-messages"
-            style={{
+            aria-label="刷新消息列表"
+            sx={{
               width: 34,
               height: 34,
-              borderRadius: 8,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              cursor: "pointer",
+              borderRadius: 1,
               background: alpha(theme.palette.common.white, 0.06),
             }}
           >
             <RefreshOutlinedIcon sx={{ fontSize: 20, opacity: 0.9 }} />
-          </Box>
+          </IconButton>
 
-          <Box
+          <IconButton
+            size="small"
             onClick={() => toggleMembers()}
-            role="button"
-            aria-label="toggle-members"
-            style={{
+            aria-label={
+              isMobile ? "打开或关闭成员列表" : "刷新成员列表"
+            }
+            sx={{
               width: 34,
               height: 34,
-              borderRadius: 8,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              cursor: "pointer",
+              borderRadius: 1,
               background: alpha(theme.palette.common.white, 0.06),
             }}
           >
             <GroupOutlinedIcon sx={{ fontSize: 20, opacity: 0.9 }} />
-          </Box>
+          </IconButton>
 
-          <Box
+          <IconButton
+            size="small"
             onClick={() => openChannelSettings()}
-            role="button"
-            aria-label="channel-settings"
-            style={{
+            disabled={!channel}
+            aria-label="频道设置"
+            aria-describedby={channel ? "server-channel-title" : undefined}
+            sx={{
               width: isMobile ? 30 : 34,
               height: isMobile ? 30 : 34,
-              borderRadius: 8,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              cursor: channel ? "pointer" : "not-allowed",
-              opacity: channel ? 1 : 0.4,
+              borderRadius: 1,
               background: alpha(theme.palette.common.white, 0.06),
             }}
           >
             <SettingsOutlinedIcon sx={{ fontSize: 20, opacity: 0.9 }} />
-          </Box>
+          </IconButton>
 
-          <Box
-            onClick={() => (channel ? setDelDlgOpen(true) : null)}
-            role="button"
-            aria-label="channel-delete"
-            style={{
+          <IconButton
+            size="small"
+            onClick={() => (channel ? setDelDlgOpen(true) : undefined)}
+              disabled={!channel}
+            aria-label="删除当前频道"
+            sx={{
               width: isMobile ? 30 : 34,
               height: isMobile ? 30 : 34,
-              borderRadius: 8,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              cursor: channel ? "pointer" : "not-allowed",
-              opacity: channel ? 1 : 0.4,
+              borderRadius: 1,
               background: alpha(theme.palette.common.white, 0.06),
             }}
           >
             <DeleteOutlineOutlinedIcon sx={{ fontSize: 20, opacity: 0.9 }} />
-          </Box>
+          </IconButton>
         </Box>
       </Box>
 
@@ -296,8 +295,9 @@ const Header: FC = () => {
         onClose={() => setChannelDlgOpen(false)}
         maxWidth="sm"
         fullWidth
+        aria-labelledby="channel-settings-title"
       >
-        <DialogTitle>频道设置</DialogTitle>
+        <DialogTitle id="channel-settings-title">频道设置</DialogTitle>
         <DialogContent>
           <TextField
             fullWidth
@@ -305,6 +305,7 @@ const Header: FC = () => {
             value={channelName}
             onChange={(e) => setChannelName(e.target.value)}
             sx={{ mt: 1 }}
+            autoComplete="off"
           />
           <TextField
             fullWidth
@@ -312,26 +313,24 @@ const Header: FC = () => {
             value={channelTopic}
             onChange={(e) => setChannelTopic(e.target.value)}
             sx={{ mt: 2 }}
+            autoComplete="off"
           />
-          <Box sx={{ mt: 2 }}>
-            <Typography
-              variant="caption"
-              color="text.secondary"
-              sx={{ display: "block", mb: 0.5 }}
-            >
-              频道类型
-            </Typography>
+          <FormControl fullWidth size="small" sx={{ mt: 2 }}>
+            <InputLabel id="channel-type-label">频道类型</InputLabel>
             <Select
+              labelId="channel-type-label"
+              label="频道类型"
               fullWidth
-              size="small"
               value={channelType}
-              onChange={(e) => setChannelType(e.target.value as any)}
+              onChange={(e) =>
+                setChannelType(e.target.value as DTOs.Bc.Channel["type"])
+              }
             >
               <MenuItem value="text">text</MenuItem>
               <MenuItem value="voice">voice</MenuItem>
               <MenuItem value="category">category</MenuItem>
             </Select>
-          </Box>
+          </FormControl>
         </DialogContent>
         <DialogActions>
           <AsyncButton
@@ -356,10 +355,17 @@ const Header: FC = () => {
         onClose={() => setDelDlgOpen(false)}
         maxWidth="xs"
         fullWidth
+        aria-labelledby="delete-channel-title"
+        aria-describedby="delete-channel-desc"
       >
-        <DialogTitle>删除频道</DialogTitle>
+        <DialogTitle id="delete-channel-title">删除频道</DialogTitle>
         <DialogContent>
-          <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+          <Typography
+            id="delete-channel-desc"
+            variant="body2"
+            color="text.secondary"
+            sx={{ mt: 1 }}
+          >
             确认删除当前频道吗？删除后不可恢复。
           </Typography>
         </DialogContent>
