@@ -32,6 +32,10 @@ export enum EnumMvpIndex {
   HighPriestMagaleta = "1649",
   SniperShecil = "1650",
   HighWizardKatrinn = "1651",
+  LordOfDeath = "1373",
+  KielD01 = "1734",
+  Detale = "1719",
+  ValkyrieRandgris = "1751",
 }
 
 /** mvp 配置数据 */
@@ -609,6 +613,51 @@ const config: Record<EnumMvpIndex, MvpConfig> = {
       lhz_dun03: {
         time_lower: min(100),
         time_upper: min(130),
+      },
+    },
+  },
+  [EnumMvpIndex.KielD01]: {
+    id: EnumMvpIndex.KielD01,
+    name_EN: "Kiel D-01",
+    name_CN: "基尔 D-01",
+    name_map: "Kiel D-01",
+    name_momo: "Kiel D-01",
+    imgUrl: "https://file5s.ratemyserver.net/mobs/1734.gif",
+    credibility: true,
+    respawn_map: {
+      kh_dun02: {
+        time_lower: min(120),
+        time_upper: min(180),
+      },
+    },
+  },
+  [EnumMvpIndex.Detale]: {
+    id: EnumMvpIndex.Detale,
+    name_EN: "Detale",
+    name_CN: "迪塔勒泰晤勒斯",
+    name_map: "Detale",
+    name_momo: "Detale",
+    imgUrl: "https://file5s.ratemyserver.net/mobs/1719.gif",
+    credibility: true,
+    respawn_map: {
+      abyss_03: {
+        time_lower: min(180),
+        time_upper: min(190),
+      },
+    },
+  },
+  [EnumMvpIndex.ValkyrieRandgris]: {
+    id: EnumMvpIndex.ValkyrieRandgris,
+    name_EN: "Valkyrie Randgris",
+    name_CN: "兰特克力斯",
+    name_map: "Valkyrie Randgris",
+    name_momo: "Valkyrie Randgris",
+    imgUrl: "https://file5s.ratemyserver.net/mobs/1751.gif",
+    credibility: true,
+    respawn_map: {
+      odin_tem03: {
+        time_lower: min(480),
+        time_upper: min(490),
       },
     },
   },
