@@ -32,7 +32,7 @@ export enum EnumMvpIndex {
   HighPriestMagaleta = "1649",
   SniperShecil = "1650",
   HighWizardKatrinn = "1651",
-  LordOfDeath = "1373",
+  // LordOfDeath = "1373",
   KielD01 = "1734",
   Detale = "1719",
   ValkyrieRandgris = "1751",
