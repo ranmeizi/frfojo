@@ -25,9 +25,11 @@ const CombatStatsTable: FC<CombatStatsTableProps> = ({ snapshot }) => {
       : "";
 
   const weaponFlat = snapshot.weaponAtkSupportFlat;
+  const weaponCard = snapshot.weaponAtkCardFlat;
+  const weaponExtras = [weaponFlat, weaponCard].filter((n) => n !== 0);
   const weaponValue =
-    weaponFlat > 0
-      ? `${snapshot.weaponAtkBase} + ${snapshot.weaponRefineBonus} + ${weaponFlat} ${weaponVar}`.trim()
+    weaponExtras.length > 0
+      ? `${snapshot.weaponAtkBase} + ${snapshot.weaponRefineBonus} + ${weaponExtras.join(" + ")} ${weaponVar}`.trim()
       : `${snapshot.weaponAtkBase} + ${snapshot.weaponRefineBonus} ${weaponVar}`.trim();
 
   const rows: { label: string; value: string; hint?: string }[] = [
@@ -42,7 +44,7 @@ const CombatStatsTable: FC<CombatStatsTableProps> = ({ snapshot }) => {
       label: "武器 ATK",
       value: weaponValue,
       hint: [
-        "基础 + 精炼 + 食品等平铺加成；高精炼随机段见括号",
+        "基础 + 精炼 + 食品等平铺 + 卡片 code17；高精炼随机段见括号",
         snapshot.guildLeaderAtk100 ? "工会 ATK+100% 作用于伤害倍率（非白字）" : "",
       ]
         .filter(Boolean)
@@ -53,7 +55,11 @@ const CombatStatsTable: FC<CombatStatsTableProps> = ({ snapshot }) => {
       value: String(snapshot.hardDef),
       hint: "防具与精炼 DEF；战鼓震天等与原版一致的固定 DEF 已计入",
     },
-    { label: "MDEF", value: String(snapshot.mdef), hint: "装备 MDEF 待接入" },
+    {
+      label: "MDEF",
+      value: String(snapshot.mdef),
+      hint: "卡片 code19 平铺；防具 ItemOBJ MDEF 待接入",
+    },
     { label: "HIT", value: String(snapshot.hit) },
     { label: "FLEE", value: String(snapshot.flee) },
     { label: "完全回避", value: String(snapshot.perfectDodge) },

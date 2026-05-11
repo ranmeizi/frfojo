@@ -16,6 +16,16 @@ import {
   KYOUKA_SLOT_COUNT,
   KYOUKA_SLOT_SPECS,
 } from "./enemyCombatUi";
+import {
+  sanitizeAccessoryCard,
+  sanitizeBodyArmorCard,
+  sanitizeGarmentCard,
+  sanitizeHeadgearCard,
+  sanitizeShieldCard,
+  sanitizeShoesCard,
+  sanitizeWeaponCard1,
+  sanitizeWeaponCard234,
+} from "./cardSlotOptions";
 import { MONSTER_OBJ } from "./monster.generated";
 import { armorItemOptions, weaponItemOptions } from "./itemLists";
 import { clampWeaponType, resolveCombatJob } from "./jobResolve";
@@ -380,21 +390,33 @@ export function defaultEquipment(): EquipmentState {
   return {
     weaponId: 0,
     weaponRefine: 0,
+    weaponCard1: 0,
+    weaponCard2: 0,
+    weaponCard3: 0,
+    weaponCard4: 0,
     head1Id: 0,
     head1Refine: 0,
+    head1Card: 0,
     head2Id: 0,
+    head2Card: 0,
     head3Id: 0,
     head3Refine: 0,
     leftId: 0,
     leftRefine: 0,
+    leftCard: 0,
     bodyId: 0,
     bodyRefine: 0,
+    bodyCard: 0,
     shoulderId: 0,
     shoulderRefine: 0,
+    shoulderCard: 0,
     shoesId: 0,
     shoesRefine: 0,
+    shoesCard: 0,
     acc1Id: 0,
+    acc1Card: 0,
     acc2Id: 0,
+    acc2Card: 0,
   };
 }
 
@@ -409,6 +431,7 @@ export function sanitizeCharacterInput(input: CharacterBaseInput): CharacterBase
   const jobLv = clampJobLv(input.formJobId, input.jobLv);
 
   let eq: EquipmentState = {
+    ...defaultEquipment(),
     ...input.equipment,
     weaponRefine: clampRefine(input.equipment.weaponRefine),
     head1Refine: clampRefine(input.equipment.head1Refine),
@@ -432,6 +455,22 @@ export function sanitizeCharacterInput(input: CharacterBaseInput): CharacterBase
       eq = { ...eq, [key]: 0 };
     }
   }
+
+  eq = {
+    ...eq,
+    weaponCard1: sanitizeWeaponCard1(eq.weaponCard1),
+    weaponCard2: sanitizeWeaponCard234(eq.weaponCard2),
+    weaponCard3: sanitizeWeaponCard234(eq.weaponCard3),
+    weaponCard4: sanitizeWeaponCard234(eq.weaponCard4),
+    head1Card: sanitizeHeadgearCard(eq.head1Card),
+    head2Card: sanitizeHeadgearCard(eq.head2Card),
+    leftCard: sanitizeShieldCard(eq.leftCard),
+    bodyCard: sanitizeBodyArmorCard(eq.bodyCard),
+    shoulderCard: sanitizeGarmentCard(eq.shoulderCard),
+    shoesCard: sanitizeShoesCard(eq.shoesCard),
+    acc1Card: sanitizeAccessoryCard(eq.acc1Card),
+    acc2Card: sanitizeAccessoryCard(eq.acc2Card),
+  };
 
   return {
     ...input,

@@ -47,6 +47,10 @@ type EnemyCombatCardProps = {
   snapshot: CombatSnapshot;
   value: CharacterBaseInput;
   onChange: (next: CharacterBaseInput) => void;
+  /** 为 true 时隐藏 nm037 表头「魔物」Autocomplete 行（由 Drawer 顶栏等外部提供） */
+  hideMonsterSelectRow?: boolean;
+  /** 为 true 时不包 Paper/标题（嵌入 Drawer 等容器） */
+  embedded?: boolean;
 };
 
 const headerCellSx = {
@@ -74,7 +78,13 @@ function patchDefender(value: CharacterBaseInput, slot: number, v: number): Char
   return patchEnemy(value, { defender: next });
 }
 
-const EnemyCombatCard: FC<EnemyCombatCardProps> = ({ snapshot: snap, value, onChange }) => {
+const EnemyCombatCard: FC<EnemyCombatCardProps> = ({
+  snapshot: snap,
+  value,
+  onChange,
+  hideMonsterSelectRow = false,
+  embedded = false,
+}) => {
   const ec = value.enemyCombat;
   const options = useMemo(
     () => sortedMonsterOptionList(ec.monsterSort),
@@ -106,21 +116,8 @@ const EnemyCombatCard: FC<EnemyCombatCardProps> = ({ snapshot: snap, value, onCh
     { la: "95%回避FLEE", va: String(m.flee), lb: "", vb: "" },
   ];
 
-  return (
-    <Paper
-      variant="outlined"
-      sx={{
-        ...roCalcPaperSx,
-        ...roCalcFormControlDenseSx,
-        width: "100%",
-        boxSizing: "border-box",
-      }}
-    >
-      <Typography variant="subtitle2" sx={roCalcSectionTitleSx}>
-        对敌
-      </Typography>
-
-      <Stack spacing={1}>
+  const body = (
+    <Stack spacing={1}>
         {/* nm036 攻击方式 — 原版在魔物表上方，与 A_ActiveSkill 同带 */}
         <TableContainer
           component={Paper}
@@ -172,31 +169,38 @@ const EnemyCombatCard: FC<EnemyCombatCardProps> = ({ snapshot: snap, value, onCh
         >
           <Table size="small" sx={roCalcTableDenseSx}>
             <TableBody>
-              <TableRow>
-                <TableCell colSpan={4} sx={headerCellSx}>
-                  <Stack direction="row" alignItems="center" spacing={1} flexWrap="wrap" useFlexGap>
-                    <Typography component="span" variant="caption" fontWeight={600} sx={{ fontSize: "0.75rem" }}>
-                      魔物：
-                    </Typography>
-                    <Box sx={{ flex: 1, minWidth: 200 }}>
-                      <Autocomplete
-                        size="small"
-                        options={options}
-                        getOptionLabel={(o) => o.label}
-                        isOptionEqualToValue={(a, b) => a.index === b.index}
-                        value={currentOption}
-                        onChange={(_, v) => {
-                          if (v) onChange(patchEnemy(value, { monsterIndex: v.index }));
-                        }}
-                        renderInput={(params) => (
-                          <TextField {...params} placeholder="搜索" label="选择魔物" />
-                        )}
-                        ListboxProps={{ style: { maxHeight: 280 } }}
-                      />
-                    </Box>
-                  </Stack>
-                </TableCell>
-              </TableRow>
+              {!hideMonsterSelectRow ? (
+                <TableRow>
+                  <TableCell colSpan={4} sx={headerCellSx}>
+                    <Stack direction="row" alignItems="center" spacing={1} flexWrap="wrap" useFlexGap>
+                      <Typography
+                        component="span"
+                        variant="caption"
+                        fontWeight={600}
+                        sx={{ fontSize: "0.75rem" }}
+                      >
+                        魔物：
+                      </Typography>
+                      <Box sx={{ flex: 1, minWidth: 200 }}>
+                        <Autocomplete
+                          size="small"
+                          options={options}
+                          getOptionLabel={(o) => o.label}
+                          isOptionEqualToValue={(a, b) => a.index === b.index}
+                          value={currentOption}
+                          onChange={(_, v) => {
+                            if (v) onChange(patchEnemy(value, { monsterIndex: v.index }));
+                          }}
+                          renderInput={(params) => (
+                            <TextField {...params} placeholder="搜索" label="选择魔物" />
+                          )}
+                          ListboxProps={{ style: { maxHeight: 280 } }}
+                        />
+                      </Box>
+                    </Stack>
+                  </TableCell>
+                </TableRow>
+              ) : null}
               {parsed
                 ? monsterRows(parsed).map((r) => (
                     <TableRow key={r.la + r.lb}>
@@ -436,6 +440,36 @@ const EnemyCombatCard: FC<EnemyCombatCardProps> = ({ snapshot: snap, value, onCh
           </Table>
         </TableContainer>
       </Stack>
+  );
+
+  if (embedded) {
+    return (
+      <Box
+        sx={{
+          ...roCalcFormControlDenseSx,
+          width: "100%",
+          boxSizing: "border-box",
+        }}
+      >
+        {body}
+      </Box>
+    );
+  }
+
+  return (
+    <Paper
+      variant="outlined"
+      sx={{
+        ...roCalcPaperSx,
+        ...roCalcFormControlDenseSx,
+        width: "100%",
+        boxSizing: "border-box",
+      }}
+    >
+      <Typography variant="subtitle2" sx={roCalcSectionTitleSx}>
+        对敌
+      </Typography>
+      {body}
     </Paper>
   );
 };

@@ -3,6 +3,14 @@ import { computeJobBoardBonus } from "./jobBoardBonus";
 import { computeHardDefTotal } from "./equipmentDefense";
 import { clampWeaponType, resolveCombatJob } from "./jobResolve";
 import { itemAtkOrDef, itemWeaponLevel } from "./itemAccessors";
+import {
+  cardCritFlat,
+  cardFleeFlat,
+  cardHardDefFlat,
+  cardHitFlat,
+  cardMdefFlat,
+  cardWeaponAtkFlat,
+} from "./cardBonuses";
 import { sanitizeCharacterInput } from "./sanitizeCharacter";
 import {
   computeAspd,
@@ -49,10 +57,16 @@ export function computeCombatSnapshot(raw: CharacterBaseInput): CombatSnapshot {
   const weaponAtkBase = itemAtkOrDef(eq.weaponId);
   const weaponRefineBonus = weaponRefineFlatAtk(wLv, eq.weaponRefine);
   const wVar = weaponRefineVariance(wLv, eq.weaponRefine);
-  const hardDefBase = computeHardDefTotal(eq);
+  const hardDefBase = computeHardDefTotal(eq) + cardHardDefFlat(eq);
   const hardDef = computeHardDefWithPerformance(hardDefBase, input);
 
   const aspdExtra = computeAspdExtraWeight(input, weaponType);
+
+  const wAtkCard = cardWeaponAtkFlat(eq);
+  const mdefFromCards = cardMdefFlat(eq);
+  const hitCard = cardHitFlat(eq);
+  const fleeCard = cardFleeFlat(eq);
+  const critCard = cardCritFlat(eq);
 
   return {
     effectiveJobId,
@@ -66,23 +80,24 @@ export function computeCombatSnapshot(raw: CharacterBaseInput): CombatSnapshot {
     ),
     maxHp,
     maxSp,
-    hit: computeHitWithSupport(input, totalStats.dex),
-    flee: computeFleeWithSupport(input, totalStats.agi),
+    hit: computeHitWithSupport(input, totalStats.dex) + hitCard,
+    flee: computeFleeWithSupport(input, totalStats.agi) + fleeCard,
     perfectDodge: computePerfectDodge(sec),
-    crit: computeCritWithSupport(input, totalStats, maxHp, maxSp),
+    crit: computeCritWithSupport(input, totalStats, maxHp, maxSp) + critCard,
     matkMin: matk.min,
     matkMax: matk.max,
     aspd: computeAspd(sec, aspdExtra),
     hpr: computeHpr(totalStats.vit, maxHp),
     spr: computeSpr(totalStats.int, maxSp),
     hardDef,
-    mdef: 0,
+    mdef: mdefFromCards,
     weaponAtkBase,
     weaponRefineBonus,
     weaponRefineVarianceMin: wVar.min,
     weaponRefineVarianceMax: wVar.max,
     weaponLevel: wLv,
     weaponAtkSupportFlat: computeWeaponAtkSupportFlat(input),
+    weaponAtkCardFlat: wAtkCard,
     guildLeaderAtk100: input.guildLeader.atk100,
   };
 }

@@ -13,6 +13,7 @@ import {
   passSkill6DomainLevel,
   passSkill6ProvokeMatkLevel,
 } from "./holyPassSkill6";
+import { cardSixStatDelta } from "./cardBonuses";
 import { resolveCombatJob } from "./jobResolve";
 import type { CharacterBaseInput, SixStats } from "./types";
 
@@ -38,7 +39,7 @@ function addDollHalfCap(totalBefore: number, puppetVal: number, full: boolean): 
 
 /**
  * 对应 legacy StPlusCalc 末尾六维加成（装备 StPlus 以外：领域/辅助/演奏/工会/圣音/食品/傀儡）。
- * 不含卡片与 ItemOBJ 随机属性。
+ * 另含卡片 `StPlusCard(1～7)` 平铺六维；不含 ItemOBJ 装备随机属性。
  */
 export function computeEffectiveSixStats(input: CharacterBaseInput): SixStats {
   const job = computeJobBoardBonus(input.formJobId, input.jobLv);
@@ -125,7 +126,7 @@ export function computeEffectiveSixStats(input: CharacterBaseInput): SixStats {
   s.dex += f.dexBonus;
   s.luk += f.lukBonus;
 
-  return s;
+  return addSix(s, cardSixStatDelta(input.equipment));
 }
 
 function hpSpCtx(

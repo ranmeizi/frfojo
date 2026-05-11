@@ -1,4 +1,4 @@
-import { Box, Divider, Stack } from "@mui/material";
+import { Box, Stack } from "@mui/material";
 import { FC, useMemo } from "react";
 import BuffSupportSkillsCard from "./components/BuffSupportSkillsCard";
 import CharacterBasicsPanel from "./components/CharacterBasicsPanel";
@@ -7,7 +7,6 @@ import EquipmentPanel from "./components/EquipmentPanel";
 import FoodConsumableCard from "./components/FoodConsumableCard";
 import JobBonusSummary from "./components/JobBonusSummary";
 import PassiveSkillsCard from "./components/PassiveSkillsCard";
-import EnemyCombatCard from "./components/EnemyCombatCard";
 import PerformanceDanceCard from "./components/PerformanceDanceCard";
 import RoCalcSaveDataBar from "./components/RoCalcSaveDataBar";
 import { useRoCalcCharacter } from "./RoCalcCharacterContext";
@@ -36,6 +35,8 @@ const RoCalculatorApp: FC<RoCalculatorAppProps> = ({ onPreviewItemId }) => {
         minWidth: 0,
         boxSizing: "border-box",
         overflowX: "hidden",
+        /** 底部固定「对方」条，避免最后一屏内容被挡住 */
+        pb: "calc(88px + env(safe-area-inset-bottom, 0px))",
       }}
     >
       <RoCalcSaveDataBar onAfterLoad={onPreviewItemId} />
@@ -99,8 +100,6 @@ const RoCalculatorApp: FC<RoCalculatorAppProps> = ({ onPreviewItemId }) => {
           <FoodConsumableCard value={input} onChange={applyInput} />
         </Box>
       </Stack>
-      <Divider sx={{ my: 0.25 }} />
-      <EnemyCombatCard snapshot={snapshot} value={input} onChange={applyInput} />
     </Box>
   );
 };

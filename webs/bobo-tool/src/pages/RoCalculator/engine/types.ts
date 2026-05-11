@@ -10,25 +10,37 @@ export type SixStats = {
   luk: number;
 };
 
-/** 各槽位装备 id（0 表示空）与可精炼部位的 +0～10 */
+/** 各槽位装备 id（0 表示空）与可精炼部位的 +0～10；卡片 id 与 refer cardOBJ 下标一致 */
 export type EquipmentState = {
   weaponId: number;
   weaponRefine: number;
+  weaponCard1: number;
+  weaponCard2: number;
+  weaponCard3: number;
+  weaponCard4: number;
   head1Id: number;
   head1Refine: number;
+  head1Card: number;
   head2Id: number;
+  head2Card: number;
   head3Id: number;
   head3Refine: number;
   leftId: number;
   leftRefine: number;
+  leftCard: number;
   bodyId: number;
   bodyRefine: number;
+  bodyCard: number;
   shoulderId: number;
   shoulderRefine: number;
+  shoulderCard: number;
   shoesId: number;
   shoesRefine: number;
+  shoesCard: number;
   acc1Id: number;
+  acc1Card: number;
   acc2Id: number;
+  acc2Card: number;
 };
 
 /** legacy n_A_PassSkill3：演奏/舞蹈（Click_Skill3SW） */
@@ -232,6 +244,8 @@ export type CombatSnapshot = {
   weaponLevel: number;
   /** 食品等到武器 ATK 展示行追加的平铺值（legacy PassSkill7 等） */
   weaponAtkSupportFlat: number;
+  /** 卡片 code 17 之和（与 foot.js n_tok[17] 中卡片段同源） */
+  weaponAtkCardFlat: number;
   /** 工会「ATK+100%」：伤害倍率段，非武器白字 */
   guildLeaderAtk100: boolean;
 };

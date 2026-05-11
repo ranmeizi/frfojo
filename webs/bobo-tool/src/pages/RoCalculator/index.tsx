@@ -1,5 +1,5 @@
 import { Box, Stack } from "@mui/material";
-import { FC, useCallback, useState } from "react";
+import { type FC, useCallback, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Back, LayoutMenu } from "@frfojo/components";
 import GuildLeaderSkillsFloat from "./components/GuildLeaderSkillsFloat";
@@ -14,6 +14,8 @@ import type { CharacterBaseInput } from "./engine/types";
 import { RoCalcCharacterProvider } from "./RoCalcCharacterContext";
 import RoCalculatorDenseTheme from "./RoCalculatorDenseTheme";
 import RoCalculatorApp from "./RoCalculatorApp";
+import EnemyCombatDrawer from "./components/EnemyCombatDrawer";
+import { computeCombatSnapshot } from "./engine/computeSnapshot";
 
 const RoCalculator: FC = () => {
   const navigate = useNavigate();
@@ -25,28 +27,35 @@ const RoCalculator: FC = () => {
     setCharacterInput(sanitizeCharacterInput(next));
   }, []);
 
-  const logo = (
-    <Stack direction="row" spacing={2} alignItems="center">
+  const calcRootRef = useRef<HTMLDivElement>(null);
+  const snapshot = useMemo(
+    () => computeCombatSnapshot(characterInput),
+    [characterInput],
+  );
+
+  const header = (
+    <Stack direction="row" spacing={2} alignItems="center" sx={{ pl: 1, pr: 1 }}>
       <Back tooltip="返回" onClick={() => navigate(-1)} />
       <Box>RO 计算器</Box>
     </Stack>
   );
 
   return (
-    <LayoutMenu logo={logo} sidebar={<div />}>
+    <LayoutMenu header={header}>
       <RoCalcCharacterProvider
         value={{ input: characterInput, applyInput: applyCharacterInput }}
       >
         <RoCalculatorDenseTheme>
         <Box
+          ref={calcRootRef}
           className="ro-calc-container"
           sx={{
             position: "relative",
             flex: 1,
             width: "100%",
             minHeight: 0,
-            maxHeight: "calc(100dvh - 56px)",
-            height: "calc(100dvh - 56px)",
+            maxHeight: "calc(100dvh - 48px)",
+            height: "calc(100dvh - 48px)",
             overflow: "hidden",
           }}
         >
@@ -89,6 +98,12 @@ const RoCalculator: FC = () => {
               <RoCalculatorApp onPreviewItemId={setPreviewItemId} />
             </Box>
           </Box>
+          <EnemyCombatDrawer
+            containerRef={calcRootRef}
+            snapshot={snapshot}
+            value={characterInput}
+            onChange={applyCharacterInput}
+          />
         </Box>
         </RoCalculatorDenseTheme>
       </RoCalcCharacterProvider>

@@ -9,8 +9,20 @@ import {
   Stack,
   TextField,
   Typography,
+  useMediaQuery,
+  useTheme,
 } from "@mui/material";
 import { FC, useEffect, useMemo } from "react";
+import {
+  accessoryCardOptions,
+  bodyArmorCardOptions,
+  garmentCardOptions,
+  headgearCardOptions,
+  shieldCardOptions,
+  shoesCardOptions,
+  weaponCard1Options,
+  weaponCard234Options,
+} from "../engine/cardSlotOptions";
 import type { CharacterBaseInput, EquipmentState } from "../engine/types";
 import { armorItemOptions, type ItemOption, weaponItemOptions } from "../engine/itemLists";
 import { resolveCombatJob } from "../engine/jobResolve";
@@ -18,13 +30,42 @@ import { roCalcPaperSx, roCalcSectionTitleSx } from "../roCalcDenseSx";
 
 const REFINE: number[] = Array.from({ length: 11 }, (_, i) => i);
 
-function slotRowGridSx(hasRefine: boolean) {
+/** 精炼列、卡片列固定宽度（px），装备列 `1fr` 吃剩余空间 */
+const COL_REFINE = 104;
+const COL_CARD = 168;
+const colRefine = `${COL_REFINE}px`;
+const colCard = `${COL_CARD}px`;
+
+/** 防具单行：装备 | 精炼（可选）| 卡片（可选）；`xs` 单列堆叠 */
+function armorSlotRowSx(hasRefine: boolean, hasCard: boolean) {
+  if (hasCard && hasRefine) {
+    return {
+      display: "grid",
+      gap: 1,
+      alignItems: "flex-start" as const,
+      gridTemplateColumns: {
+        xs: "minmax(0, 1fr)",
+        sm: `minmax(0, 1fr) ${colRefine} ${colCard}`,
+      },
+    };
+  }
+  if (hasCard && !hasRefine) {
+    return {
+      display: "grid",
+      gap: 1,
+      alignItems: "flex-start" as const,
+      gridTemplateColumns: {
+        xs: "minmax(0, 1fr)",
+        sm: `minmax(0, 1fr) ${colCard}`,
+      },
+    };
+  }
   return {
     display: "grid",
     gap: 1,
     alignItems: "flex-start" as const,
     gridTemplateColumns: hasRefine
-      ? { xs: "minmax(0, 1fr)", sm: "minmax(0, 1fr) 104px" }
+      ? { xs: "minmax(0, 1fr)", sm: `minmax(0, 1fr) ${colRefine}` }
       : { xs: "1fr", sm: "1fr" },
   };
 }
@@ -46,13 +87,54 @@ function patchEq(
   };
 }
 
+const CardSelect: FC<{
+  label: string;
+  value: number;
+  options: ItemOption[];
+  disabled?: boolean;
+  onChange: (id: number) => void;
+}> = ({ label, value, options, disabled, onChange }) => {
+  const safe = options.some((o) => o.id === value) ? value : 0;
+  return (
+    <FormControl
+      size="small"
+      fullWidth
+      disabled={disabled}
+      sx={{
+        minWidth: 0,
+        width: "100%",
+        maxWidth: { xs: "100%", sm: colCard },
+        justifySelf: "stretch",
+      }}
+    >
+      <InputLabel shrink>{label}</InputLabel>
+      <Select
+        label={label}
+        value={safe}
+        onChange={(e) => onChange(Number(e.target.value))}
+        MenuProps={{ PaperProps: { sx: { maxHeight: 280 } } }}
+      >
+        {options.map((o) => (
+          <MenuItem key={o.id} value={o.id} sx={{ whiteSpace: "normal", typography: "caption" }}>
+            {o.label}
+          </MenuItem>
+        ))}
+      </Select>
+    </FormControl>
+  );
+};
+
 const RefineSelect: FC<{
   label: string;
   value: number;
   disabled?: boolean;
   onChange: (n: number) => void;
 }> = ({ label, value, disabled, onChange }) => (
-  <FormControl size="small" disabled={disabled} sx={{ width: 1, maxWidth: 104 }}>
+  <FormControl
+    size="small"
+    disabled={disabled}
+    sx={{ width: colRefine, minWidth: colRefine, maxWidth: colRefine, justifySelf: "start" }}
+  >
     <InputLabel shrink>{label}</InputLabel>
     <Select
       label={label}
@@ -132,6 +214,8 @@ const EquipmentPanel: FC<EquipmentPanelProps> = ({
   onChange,
   onPreviewItemId,
 }) => {
+  const theme = useTheme();
+  const mdUp = useMediaQuery(theme.breakpoints.up("md"));
   const { effectiveJobId, isTensei } = resolveCombatJob(value.formJobId);
   const eq = value.equipment;
   const wt = value.weaponType;
@@ -177,6 +261,15 @@ const EquipmentPanel: FC<EquipmentPanelProps> = ({
     [effectiveJobId, isTensei],
   );
 
+  const wCard1Opts = useMemo(() => weaponCard1Options(), []);
+  const wCard234Opts = useMemo(() => weaponCard234Options(), []);
+  const headCardOpts = useMemo(() => headgearCardOptions(), []);
+  const shieldCardOpts = useMemo(() => shieldCardOptions(), []);
+  const bodyCardOpts = useMemo(() => bodyArmorCardOptions(), []);
+  const garmentCardOpts = useMemo(() => garmentCardOptions(), []);
+  const shoesCardOpts = useMemo(() => shoesCardOptions(), []);
+  const accCardOpts = useMemo(() => accessoryCardOptions(), []);
+
   const applyEq = (p: Partial<EquipmentState>) => {
     const next = patchEq(value, p);
     onChange(next);
@@ -188,15 +281,15 @@ const EquipmentPanel: FC<EquipmentPanelProps> = ({
   };
 
   const armorSlots = [
-    ["头饰上", head1Opts, "head1Id", "head1Refine"],
-    ["头饰中", head2Opts, "head2Id", null],
-    ["头饰下", head3Opts, "head3Id", "head3Refine"],
-    ["左手", leftOpts, "leftId", "leftRefine"],
-    ["身体", bodyOpts, "bodyId", "bodyRefine"],
-    ["披肩", shoulderOpts, "shoulderId", "shoulderRefine"],
-    ["鞋子", shoesOpts, "shoesId", "shoesRefine"],
-    ["饰品 1", accOpts, "acc1Id", null],
-    ["饰品 2", accOpts, "acc2Id", null],
+    ["头饰上", head1Opts, "head1Id", "head1Refine", "head1Card" as const, headCardOpts],
+    ["头饰中", head2Opts, "head2Id", null, "head2Card" as const, headCardOpts],
+    ["头饰下", head3Opts, "head3Id", "head3Refine", null, null],
+    ["左手", leftOpts, "leftId", "leftRefine", "leftCard" as const, shieldCardOpts],
+    ["身体", bodyOpts, "bodyId", "bodyRefine", "bodyCard" as const, bodyCardOpts],
+    ["披肩", shoulderOpts, "shoulderId", "shoulderRefine", "shoulderCard" as const, garmentCardOpts],
+    ["鞋子", shoesOpts, "shoesId", "shoesRefine", "shoesCard" as const, shoesCardOpts],
+    ["饰品 1", accOpts, "acc1Id", null, "acc1Card" as const, accCardOpts],
+    ["饰品 2", accOpts, "acc2Id", null, "acc2Card" as const, accCardOpts],
   ] as const;
 
   const colA = armorSlots.slice(0, 5);
@@ -207,23 +300,36 @@ const EquipmentPanel: FC<EquipmentPanelProps> = ({
     opts: ItemOption[],
     idKey: keyof EquipmentState,
     refKey: keyof EquipmentState | null,
-  ) => (
-    <Box key={String(idKey)} sx={slotRowGridSx(!!refKey)}>
-      <ItemAutocomplete
-        label={label}
-        options={opts}
-        valueId={eq[idKey] as number}
-        onPick={(id) => applyEq({ [idKey]: id } as Partial<EquipmentState>)}
-      />
-      {refKey ? (
-        <RefineSelect
-          label="精炼"
-          value={eq[refKey] as number}
-          onChange={(n) => applyEq({ [refKey]: n } as Partial<EquipmentState>)}
+    cardKey: keyof EquipmentState | null,
+    cardOpts: ItemOption[] | null,
+  ) => {
+    const hasCard = Boolean(cardKey && cardOpts);
+    return (
+      <Box key={String(idKey)} sx={armorSlotRowSx(!!refKey, hasCard)}>
+        <ItemAutocomplete
+          label={label}
+          options={opts}
+          valueId={eq[idKey] as number}
+          onPick={(id) => applyEq({ [idKey]: id } as Partial<EquipmentState>)}
         />
-      ) : null}
-    </Box>
-  );
+        {refKey ? (
+          <RefineSelect
+            label="精炼"
+            value={eq[refKey] as number}
+            onChange={(n) => applyEq({ [refKey]: n } as Partial<EquipmentState>)}
+          />
+        ) : null}
+        {cardKey && cardOpts ? (
+          <CardSelect
+            label="卡片"
+            options={cardOpts}
+            value={eq[cardKey] as number}
+            onChange={(id) => applyEq({ [cardKey]: id } as Partial<EquipmentState>)}
+          />
+        ) : null}
+      </Box>
+    );
+  };
 
   return (
     <Paper variant="outlined" sx={roCalcPaperSx}>
@@ -236,26 +342,146 @@ const EquipmentPanel: FC<EquipmentPanelProps> = ({
         display="block"
         sx={{ mb: 1, maxWidth: 900, lineHeight: 1.35, fontSize: "0.7rem" }}
       >
-        ItemOBJ 排序；精炼 DEF 计头/手/身/披肩/鞋。大屏防具双列。
+        ItemOBJ 排序；精炼 DEF 计头/手/身/披肩/鞋。卡片与 refer CardSortOBJ
+        一致；六维与 HIT/FLEE/暴击、武器 ATK/DEF/MDEF 的卡片平铺已计入快照。
       </Typography>
 
       <Stack spacing={1}>
-        <Box sx={slotRowGridSx(true)}>
-          <ItemAutocomplete
-            label="武器"
-            options={weaponOpts}
-            valueId={eq.weaponId}
-            onPick={(weaponId) =>
-              applyEq({ weaponId, weaponRefine: weaponId === 0 ? 0 : eq.weaponRefine })
-            }
-          />
-          <RefineSelect
-            label="武器精炼"
-            value={eq.weaponRefine}
-            disabled={wt === 0}
-            onChange={(weaponRefine) => applyEq({ weaponRefine })}
-          />
-        </Box>
+        {wt === 0 ? (
+          <Box sx={armorSlotRowSx(true, false)}>
+            <ItemAutocomplete
+              label="武器"
+              options={weaponOpts}
+              valueId={eq.weaponId}
+              onPick={(weaponId) =>
+                applyEq({ weaponId, weaponRefine: weaponId === 0 ? 0 : eq.weaponRefine })
+              }
+            />
+            <RefineSelect
+              label="武器精炼"
+              value={eq.weaponRefine}
+              disabled
+              onChange={(weaponRefine) => applyEq({ weaponRefine })}
+            />
+          </Box>
+        ) : mdUp ? (
+          <Box
+            sx={{
+              display: "grid",
+              gap: 1,
+              alignItems: "flex-start",
+              gridTemplateColumns: `minmax(0, 1fr) ${colRefine} repeat(4, ${colCard})`,
+            }}
+          >
+            <ItemAutocomplete
+              label="武器"
+              options={weaponOpts}
+              valueId={eq.weaponId}
+              onPick={(weaponId) =>
+                applyEq({ weaponId, weaponRefine: weaponId === 0 ? 0 : eq.weaponRefine })
+              }
+            />
+            <RefineSelect
+              label="武器精炼"
+              value={eq.weaponRefine}
+              disabled={wt === 0}
+              onChange={(weaponRefine) => applyEq({ weaponRefine })}
+            />
+            <CardSelect
+              label="武器卡 1"
+              options={wCard1Opts}
+              value={eq.weaponCard1}
+              onChange={(weaponCard1) => applyEq({ weaponCard1 })}
+            />
+            <CardSelect
+              label="武器卡 2"
+              options={wCard234Opts}
+              value={eq.weaponCard2}
+              onChange={(weaponCard2) => applyEq({ weaponCard2 })}
+            />
+            <CardSelect
+              label="武器卡 3"
+              options={wCard234Opts}
+              value={eq.weaponCard3}
+              onChange={(weaponCard3) => applyEq({ weaponCard3 })}
+            />
+            <CardSelect
+              label="武器卡 4"
+              options={wCard234Opts}
+              value={eq.weaponCard4}
+              onChange={(weaponCard4) => applyEq({ weaponCard4 })}
+            />
+          </Box>
+        ) : (
+          <Stack spacing={1} sx={{ minWidth: 0 }}>
+            <Box
+              sx={{
+                display: "grid",
+                gap: 1,
+                alignItems: "flex-start",
+                gridTemplateColumns: {
+                  xs: "minmax(0, 1fr)",
+                  sm: `minmax(0, 1fr) ${colRefine}`,
+                },
+              }}
+            >
+              <ItemAutocomplete
+                label="武器"
+                options={weaponOpts}
+                valueId={eq.weaponId}
+                onPick={(weaponId) =>
+                  applyEq({ weaponId, weaponRefine: weaponId === 0 ? 0 : eq.weaponRefine })
+                }
+              />
+              <RefineSelect
+                label="武器精炼"
+                value={eq.weaponRefine}
+                disabled={wt === 0}
+                onChange={(weaponRefine) => applyEq({ weaponRefine })}
+              />
+            </Box>
+            <Box
+              sx={{
+                display: "grid",
+                gap: 1,
+                alignItems: "flex-start",
+                gridTemplateColumns: {
+                  xs: `repeat(2, ${colCard})`,
+                  sm: `repeat(4, ${colCard})`,
+                },
+                width: "max-content",
+                maxWidth: "100%",
+                overflowX: "auto",
+                boxSizing: "border-box",
+              }}
+            >
+              <CardSelect
+                label="武器卡 1"
+                options={wCard1Opts}
+                value={eq.weaponCard1}
+                onChange={(weaponCard1) => applyEq({ weaponCard1 })}
+              />
+              <CardSelect
+                label="武器卡 2"
+                options={wCard234Opts}
+                value={eq.weaponCard2}
+                onChange={(weaponCard2) => applyEq({ weaponCard2 })}
+              />
+              <CardSelect
+                label="武器卡 3"
+                options={wCard234Opts}
+                value={eq.weaponCard3}
+                onChange={(weaponCard3) => applyEq({ weaponCard3 })}
+              />
+              <CardSelect
+                label="武器卡 4"
+                options={wCard234Opts}
+                value={eq.weaponCard4}
+                onChange={(weaponCard4) => applyEq({ weaponCard4 })}
+              />
+            </Box>
+          </Stack>
+        )}
 
         <Box
           sx={{
@@ -266,13 +492,13 @@ const EquipmentPanel: FC<EquipmentPanelProps> = ({
           }}
         >
           <Stack spacing={1}>
-            {colA.map(([label, opts, idKey, refKey]) =>
-              renderSlotRow(label, opts, idKey, refKey),
+            {colA.map(([label, opts, idKey, refKey, cardKey, cardOpts]) =>
+              renderSlotRow(label, opts, idKey, refKey, cardKey, cardOpts),
             )}
           </Stack>
           <Stack spacing={1}>
-            {colB.map(([label, opts, idKey, refKey]) =>
-              renderSlotRow(label, opts, idKey, refKey),
+            {colB.map(([label, opts, idKey, refKey, cardKey, cardOpts]) =>
+              renderSlotRow(label, opts, idKey, refKey, cardKey, cardOpts),
             )}
           </Stack>
         </Box>

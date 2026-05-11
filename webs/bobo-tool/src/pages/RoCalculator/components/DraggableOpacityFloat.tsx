@@ -69,12 +69,13 @@ export function DraggableOpacityFloat({
       <Box
         ref={setRootRef}
         className={rootClassName}
-        onMouseEnter={() => setHovered(true)}
-        onMouseLeave={() => setHovered(false)}
         sx={{
           position: "absolute",
           top: 0,
-          pointerEvents: "auto",
+          /** 根不接收点击，避免收起后残留占位挡住下层滚动区 */
+          pointerEvents: "none",
+          width: "max-content",
+          maxWidth: "min(calc(100% - 16px), 320px)",
           ...(horizontalAnchor === "left"
             ? { left: anchorInset, right: "auto" }
             : horizontalAnchor === "right"
@@ -83,11 +84,21 @@ export function DraggableOpacityFloat({
           zIndex: zIndexProp ?? theme.zIndex.drawer + 2,
           opacity: hovered ? 1 : dimmedOpacity,
           transition: theme.transitions.create("opacity", { duration: 200 }),
-          maxWidth: "min(calc(100% - 16px), 320px)",
           ...rootSx,
         }}
       >
-        {children}
+        <Box
+          onMouseEnter={() => setHovered(true)}
+          onMouseLeave={() => setHovered(false)}
+          sx={{
+            pointerEvents: "auto",
+            width: "max-content",
+            maxWidth: "100%",
+            minWidth: 0,
+          }}
+        >
+          {children}
+        </Box>
       </Box>
     </Draggable>
   );

@@ -128,7 +128,7 @@ const ItemInfoFloat: FC<ItemInfoFloatProps> = ({ itemId }) => {
           in={open}
           timeout={280}
           mountOnEnter
-          unmountOnExit={false}
+          unmountOnExit
           onExited={handleSlideExited}
         >
           <Paper
