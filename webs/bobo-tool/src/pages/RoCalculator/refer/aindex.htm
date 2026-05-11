@@ -1,0 +1,844 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML><HEAD><TITLE>米花流ROratorio 综合计算机</TITLE>
+<META http-equiv=Content-Type content="text/html; charset=gb2312">
+<META content="" name=keywords>
+<SCRIPT language=JavaScript><!--
+Lang = 0;
+Taijin=0;
+// --></SCRIPT>
+
+<SCRIPT language=JavaScript src="js/head.js"></SCRIPT>
+
+<SCRIPT language=JavaScript src="js/item.js"></SCRIPT>
+
+<SCRIPT language=JavaScript src="js/etc.js"></SCRIPT>
+
+<SCRIPT language=JavaScript src="js/skill.js"></SCRIPT>
+
+<META content="MSHTML 6.00.2900.3354" name=GENERATOR>
+<link href="css/ishan.css" rel="stylesheet" type="text/css">
+</HEAD>
+<BODY>
+
+
+
+<FONT id=PRT size=2></FONT>
+<FORM name=calcForm><INPUT onclick=SaveCookie() type=button value=Save> <INPUT onclick=LoadCookie() type=button value=Load> <SELECT name=A_SaveSlot> 
+  <OPTION value=num00 selected>Save1<OPTION value=num01>Save2<OPTION 
+  value=num02>Save3<OPTION value=num03>Save4<OPTION value=num04>Save5<OPTION 
+  value=num05>Save6<OPTION value=num06>Save7<OPTION value=num07>Save8<OPTION 
+  value=num09>Save9<OPTION value=num10>Save10<OPTION value=num11>Save11<OPTION 
+  value=num12>Save12<OPTION value=num13>Save13<OPTION value=num14>Save14<OPTION 
+  value=num15>Save15<OPTION value=num16>Save16<OPTION value=num17>Save17<OPTION 
+  value=num18>Save18<OPTION value=num19>Save19</OPTION></SELECT> <SPAN 
+id=DELHTML></SPAN>
+<TABLE>
+  <TBODY>
+  <TR>
+    <TD vAlign=top>
+      <TABLE border=1>
+        <TBODY>
+        <TR>
+          <TD class="td01"  colSpan=6><SPAN id=nm01></SPAN>　　　　<INPUT 
+            type=checkbox CHECKED name=BLVauto><SPAN id=nm02></SPAN></TD></TR>
+        <TR>
+          <TD id=nm03></TD>
+          <TD><SELECT onchange=StCalc(1)|StAllCalc() 
+name=A_BaseLV></SELECT></TD>
+          <TD id=nm04></TD>
+          <TD><SELECT onchange=StAllCalc() name=A_JobLV></SELECT></TD>
+          <TD id=nm05></TD>
+          <TD><SELECT 
+            onchange="ClickJob(this[this.selectedIndex].value) | StAllCalc() | StCalc()" 
+            name=A_JOB></SELECT></TD></TR>
+        <TR>
+          <TD id=nm06></TD>
+          <TD><SELECT onChange="StCalc() | StAllCalc()" 
+            name=A_STR></SELECT><SPAN id=A_STRp></SPAN></TD>
+          <TD id=nm07></TD>
+          <TD><SELECT onChange="StCalc() | StAllCalc()" 
+            name=A_AGI></SELECT><SPAN id=A_AGIp></SPAN></TD>
+          <TD id=nm08></TD>
+          <TD><SELECT onChange="StCalc() | StAllCalc()" 
+            name=A_VIT></SELECT><SPAN id=A_VITp></SPAN></TD></TR>
+        <TR>
+          <TD id=nm010></TD>
+          <TD><SELECT onChange="StCalc() | StAllCalc()" 
+            name=A_INT></SELECT><SPAN id=A_INTp></SPAN></TD>
+          <TD id=nm09></TD>
+          <TD><SELECT onChange="StCalc() | StAllCalc()" 
+            name=A_DEX></SELECT><SPAN id=A_DEXp></SPAN></TD>
+          <TD id=nm011></TD>
+          <TD><SELECT onChange="StCalc() | StAllCalc()" 
+            name=A_LUK></SELECT><SPAN id=A_LUKp></SPAN></TD></TR></TBODY></TABLE>
+      <TABLE border=1>
+        <TBODY>
+        <TR>
+          <TD><SPAN id=nm012></SPAN></TD>
+          <TD><SPAN id=A_STPOINT></SPAN></TD></TR></TBODY></TABLE></TD>
+    <TD vAlign=top>
+      <TABLE border=1>
+        <TBODY>
+        <TR>
+          <TD width=187 colSpan=2><INPUT onclick=calc() type=checkbox 
+            name=A_youshi><SPAN id=nm078></SPAN> </TD></TR></TBODY></TABLE>
+      <TABLE border=1>
+        <TBODY>
+        <TR>
+          <TD class="td01"  colSpan=2><SPAN id=nm013></SPAN>　 
+            <SELECT 
+            onchange="KakutyouKansuu2() | StAllCalc()" name=A_Kakutyou>
+              <OPTION value=0 selected>无
+                <OPTION value=1>治愈术补血量
+                  <OPTION 
+              value=2>快速回复
+                    <OPTION value=3>禅心
+                    <OPTION value=4>运气调息
+                    <OPTION value=5>负重量
+                    <OPTION value=6>属性倍率
+                    <OPTION 
+              value=7>种族耐性
+                    <OPTION value=8>异常状态耐性
+                    <OPTION 
+            value=9>其他耐性
+                    <OPTION 
+              value=10>咏唱/延迟</OPTION>
+            </SELECT></TD>
+        </TR>
+        <TR>
+          <TD><SPAN id=A_KakutyouSel></SPAN><SPAN 
+        id=A_KakutyouData></SPAN></TD></TR></TBODY></TABLE></TD></TR></TBODY></TABLE>
+<TABLE border=1>
+  <TBODY>
+  <TR class="td01" >
+    <TD id=nm014></TD>
+    <TD id=nm015></TD>
+    <TD id=nm016></TD>
+    <TD id=nm017></TD>
+    <TD id=nm018></TD>
+    <TD id=nm019></TD>
+    <TD id=nm020></TD>
+    <TD id=nm021></TD>
+    <TD id=nm022></TD>
+    <TD id=nm023></TD>
+    <TD id=nm024></TD>
+    <TD id=nm025></TD></TR>
+  <TR>
+    <TD id=A_MaxHP align=right></TD>
+    <TD id=A_MaxSP align=right></TD>
+    <TD id=A_totalDEF align=right></TD>
+    <TD id=A_MDEF align=right></TD>
+    <TD id=A_HIT align=right></TD>
+    <TD id=A_FLEE align=right></TD>
+    <TD id=A_LUCKY align=right></TD>
+    <TD id=A_CRI align=right></TD>
+    <TD id=A_MATK align=right></TD>
+    <TD id=A_ASPD align=right></TD>
+    <TD id=A_HPR align=right></TD>
+    <TD id=A_SPR align=right></TD></TR></TBODY></TABLE><SPAN id=nm026></SPAN><SELECT 
+onchange=StAllCalc() name=A_SpeedPOT></SELECT><BR><BR><SPAN 
+id=nm027></SPAN><SELECT 
+onchange="ClickWeaponType(this[this.selectedIndex].value) | StAllCalc()" 
+name=A_WeaponType></SELECT> <SPAN id=A_SobWeaponName></SPAN><SELECT 
+style="VISIBILITY: hidden" onchange=StAllCalc() name=A_Arrow> <OPTION value=0 
+  selected>-</OPTION></SELECT> 
+<TABLE border=1>
+  <TBODY>
+  <TR>
+    <TD class="td01"  colSpan=8><SPAN id=nm028></SPAN></TD></TR>
+  <TR>
+    <TD><SPAN id=nm029></SPAN><SELECT 
+      onchange=StAllCalc()|ClickB_Item(this[this.selectedIndex].value) 
+      name=A_weapon1></SELECT></TD>
+    <TD><SPAN id=A_seirenchi_name></SPAN><SELECT style="VISIBILITY: hidden" 
+      onchange=StAllCalc() name=A_Weapon_ATKplus> <OPTION value=0 
+        selected>0<OPTION value=1>1<OPTION value=2>2<OPTION value=3>3<OPTION 
+        value=4>4<OPTION value=5>5<OPTION value=6>6<OPTION value=7>7<OPTION 
+        value=8>8<OPTION value=9>9<OPTION value=10>10</OPTION></SELECT></TD>
+    <TD><SPAN id=nm030></SPAN><SELECT name=A_Weapon_zokusei></SELECT></TD>
+    <TD><SELECT onchange=SetCardShort()|StAllCalc()|ActiveSkillSetPlus() 
+      name=A_cardshort></SELECT></TD></TR>
+  <TR>
+    <TD><SPAN id=nm031></SPAN><SELECT 
+      onchange=StAllCalc()|Click_Card(this[this.selectedIndex].value) 
+      name=A_weapon1_card1></SELECT></TD>
+    <TD><SELECT 
+      onchange=StAllCalc()|Click_Card(this[this.selectedIndex].value) 
+      name=A_weapon1_card2></SELECT></TD>
+    <TD><SELECT 
+      onchange=StAllCalc()|Click_Card(this[this.selectedIndex].value) 
+      name=A_weapon1_card3></SELECT></TD>
+    <TD><SELECT 
+      onchange=StAllCalc()|Click_Card(this[this.selectedIndex].value) 
+      name=A_weapon1_card4></SELECT></TD></TR>
+  <TR>
+    <TD id=spanA_weapon2></TD>
+    <TD id=spanA_weapon2seiren></TD>
+    <TD></TD>
+    <TD id=spanA_weapon2_CardShort></TD></TR>
+  <TR>
+    <TD id=nA_weapon2_c1></TD>
+    <TD id=nA_weapon2_c2></TD>
+    <TD id=nA_weapon2_c3></TD>
+    <TD id=nA_weapon2_c4></TD></TR>
+  <TR>
+    <TD><SELECT onchange=StAllCalc() name=A_HEAD_DEF_PLUS> <OPTION value=0 
+        selected>+0<OPTION value=1>+1<OPTION value=2>+2<OPTION value=3>+3<OPTION 
+        value=4>+4<OPTION value=5>+5<OPTION value=6>+6<OPTION value=7>+7<OPTION 
+        value=8>+8<OPTION value=9>+9<OPTION value=10>+10</OPTION></SELECT> <SELECT 
+      onchange=StAllCalc()|ClickB_Item(this[this.selectedIndex].value) 
+      name=A_head1></SELECT> </TD>
+    <TD><SELECT 
+      onchange=StAllCalc()|Click_Card(this[this.selectedIndex].value) 
+      name=A_head1_card></SELECT></TD>
+    <TD></TD>
+    <TD></TD></TR>
+  <TR>
+    <TD><SELECT onchange=StAllCalc() name=A_BODY_DEF_PLUS> <OPTION value=0 
+        selected>+0<OPTION value=1>+1<OPTION value=2>+2<OPTION value=3>+3<OPTION 
+        value=4>+4<OPTION value=5>+5<OPTION value=6>+6<OPTION value=7>+7<OPTION 
+        value=8>+8<OPTION value=9>+9<OPTION value=10>+10</OPTION></SELECT> <SELECT 
+      onchange=StAllCalc()|ClickB_Item(this[this.selectedIndex].value) 
+      name=A_body></SELECT> </TD>
+    <TD><SELECT 
+      onchange=StAllCalc()|Click_Card(this[this.selectedIndex].value) 
+      name=A_body_card></SELECT> </TD>
+    
+<TD><SELECT 
+      onchange=StAllCalc()|ClickB_Item(this[this.selectedIndex].value) 
+      name=A_head2></SELECT> </TD>
+    <TD><SELECT 
+      onchange=StAllCalc()|Click_Card(this[this.selectedIndex].value) 
+      name=A_head2_card></SELECT></TD></TR>
+  <TR>
+    <TD id=ID_B4><SELECT onchange=StAllCalc() name=A_LEFT_DEF_PLUS> <OPTION 
+        value=0 selected>+0<OPTION value=1>+1<OPTION value=2>+2<OPTION 
+        value=3>+3<OPTION value=4>+4<OPTION value=5>+5<OPTION value=6>+6<OPTION 
+        value=7>+7<OPTION value=8>+8<OPTION value=9>+9<OPTION 
+        value=10>+10</OPTION></SELECT> <SELECT 
+      onchange=StAllCalc()|ClickB_Item(this[this.selectedIndex].value) 
+      name=A_left></SELECT> </TD>
+    <TD id=ID_C4><SELECT 
+      onchange=StAllCalc()|Click_Card(this[this.selectedIndex].value) 
+      name=A_left_card></SELECT> </TD>
+    <TD><SELECT onchange=StAllCalc() name=A_HEAD1_DEF_PLUS> <OPTION value=0 
+        selected>+0<OPTION value=1>+1<OPTION value=2>+2<OPTION value=3>+3<OPTION 
+        value=4>+4<OPTION value=5>+5<OPTION value=6>+6<OPTION value=7>+7<OPTION 
+        value=8>+8<OPTION value=9>+9<OPTION value=10>+10</OPTION></SELECT>
+<SELECT 
+      onchange=StAllCalc()|ClickB_Item(this[this.selectedIndex].value) 
+      name=A_head3></SELECT></TD>
+<TD>
+<SELECT onchange="StAllCalc()" name="A_HSE"><OPTION value="0">(衣服附魔)</OPTION><OPTION value="1">STR+1</OPTION><OPTION value="2">STR+2</OPTION><OPTION value="3">STR+3</OPTION><OPTION value="11">AGI+1</OPTION><OPTION value="12">AGI+2</OPTION><OPTION value="13">AGI+3</OPTION><OPTION value="21">VIT+1</OPTION><OPTION value="22">VIT+2</OPTION><OPTION value="23">VIT+3</OPTION><OPTION value="31">INT+1</OPTION><OPTION value="32">INT+2</OPTION><OPTION value="33">INT+3</OPTION><OPTION value="41">DEX+1</OPTION><OPTION value="42">DEX+2</OPTION><OPTION value="43">DEX+3</OPTION><OPTION value="51">LUK+1</OPTION><OPTION value="52">LUK+2</OPTION><OPTION value="53">LUK+3</OPTION></SELECT> 
+</TD>
+
+
+
+
+</TR>
+  <TR>
+    <TD><SELECT onchange=StAllCalc() name=A_SHOULDER_DEF_PLUS> <OPTION 
+        value=0 selected>+0<OPTION value=1>+1<OPTION value=2>+2<OPTION 
+        value=3>+3<OPTION value=4>+4<OPTION value=5>+5<OPTION value=6>+6<OPTION 
+        value=7>+7<OPTION value=8>+8<OPTION value=9>+9<OPTION 
+        value=10>+10</OPTION></SELECT> <SELECT 
+      onchange=StAllCalc()|ClickB_Item(this[this.selectedIndex].value) 
+      name=A_shoulder></SELECT> </TD>
+    <TD><SELECT 
+      onchange=StAllCalc()|Click_Card(this[this.selectedIndex].value) 
+      name=A_shoulder_card></SELECT> </TD>
+    <TD><SELECT 
+      onchange=StAllCalc()|ClickB_Item(this[this.selectedIndex].value) 
+      name=A_acces1></SELECT> </TD>
+    <TD><SELECT 
+      onchange=StAllCalc()|Click_Card(this[this.selectedIndex].value) 
+      name=A_acces1_card></SELECT></TD></TR>
+  <TR>
+    <TD><SELECT onchange=StAllCalc() name=A_SHOES_DEF_PLUS> <OPTION value=0 
+        selected>+0<OPTION value=1>+1<OPTION value=2>+2<OPTION value=3>+3<OPTION 
+        value=4>+4<OPTION value=5>+5<OPTION value=6>+6<OPTION value=7>+7<OPTION 
+        value=8>+8<OPTION value=9>+9<OPTION value=10>+10</OPTION></SELECT> <SELECT 
+      onchange=StAllCalc()|ClickB_Item(this[this.selectedIndex].value) 
+      name=A_shoes></SELECT> </TD>
+    <TD><SELECT 
+      onchange=StAllCalc()|Click_Card(this[this.selectedIndex].value) 
+      name=A_shoes_card></SELECT></TD>
+    <TD><SELECT 
+      onchange=StAllCalc()|ClickB_Item(this[this.selectedIndex].value) 
+      name=A_acces2></SELECT> </TD>
+    <TD><SELECT 
+      onchange=StAllCalc()|Click_Card(this[this.selectedIndex].value) 
+      name=A_acces2_card></SELECT></TD></TR></TBODY></TABLE>
+<TABLE border=1>
+  <TBODY>
+  <TR>
+    <TD class="td01"  colSpan=10><SPAN id=nm080></SPAN>　　<INPUT 
+      onclick="ClickB_Item('SW')" type=checkbox name=ITEM_SW><SPAN 
+      id=nm081></SPAN></TD></TR>
+  <TR>
+    <TD id=ITEM0 width=36 class="td01" ></TD>
+    <TD id=ITEM_DATA width=36></TD>
+    <TD id=ITEM1 class="td01" ></TD>
+    <TD id=ITEM_SLOT width=36></TD>
+    <TD id=ITEM2 width=54 class="td01" ></TD>
+    <TD id=ITEM_W_LV width=12></TD>
+    <TD id=ITEM3 class="td01" ></TD>
+    <TD id=ITEM_LV width=24></TD>
+    <TD id=ITEM4 class="td01" ></TD>
+    <TD id=ITEM_WAIT width=36></TD></TR>
+  <TR>
+    <TD id=B_SETUMEI colSpan=10></TD></TR></TBODY></TABLE>
+<TABLE border=1>
+  <TBODY>
+  <TR>
+    <TD class="td01"  colSpan=4><SPAN id=nm033></SPAN></TD></TR>
+  <TR>
+    <TD id=P_Skill0></TD>
+    <TD id=P_Skill0s></TD>
+    <TD id=P_Skill1></TD>
+    <TD id=P_Skill1s></TD></TR>
+  <TR>
+    <TD id=P_Skill2></TD>
+    <TD id=P_Skill2s></TD>
+    <TD id=P_Skill3></TD>
+    <TD id=P_Skill3s></TD></TR>
+  <TR>
+    <TD id=P_Skill4></TD>
+    <TD id=P_Skill4s></TD>
+    <TD id=P_Skill5></TD>
+    <TD id=P_Skill5s></TD></TR>
+  <TR>
+    <TD id=P_Skill6></TD>
+    <TD id=P_Skill6s></TD>
+    <TD id=P_Skill7></TD>
+    <TD id=P_Skill7s></TD></TR>
+  <TR>
+    <TD id=P_Skill8></TD>
+    <TD id=P_Skill8s></TD>
+    <TD id=P_Skill9></TD>
+    <TD id=P_Skill9s></TD></TR>
+  <TR>
+    <TD id=P_Skill10></TD>
+    <TD id=P_Skill10s></TD>
+    <TD id=P_Skill11></TD>
+    <TD id=P_Skill11s></TD></TR>
+  <TR>
+    <TD id=P_Skill12></TD>
+    <TD id=P_Skill12s></TD>
+    <TD id=P_Skill13></TD>
+    <TD id=P_Skill13s></TD></TR>
+  <TR>
+    <TD id=P_Skill14></TD>
+    <TD id=P_Skill14s></TD>
+    <TD id=P_Skill15></TD>
+    <TD id=P_Skill15s></TD></TR></TBODY></TABLE>
+<TABLE border=1>
+  <TBODY>
+  <TR>
+    <TD class="td01"  colSpan=4><SPAN id=nm034></SPAN>　　<INPUT 
+      onclick=Click_SkillSW() type=checkbox name=A2_SKILLSW><SPAN 
+      id=nm035></SPAN></TD></TR>
+  <TR>
+    <TD id=AS0_1></TD>
+    <TD id=AS0_2></TD>
+    <TD id=AS1_1></TD>
+    <TD id=AS1_2></TD></TR>
+  <TR>
+    <TD id=AS2_1></TD>
+    <TD id=AS2_2></TD>
+    <TD id=AS3_1></TD>
+    <TD id=AS3_2></TD></TR>
+  <TR>
+    <TD id=AS4_1></TD>
+    <TD id=AS4_2></TD>
+    <TD id=AS5_1></TD>
+    <TD id=AS5_2></TD></TR>
+  <TR>
+    <TD id=AS6_1></TD>
+    <TD id=AS6_2></TD>
+    <TD id=AS7_1></TD>
+    <TD id=AS7_2></TD></TR>
+  <TR>
+    <TD id=AS8_1></TD>
+    <TD id=AS8_2></TD>
+    <TD id=AS9_1></TD>
+    <TD id=AS9_2></TD></TR>
+  <TR>
+    <TD id=AS10_1></TD>
+    <TD id=AS10_2></TD>
+    <TD id=AS11_1></TD>
+    <TD id=AS11_2></TD></TR>
+  <TR>
+    <TD id=AS12_1></TD>
+    <TD id=AS12_2></TD>
+    <TD id=AS13_1></TD>
+    <TD id=AS13_2></TD></TR>
+  <TR>
+    <TD id=AS14_1></TD>
+    <TD id=AS14_2></TD>
+    <TD id=AS15_1 colSpan=2></TD></TR></TBODY></TABLE><BR><SPAN 
+id=nm036></SPAN><SELECT 
+onchange=ClickActiveSkill(this[this.selectedIndex].value) 
+name=A_ActiveSkill></SELECT> <SELECT style="VISIBILITY: hidden" 
+name=A_ActiveSkillLV> <OPTION value=1 selected>1</OPTION></SELECT> 　<SPAN 
+id=AASkillName></SPAN><SPAN id=AASkill></SPAN><BR><INPUT onclick=calc() type=button value=计算> 
+    <BR><BR>
+<TABLE align=left>
+  <TBODY>
+  <TR>
+    <TD>
+      <TABLE border=1>
+        <TBODY>
+        <TR>
+          <TD class="td01"  colSpan=4><SPAN id=nm037></SPAN><SELECT 
+            onchange=ClickB_Enemy()|calc() name=B_Enemy></SELECT></TD></TR>
+        <TR>
+          <TD id=nm038></TD>
+          <TD id=B_6></TD>
+          <TD id=nm039></TD>
+          <TD id=B_16></TD></TR>
+        <TR>
+          <TD id=nm040></TD>
+          <TD><SPAN id=B_12></SPAN><SPAN id=nm041></SPAN><SPAN 
+          id=B_13></SPAN></TD>
+          <TD id=nm042></TD>
+          <TD id=B_17></TD></TR>
+        <TR>
+          <TD id=nm043></TD>
+          <TD><SPAN id=B_14></SPAN><SPAN id=B_AA></SPAN><SPAN 
+          id=B_23></SPAN></TD>
+          <TD id=nm044></TD>
+          <TD id=B_2></TD></TR>
+        <TR>
+          <TD id=nm045></TD>
+          <TD><SPAN id=B_15></SPAN><SPAN id=B_AB></SPAN><SPAN 
+          id=B_25></SPAN></TD>
+          <TD id=nm046></TD>
+          <TD id=B_3></TD></TR>
+        <TR>
+          <TD id=nm047></TD>
+          <TD id=B_21></TD>
+          <TD id=nm048></TD>
+          <TD id=B_4></TD></TR>
+        <TR>
+          <TD id=nm049></TD>
+          <TD id=B_22></TD>
+          <TD colSpan=2><SELECT onchange=EnemySort()|ClickB_Enemy()|calc() 
+            name=ENEMY_SORT>
+            <OPTION value=0 selected>Lv排序
+              <OPTION 
+              value=1>属性排序
+                <OPTION value=2>种族排序
+                  <OPTION value=3>100%HIT排序
+                    <OPTION 
+              value=4>95%回避排序
+                    <OPTION value=5>BaseExp排序
+                    <OPTION 
+              value=6>JobExp排序
+                    <OPTION value=7>最大Atk排序
+                    <OPTION 
+              value=32>EP11.1
+                    <OPTION value=20>龙湖
+                    <OPTION value=21>死塔
+                    <OPTION 
+              value=22>机械工场
+                    <OPTION value=23>研究所
+                    <OPTION value=24>优配擂斯
+                    <OPTION 
+              value=25>钢都矿坑
+                    <OPTION value=26>葛帔尼亚
+                    <OPTION value=27>死都
+                    <OPTION 
+              value=28>龟岛
+                    <OPTION value=29>浪区
+                    <OPTION value=30>地下监狱
+                    <OPTION 
+              value=31>人面狮身</OPTION>
+            <OPTION 
+              value=33>图尔火山</OPTION>
+            <OPTION 
+              value=34>无名岛</OPTION>
+            <OPTION 
+              value=35>EP12</OPTION>
+            <OPTION 
+              value=36>全MVP</OPTION>
+	    <OPTION 
+              value=37>异世界</OPTION>
+          </SELECT></TD></TR></TBODY></TABLE></TD></TR>
+  <TR>
+    <TD>
+      <TABLE border=1>
+        <TBODY>
+        <TR>
+          <TD class="td01"  colSpan=2><SPAN id=nm050></SPAN><INPUT 
+            onclick=Click_IjyouSW() type=checkbox name=B_IJYOUSW><SPAN 
+            id=nm051></SPAN></TD></TR>
+        <TR>
+          <TD id=BI0_1></TD>
+          <TD id=BI0_2></TD></TR>
+        <TR>
+          <TD id=BI1_1></TD>
+          <TD id=BI1_2></TD></TR>
+        <TR>
+          <TD id=BI2_1></TD>
+          <TD id=BI2_2></TD></TR>
+        <TR>
+          <TD id=BI3_1></TD>
+          <TD id=BI3_2></TD></TR>
+        <TR>
+          <TD id=BI4_1></TD>
+          <TD id=BI4_2></TD></TR>
+        <TR>
+          <TD id=BI5_1></TD>
+          <TD id=BI5_2></TD></TR>
+        <TR>
+          <TD id=BI6_1></TD>
+          <TD id=BI6_2></TD></TR>
+        <TR>
+          <TD id=BI7_1></TD>
+          <TD id=BI7_2></TD></TR>
+        <TR>
+          <TD id=BI8_1></TD>
+          <TD id=BI8_2></TD></TR>
+        <TR>
+          <TD id=BI9_1></TD>
+          <TD id=BI9_2></TD></TR>
+        <TR>
+          <TD id=BI10_1></TD>
+          <TD id=BI10_2></TD></TR>
+        <TR>
+          <TD id=BI11_1></TD>
+          <TD id=BI11_2></TD></TR>
+        <TR>
+          <TD id=BI12_1></TD>
+          <TD id=BI12_2></TD></TR>
+        <TR>
+          <TD id=BI13_1></TD>
+          <TD id=BI13_2></TD></TR>
+        <TR>
+          <TD id=BI14_1></TD>
+          <TD id=BI14_2></TD></TR>
+        <TR>
+          <TD id=BI15_1></TD>
+          <TD id=BI15_2></TD></TR>
+        <TR>
+          <TD id=BI16_1></TD>
+          <TD id=BI16_2></TD></TR>
+        <TR>
+          <TD id=BI17_1></TD>
+          <TD id=BI17_2></TD></TR>
+        <TR>
+          <TD id=BI18_1></TD>
+          <TD id=BI18_2></TD></TR>
+        <TR>
+          <TD id=BI19_1></TD>
+          <TD id=BI19_2></TD></TR>
+        <TR>
+          <TD id=BI20_1></TD>
+          <TD id=BI20_2></TD></TR>
+        <TR>
+          <TD id=BI21_1></TD>
+          <TD id=BI21_2></TD></TR>
+        <TR>
+          <TD id=BI22_1></TD>
+          <TD id=BI22_2></TD></TR>
+        <TR>
+          <TD id=BI23_1></TD>
+          <TD id=BI23_2></TD></TR>
+        <TR>
+          <TD id=BI24_1></TD>
+          <TD id=BI24_2></TD></TR></TBODY></TABLE>
+      <TABLE border=1>
+        <TBODY>
+        <TR>
+          <TD class="td01"  colSpan=2><SPAN id=nm083></SPAN><INPUT 
+            onclick=Click_EnemyKyoukaSW() type=checkbox name=B_KYOUKASW><SPAN 
+            id=nm084></SPAN></TD></TR>
+        <TR>
+          <TD id=ID_K0></TD>
+          <TD id=ID_Kb0></TD></TR>
+        <TR>
+          <TD id=ID_K1></TD>
+          <TD id=ID_Kb1></TD></TR>
+        <TR>
+          <TD id=ID_K2></TD>
+          <TD id=ID_Kb2></TD></TR>
+        <TR>
+          <TD id=ID_K3></TD>
+          <TD id=ID_Kb3></TD></TR>
+        <TR>
+          <TD id=ID_K4></TD>
+          <TD id=ID_Kb4></TD></TR>
+        <TR>
+          <TD id=ID_K5></TD>
+          <TD id=ID_Kb5></TD></TR>
+        <TR>
+          <TD id=ID_K6></TD>
+          <TD id=ID_Kb6></TD></TR>
+        <TR>
+          <TD id=ID_K7></TD>
+          <TD id=ID_Kb7></TD></TR>
+        <TR>
+          <TD id=ID_K8></TD>
+          <TD id=ID_Kb8></TD></TR>
+        <TR>
+          <TD id=ID_K9></TD>
+          <TD id=ID_Kb9></TD></TR></TBODY></TABLE></TD></TR></TBODY></TABLE>
+<TABLE border=1>
+  <TBODY>
+  <TR>
+    <TD class="td01"  colSpan=2><SPAN id=nm052></SPAN></TD></TR>
+  <TR>
+    <TD id=nm053></TD>
+    <TD><SPAN id=BattleHIT></SPAN><SPAN id=nm067></SPAN></TD></TR>
+  <TR>
+    <TD id=nm054></TD>
+    <TD><SPAN id=BattleFLEE></SPAN><SPAN id=nm068></SPAN></TD></TR>
+  <TR>
+    <TD id=CRIATKname></TD>
+    <TD id=CRIATK></TD></TR>
+  <TR>
+    <TD id=CRInumname></TD>
+    <TD id=CRInum></TD></TR>
+  <TR>
+    <TD id=bSUBname></TD>
+    <TD id=bSUB></TD></TR>
+  <TR>
+    <TD id=bSUB2name></TD>
+    <TD id=bSUB2></TD></TR>
+  <TR>
+    <TD id=nm055></TD>
+    <TD id=ATK_00></TD></TR>
+  <TR>
+    <TD id=nm056></TD>
+    <TD id=ATK_01></TD></TR>
+  <TR>
+    <TD id=nm057></TD>
+    <TD id=ATK_02></TD></TR>
+  <TR>
+    <TD id=nm058></TD>
+    <TD id=AveSecondATK></TD></TR>
+  <TR>
+    <TD id=nm059></TD>
+    <TD id=MinATKnum></TD></TR>
+  <TR>
+    <TD id=nm060></TD>
+    <TD id=AveATKnum></TD></TR>
+  <TR>
+    <TD id=nm061></TD>
+    <TD id=MaxATKnum></TD></TR>
+  <TR>
+    <TD id=nm062></TD>
+    <TD id=BattleTime></TD></TR>
+  <TR>
+    <TD id=nm063></TD>
+    <TD id=AtkBaseExp></TD></TR>
+  <TR>
+    <TD id=nm064></TD>
+    <TD id=AtkJobExp></TD></TR>
+  <TR>
+    <TD id=nm065></TD>
+    <TD id=B_AveAtk></TD></TR>
+  <TR>
+    <TD id=nm066></TD>
+    <TD id=B_Ave2Atk></TD></TR></TBODY></TABLE><BR clear=left>
+<HR>
+<SPAN id=nm082></SPAN>
+<TABLE border=1>
+  <TBODY>
+  <TR>
+    <TD class="td01"  colSpan=6><SPAN id=nm069></SPAN>　<INPUT 
+      onclick=Click_Skill3SW() type=checkbox name=A3_SKILLSW><SPAN 
+      id=nm070></SPAN></TD></TR>
+  <TR>
+    <TD id=EN0_1></TD>
+    <TD id=EN0_2></TD>
+    <TD id=EN0_3></TD>
+    <TD id=EN0_4></TD>
+    <TD id=EN0_5></TD>
+    <TD id=EN0_6></TD></TR>
+  <TR>
+    <TD id=EN1_1></TD>
+    <TD id=EN1_2></TD>
+    <TD id=EN1_3></TD>
+    <TD id=EN1_4></TD>
+    <TD id=EN1_5></TD>
+    <TD id=EN1_6></TD></TR>
+  <TR>
+    <TD id=EN2_1 rowSpan=2></TD>
+    <TD id=EN2_2 rowSpan=2></TD>
+    <TD id=EN2_3></TD>
+    <TD id=EN2_4></TD>
+    <TD id=EN2_7 rowSpan=2></TD>
+    <TD id=EN2_8 rowSpan=2></TD></TR>
+  <TR>
+    <TD id=EN2_5></TD>
+    <TD id=EN2_6></TD></TR>
+  <TR>
+    <TD id=EN3_1></TD>
+    <TD id=EN3_2></TD>
+    <TD id=EN3_3></TD>
+    <TD id=EN3_4></TD>
+    <TD id=EN3_5></TD>
+    <TD id=EN3_6></TD></TR>
+  <TR>
+    <TD id=EN4_1></TD>
+    <TD id=EN4_2></TD>
+    <TD id=EN4_3></TD>
+    <TD id=EN4_4></TD>
+    <TD id=EN4_5></TD>
+    <TD id=EN4_6></TD></TR>
+  <TR>
+    <TD id=EN5_1></TD>
+    <TD id=EN5_2></TD>
+    <TD id=EN5_3></TD>
+    <TD id=EN5_4></TD>
+    <TD id=EN5_5></TD>
+    <TD id=EN5_6></TD></TR>
+  <TR>
+    <TD id=EN6_1></TD>
+    <TD id=EN6_2></TD>
+    <TD id=EN6_3></TD>
+    <TD id=EN6_4></TD>
+    <TD id=EN6_5></TD>
+    <TD id=EN6_6></TD></TR>
+  <TR>
+    <TD id=EN7_1></TD>
+    <TD id=EN7_2></TD>
+    <TD id=EN8_1></TD>
+    <TD id=EN8_2></TD></TR>
+  <TR>
+    <TD id=EN9_1></TD>
+    <TD id=EN9_2></TD>
+    <TD id=EN10_1></TD>
+    <TD id=EN10_2></TD></TR>
+  <TR>
+    <TD colSpan=4><SPAN id=EN11_1></SPAN><SPAN id=EN11_2></SPAN><SPAN 
+      id=EN11_1a></SPAN></TD></TR></TBODY></TABLE>
+<TABLE border=1>
+  <TBODY>
+  <TR>
+    <TD class="td01"  colSpan=10><SPAN id=nm071></SPAN>　<INPUT 
+      onclick=Click_Skill4SW() type=checkbox name=A4_SKILLSW><SPAN 
+      id=nm072></SPAN></TD></TR>
+  <TR>
+    <TD id=EN40_1></TD>
+    <TD id=EN40_2></TD>
+    <TD id=EN41_1></TD>
+    <TD id=EN41_2></TD>
+    <TD id=EN42_1></TD>
+    <TD id=EN42_2></TD>
+    <TD id=EN43_1></TD>
+    <TD id=EN43_2></TD>
+    <TD id=EN44_1></TD>
+    <TD id=EN44_2></TD></TR></TBODY></TABLE>
+<TABLE border=1>
+  <TBODY>
+  <TR>
+    <TD class="td01"  colSpan=6><SPAN id=nm073></SPAN>　<INPUT 
+      onclick=Click_Skill5SW() type=checkbox name=A5_SKILLSW><SPAN 
+      id=nm074></SPAN></TD></TR>
+  <TR>
+    <TD id=EN50_1></TD>
+    <TD id=EN50_2></TD>
+    <TD id=EN51_1></TD>
+    <TD id=EN51_2></TD>
+    <TD id=EN52_1></TD>
+    <TD id=EN52_2></TD></TR>
+  <TR>
+    <TD id=EN53_1></TD>
+    <TD id=EN53_2></TD>
+    <TD id=EN54_1></TD>
+    <TD id=EN54_2></TD>
+    <TD id=EN55_1></TD>
+    <TD id=EN55_2></TD></TR></TBODY></TABLE>
+<TABLE border=1>
+  <TBODY>
+  <TR>
+    <TD class="td01"  colSpan=10><SPAN id=nm075></SPAN>　<INPUT 
+      onclick=Click_Skill6SW() type=checkbox name=A6_SKILLSW><SPAN 
+      id=nm076></SPAN></TD></TR>
+  <TR>
+    <TD id=EN60_1></TD>
+    <TD id=EN60_2></TD>
+    <TD id=EN61_1></TD>
+    <TD id=EN61_2></TD>
+    <TD id=EN62_1></TD>
+    <TD id=EN62_2></TD></TR>
+  <TR>
+    <TD id=EN63_1></TD>
+    <TD id=EN63_2></TD>
+    <TD id=EN64_1></TD>
+    <TD id=EN64_2></TD>
+    <TD id=EN65_1></TD>
+    <TD id=EN65_2></TD></TR></TR></TBODY></TABLE>
+<TABLE border=1>
+  <TBODY>
+  <TR>
+    <TD class="td01"  colSpan=6><SPAN id=nm079></SPAN>　<INPUT 
+      onclick=Click_Skill7SW() type=checkbox name=A7_SKILLSW><SPAN 
+      id=nm032></SPAN></TD></TR>
+  <TR>
+    <TD id=EN70_1></TD>
+    <TD id=EN70_2></TD>
+    <TD id=EN71_1></TD>
+    <TD id=EN71_2></TD>
+    <TD id=EN72_1></TD>
+    <TD id=EN72_2></TD></TR>
+  <TR>
+    <TD colSpan=6><SPAN id=EN73></SPAN><SPAN id=EN74></SPAN><SPAN 
+      id=EN75></SPAN><SPAN id=EN76></SPAN><SPAN id=EN77></SPAN><SPAN 
+      id=EN78></SPAN></TD></TR>
+  <TR>
+    <TD id=EN79_1></TD>
+    <TD id=EN79_2></TD>
+    <TD id=EN710_1></TD>
+    <TD id=EN710_2></TD></TR>
+  <TR>
+    <TD id=EN711_1></TD>
+    <TD id=EN711_2></TD>
+    <TD id=EN712_1></TD>
+    <TD id=EN712_2></TD></TR>
+  <TR>
+    <TD id=EN713_1></TD>
+    <TD id=EN713_2></TD>
+    <TD id=EN714_1></TD>
+    <TD id=EN714_2></TD></TR>
+  <TR>
+    <TD id=EN715 colSpan=6></TD></TR></TBODY></TABLE>
+<HR>
+<FONT size=2><SPAN id=nm077></SPAN></FONT>
+<SELECT name=Conf01>
+  <OPTION 
+  value=10 selected>0.1 秒(每秒10次)</OPTION>
+  <OPTION value=15>0.15秒</OPTION>
+  <OPTION value=20>0.2 秒(每秒5次)</OPTION>
+  <OPTION value=25>0.25秒(每秒4次)</OPTION>
+  <OPTION value=30>0.3 秒</OPTION>
+  <OPTION value=33>0.33秒(每秒3次)</OPTION>
+  <OPTION 
+  value=40>0.4 秒</OPTION>
+  <OPTION value=50>0.5 秒(每秒2次)</OPTION>
+</SELECT>
+<INPUT onclick=SaveCookieConf() type=button value=保存> <SPAN id=set></SPAN><BR>
+<TABLE>
+  <TBODY>
+  <TR>
+    <TD><INPUT onclick=URLOUT() type=button value=导出当前数据URL></TD>
+    <TD><INPUT size=100 name=URL_TEXT></TD>
+    <TD><INPUT name=Button onClick="JM_cc('URL_TEXT')" type=button value=复制到剪贴板>
+      <input type="reset" name="Submit" value="清除所有"></TD>
+  </TR></TBODY></TABLE>
+</FORM><BR> <SPAN id=PR1></SPAN>
+	<span class=title>原网站：<A href="http://roratorio.2-d.jp/ro/" 
+target=_blank>ROratorio</A><SPAN id=PR1></SPAN>
+<SCRIPT language=JavaScript src="js/monster.js"></SCRIPT>
+
+<SCRIPT language=JavaScript src="js/card.js"></SCRIPT>
+
+<SCRIPT language=JavaScript src="js/foot.js"></SCRIPT>
+
+<SCRIPT language=JavaScript src="js/copy.js"></SCRIPT>
+<br/>
+版权声明：<BR>功能部分版权归ROratorio 所有<br>最终解释权归我所有</span>
+ </BODY></HTML>

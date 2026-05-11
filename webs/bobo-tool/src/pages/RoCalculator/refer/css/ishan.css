@@ -1,0 +1,26 @@
+body{
+	line-height: 150%;
+	font-family: Arial, Helvetica, sans-serif;
+}
+td{
+	font-size: 14px;
+	padding: 3px;
+	color: #333;
+
+}
+a {
+	font-size: 12px;
+	color: #F60;
+}
+.title{
+	color: #39C;
+	font-size: 12px;
+}
+.td01{
+	background-image: url(../images/con_c_link3.gif);
+
+}
+hr{
+	color: #eee;
+	height: 1px;
+}

@@ -5,8 +5,9 @@ import { useNavigate } from "react-router-dom";
 import { LayoutMenu } from "@frfojo/components";
 
 const IconMomoro = new URL("@/assets/momoro.jpeg", import.meta.url).href;
-const IconAHKTesting = new URL("@/assets/testing.jpeg", import.meta.url).href;
+// const IconAHKTesting = new URL("@/assets/testing.jpeg", import.meta.url).href;
 const IconMomotu = new URL("@/assets/momotu.webp", import.meta.url).href;
+const IconRoCalc = new URL("@/assets/ro_calc.jpeg", import.meta.url).href;
 
 const menus = [
   {
@@ -15,17 +16,23 @@ const menus = [
     img: IconMomoro,
     path: "/ffj/2048",
   },
-  {
-    title: "AHK Testing",
-    desciption: "测试",
-    img: IconAHKTesting,
-    path: "/ffj/ahk-testing",
-  },
+  // {
+  //   title: "AHK Testing",
+  //   desciption: "测试",
+  //   img: IconAHKTesting,
+  //   path: "/ffj/ahk-testing",
+  // },
   {
     title: "MomoIngameNews",
     desciption: "MomoRo数据统计",
     img: IconMomotu,
     path: "/ffj/momo-ingamenews",
+  },
+  {
+    title: "RO计算器",
+    desciption: "仙境传说相关数值工具",
+    img: IconRoCalc,
+    path: "/ffj/ro-calculator",
   },
 ];
 
