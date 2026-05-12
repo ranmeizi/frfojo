@@ -60,25 +60,55 @@ function isRecord(x: unknown): x is Record<string, unknown> {
   return typeof x === "object" && x !== null;
 }
 
+export type RoCalcSaveSlotSummary = {
+  occupied: boolean;
+  savedAt: string | null;
+  /** 存档内 `data.formJobId`；损坏或旧档可能为 null */
+  formJobId: number | null;
+};
+
+const MAX_FORM_JOB_ID = 127;
+
+function tryParseSaveSlotMeta(raw: string): { savedAt: string | null; formJobId: number | null } {
+  try {
+    const o = JSON.parse(raw) as unknown;
+    if (!isRecord(o)) return { savedAt: null, formJobId: null };
+    const savedAt = typeof o.savedAt === "string" ? o.savedAt : null;
+    const data = o.data;
+    if (!isRecord(data)) return { savedAt, formJobId: null };
+    const j = data.formJobId;
+    if (typeof j === "number" && Number.isFinite(j)) {
+      const ji = Math.trunc(j);
+      if (ji >= 0 && ji <= MAX_FORM_JOB_ID) return { savedAt, formJobId: ji };
+    }
+    if (typeof j === "string" && /^\d+$/.test(j)) {
+      const ji = Number(j);
+      if (ji >= 0 && ji <= MAX_FORM_JOB_ID) return { savedAt, formJobId: ji };
+    }
+    return { savedAt, formJobId: null };
+  } catch {
+    return { savedAt: null, formJobId: null };
+  }
+}
+
+function readSaveSlotSummary(slot: number): RoCalcSaveSlotSummary {
+  if (slot < 0 || slot >= RO_CALC_SAVE_SLOT_COUNT) {
+    return { occupied: false, savedAt: null, formJobId: null };
+  }
+  const raw = safeGetItem(slotKey(slot));
+  if (!raw) return { occupied: false, savedAt: null, formJobId: null };
+  const meta = tryParseSaveSlotMeta(raw);
+  return { occupied: true, savedAt: meta.savedAt, formJobId: meta.formJobId };
+}
+
 /** 槽位是否已有任意字符串（含损坏 JSON） */
 export function saveSlotOccupied(slot: number): boolean {
-  if (slot < 0 || slot >= RO_CALC_SAVE_SLOT_COUNT) return false;
-  return safeGetItem(slotKey(slot)) !== null;
+  return readSaveSlotSummary(slot).occupied;
 }
 
 /** 仅读取存档时间，用于下拉展示 */
 export function peekSaveSlotSavedAt(slot: number): string | null {
-  if (slot < 0 || slot >= RO_CALC_SAVE_SLOT_COUNT) return null;
-  const raw = safeGetItem(slotKey(slot));
-  if (!raw) return null;
-  try {
-    const o = JSON.parse(raw) as unknown;
-    if (!isRecord(o)) return null;
-    const at = o.savedAt;
-    return typeof at === "string" ? at : null;
-  } catch {
-    return null;
-  }
+  return readSaveSlotSummary(slot).savedAt;
 }
 
 /** 读取并消毒；无效则返回 null */
@@ -123,9 +153,6 @@ export function clearSaveSlot(slot: number): void {
   safeRemoveItem(slotKey(slot));
 }
 
-export function listSaveSlotSummaries(): { occupied: boolean; savedAt: string | null }[] {
-  return Array.from({ length: RO_CALC_SAVE_SLOT_COUNT }, (_, i) => ({
-    occupied: saveSlotOccupied(i),
-    savedAt: peekSaveSlotSavedAt(i),
-  }));
+export function listSaveSlotSummaries(): RoCalcSaveSlotSummary[] {
+  return Array.from({ length: RO_CALC_SAVE_SLOT_COUNT }, (_, i) => readSaveSlotSummary(i));
 }

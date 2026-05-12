@@ -55,7 +55,7 @@ const AdditionalManualEditsCard: FC<AdditionalManualEditsCardProps> = ({ value, 
         </AccordionSummary>
         <AccordionDetails sx={{ px: 1, py: 1.25 }}>
           <Typography variant="caption" color="text.secondary" display="block" sx={{ mb: 1, textAlign: "center" }}>
-            <strong>此处数值仅经完整存档槽位保存；</strong>与原版 Full Save 行为对齐时请用保存条写入。
+            <strong>此处数值需通过上方存档条写入槽位后才会长期保存。</strong>
           </Typography>
           <PlayerManualEditsFormBody m={m} onPatch={(p) => patchM(value, onChange, p)} showFormulaFootnote />
         </AccordionDetails>

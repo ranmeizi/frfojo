@@ -155,7 +155,7 @@ const FoodConsumableCard: FC<FoodConsumableCardProps> = ({ value, onChange }) =>
                 onChange={(e) => patch({ magicScrollExtra: e.target.checked })}
               />
             }
-            label="魔法卷轴 / 天地树（原版联动）"
+            label="魔法卷轴 / 天地树"
           />
         </Stack>
       </Box>

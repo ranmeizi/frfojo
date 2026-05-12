@@ -4,6 +4,7 @@ import Draggable, {
   type DraggableData,
   type DraggableEvent,
 } from "react-draggable";
+import { useRoCalcFloatStack } from "../RoCalcFloatStackContext";
 
 /** 加在可拖动标题（或收起态外圈）上；勿放在需点击的 IconButton 上 */
 export const DRAGGABLE_OPACITY_FLOAT_HANDLE = "draggable-opacity-float__handle";
@@ -24,6 +25,8 @@ export type DraggableOpacityFloatProps = {
   /** 鼠标移出后的不透明度，默认 0.2 */
   dimmedOpacity?: number;
   zIndex?: number;
+  /** 参与同层 z-index 竞争：悬停时抬高本窗、压低其它带 stackKey 的窗 */
+  stackKey?: string;
   children: ReactNode;
   rootSx?: SxProps<Theme>;
   /** 加在拖动根节点上，便于其它浮层测量相对位置 */
@@ -43,18 +46,28 @@ export function DraggableOpacityFloat({
   floatRootRef: floatRootRefProp,
   dimmedOpacity = 0.5,
   zIndex: zIndexProp,
+  stackKey,
   children,
   rootSx,
   rootClassName,
 }: DraggableOpacityFloatProps) {
   const theme = useTheme();
+  const floatStack = useRoCalcFloatStack();
   const nodeRef = useRef<HTMLDivElement>(null);
   const [hovered, setHovered] = useState(false);
 
   const baseZ = zIndexProp ?? theme.zIndex.drawer + 2;
   /** 收起贴边（horizontalAnchor）时抬到接近 modal，避免与其它同层浮层或底栏叠压 */
-  const effectiveZ =
+  let effectiveZ =
     horizontalAnchor !== "none" ? Math.max(baseZ, theme.zIndex.modal - 2) : baseZ;
+
+  if (stackKey && floatStack?.raisedKey != null) {
+    if (floatStack.raisedKey === stackKey) {
+      effectiveZ = Math.max(effectiveZ, theme.zIndex.modal + 10);
+    } else {
+      effectiveZ = Math.min(effectiveZ, theme.zIndex.drawer);
+    }
+  }
 
   const setRootRef = (el: HTMLDivElement | null) => {
     const nr = nodeRef as MutableRefObject<HTMLDivElement | null>;
@@ -93,8 +106,14 @@ export function DraggableOpacityFloat({
         }}
       >
         <Box
-          onMouseEnter={() => setHovered(true)}
-          onMouseLeave={() => setHovered(false)}
+          onMouseEnter={() => {
+            setHovered(true);
+            if (stackKey) floatStack?.raise(stackKey);
+          }}
+          onMouseLeave={() => {
+            setHovered(false);
+            if (stackKey) floatStack?.lower(stackKey);
+          }}
           sx={{
             pointerEvents: "auto",
             width: "max-content",

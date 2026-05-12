@@ -1,47 +1,33 @@
 import { CARD_STAT_TABLE, CARD_STAT_TABLE_MAX_ID } from "./cardStats.generated";
+import { activeCardSetBonusCardIds, legacyEquippedCardIds0to15 } from "./cardSetBonus";
 import { isNitouActive } from "./nitouSupport";
 import { sixStatsFromItemScriptCodes } from "./itemScriptSixStats";
 import type { EquipmentState, SixStats } from "./types";
 
-/**
- * 与 foot.js `StPlusCard` 相同的槽顺序：主手卡 0～3、`n_Nitou` 时副手卡 4～7、
- * 头上下、左手、身体、披肩、鞋、饰品×2。
- */
-function equippedCardIds(eq: EquipmentState, effectiveJobId?: number): number[] {
-  const nitou = isNitouActive(eq, effectiveJobId);
-  return [
-    eq.weaponCard1,
-    eq.weaponCard2,
-    eq.weaponCard3,
-    eq.weaponCard4,
-    ...(nitou
-      ? [eq.weapon2Card1, eq.weapon2Card2, eq.weapon2Card3, eq.weapon2Card4]
-      : [0, 0, 0, 0]),
-    eq.head1Card,
-    eq.head2Card,
-    eq.leftCard,
-    eq.bodyCard,
-    eq.shoulderCard,
-    eq.shoesCard,
-    eq.acc1Card,
-    eq.acc2Card,
-  ];
+/** 等同 `StPlusCard(nSTP2)`：所有已装卡片上 stat code 与 `nSTP2` 一致的 value 之和 */
+function addCardStPlusFromId(id: number, statCode: number): number {
+  if (id <= 0 || id > CARD_STAT_TABLE_MAX_ID) return 0;
+  const row = CARD_STAT_TABLE[id];
+  if (!row?.length) return 0;
+  let w = 0;
+  for (const p of row) {
+    if (p.code === statCode) w += p.value;
+  }
+  return w;
 }
 
-/** 等同 `StPlusCard(nSTP2)`：所有已装卡片上 stat code 与 `nSTP2` 一致的 value 之和 */
+/** 等同 foot.js `StPlusCard`：实体槽 0～15 + 套卡虚拟槽（`SetCard` 写入 16～25 的奖励卡） */
 export function sumCardStPlus(
   eq: EquipmentState,
   statCode: number,
   effectiveJobId?: number,
 ): number {
   let w = 0;
-  for (const id of equippedCardIds(eq, effectiveJobId)) {
-    if (id <= 0 || id > CARD_STAT_TABLE_MAX_ID) continue;
-    const row = CARD_STAT_TABLE[id];
-    if (!row?.length) continue;
-    for (const p of row) {
-      if (p.code === statCode) w += p.value;
-    }
+  for (const id of legacyEquippedCardIds0to15(eq, effectiveJobId)) {
+    w += addCardStPlusFromId(id, statCode);
+  }
+  for (const id of activeCardSetBonusCardIds(eq, effectiveJobId)) {
+    w += addCardStPlusFromId(id, statCode);
   }
   return w;
 }

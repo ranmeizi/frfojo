@@ -1,5 +1,17 @@
+import { CARD_STAT_TABLE_MAX_ID } from "./cardStats.generated";
 import { cardLabel } from "./cardObject.generated";
 import type { ItemOption } from "./itemLists";
+
+/**
+ * 装备各槽「已插卡」的消毒：仅校验卡号范围，不按 CardSortOBJ 槽位白名单丢弃。
+ * 与 refer `foot.js` 读表 `eval(A_*_card)` + `SetCard` 一致——原版只认 n_A_card 里的编号，不验证卡是否「属于」该槽。
+ * 下拉仍用 `sanitizeWeaponCard1` 等各槽列表，避免 UI 与运算两套逻辑混用。
+ */
+export function sanitizeEquipmentCardId(id: number): number {
+  const n = Math.floor(Number(id));
+  if (!Number.isFinite(n) || n <= 0 || n > CARD_STAT_TABLE_MAX_ID) return 0;
+  return n;
+}
 
 /** Auto-extracted from refer/js/card.js CardSortOBJ — 与原版下拉顺序一致 */
 export const WEAPON_CARD_SLOT1_IDS = [0,201,202,203,204,1,2,3,106,156,107,223,463,25,11,233,235,10,244,158,27,252,253,254,255,259,26,263,265,15,277,279,39,14,286,287,288,289,290,43,109,22,296,31,428,9,29,16,313,18,162,34,160,38,464,41,319,311,323,427,165,325,326,328,329,28,169,20,215,42,47,343,32,21,462,5,164,466,345,305,24,45,159,46,353,355,171,356,13,37,167,4,110,359,360,19,361,217,33,163,44,366,17,12,465,6,161,166,40,35,23,30,380,398,8,157,36,382,168,363,7,111,170,390,219] as const;

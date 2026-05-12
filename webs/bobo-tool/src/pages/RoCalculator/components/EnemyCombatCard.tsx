@@ -118,7 +118,7 @@ const EnemyCombatCard: FC<EnemyCombatCardProps> = ({
 
   const body = (
     <Stack spacing={1}>
-        {/* nm036 攻击方式 — 原版在魔物表上方，与 A_ActiveSkill 同带 */}
+        {/* 攻击方式 */}
         <TableContainer
           component={Paper}
           variant="outlined"
@@ -154,7 +154,7 @@ const EnemyCombatCard: FC<EnemyCombatCardProps> = ({
               </TableRow>
               <TableRow>
                 <TableCell colSpan={2} sx={{ color: "text.secondary", fontSize: "0.68rem", py: 0.5 }}>
-                  A_ActiveSkill / 计算 占位，与原版表位对齐。
+                  主动技能与伤害联动后，此处将显示对应计算项。
                 </TableCell>
               </TableRow>
             </TableBody>
@@ -433,7 +433,7 @@ const EnemyCombatCard: FC<EnemyCombatCardProps> = ({
               ))}
               <TableRow>
                 <TableCell colSpan={2} sx={{ color: "text.secondary", fontSize: 12 }}>
-                  数值待接入 refer `BattleCalc998` / `BattleTAKA` 等与武器技能联动后的伤害段。
+                  伤害等结果将随武器、技能与目标设置扩展显示。
                 </TableCell>
               </TableRow>
             </TableBody>

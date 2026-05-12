@@ -16,16 +16,7 @@ import {
   KYOUKA_SLOT_COUNT,
   KYOUKA_SLOT_SPECS,
 } from "./enemyCombatUi";
-import {
-  sanitizeAccessoryCard,
-  sanitizeBodyArmorCard,
-  sanitizeGarmentCard,
-  sanitizeHeadgearCard,
-  sanitizeShieldCard,
-  sanitizeShoesCard,
-  sanitizeWeaponCard1,
-  sanitizeWeaponCard234,
-} from "./cardSlotOptions";
+import { sanitizeEquipmentCardId } from "./cardSlotOptions";
 import { maxRangedAmmoIndex } from "./rangedAmmoResolve";
 import { MONSTER_OBJ } from "./monster.generated";
 import { armorItemOptions, dualWieldWeapon2ItemOptions, weaponItemOptions } from "./itemLists";
@@ -625,22 +616,22 @@ export function sanitizeCharacterInput(input: CharacterBaseInput): CharacterBase
     dualWield,
     weapon2Id,
     weapon2Refine: weapon2Id === 0 && !eq.weapon2CustomEquipId ? 0 : clampRefine(eq.weapon2Refine),
-    weaponCard1: sanitizeWeaponCard1(eq.weaponCard1),
-    weaponCard2: sanitizeWeaponCard234(eq.weaponCard2),
-    weaponCard3: sanitizeWeaponCard234(eq.weaponCard3),
-    weaponCard4: sanitizeWeaponCard234(eq.weaponCard4),
-    weapon2Card1: sanitizeWeaponCard1(eq.weapon2Card1),
-    weapon2Card2: sanitizeWeaponCard234(eq.weapon2Card2),
-    weapon2Card3: sanitizeWeaponCard234(eq.weapon2Card3),
-    weapon2Card4: sanitizeWeaponCard234(eq.weapon2Card4),
-    head1Card: sanitizeHeadgearCard(eq.head1Card),
-    head2Card: sanitizeHeadgearCard(eq.head2Card),
-    leftCard: sanitizeShieldCard(eq.leftCard),
-    bodyCard: sanitizeBodyArmorCard(eq.bodyCard),
-    shoulderCard: sanitizeGarmentCard(eq.shoulderCard),
-    shoesCard: sanitizeShoesCard(eq.shoesCard),
-    acc1Card: sanitizeAccessoryCard(eq.acc1Card),
-    acc2Card: sanitizeAccessoryCard(eq.acc2Card),
+    weaponCard1: sanitizeEquipmentCardId(eq.weaponCard1),
+    weaponCard2: sanitizeEquipmentCardId(eq.weaponCard2),
+    weaponCard3: sanitizeEquipmentCardId(eq.weaponCard3),
+    weaponCard4: sanitizeEquipmentCardId(eq.weaponCard4),
+    weapon2Card1: sanitizeEquipmentCardId(eq.weapon2Card1),
+    weapon2Card2: sanitizeEquipmentCardId(eq.weapon2Card2),
+    weapon2Card3: sanitizeEquipmentCardId(eq.weapon2Card3),
+    weapon2Card4: sanitizeEquipmentCardId(eq.weapon2Card4),
+    head1Card: sanitizeEquipmentCardId(eq.head1Card),
+    head2Card: sanitizeEquipmentCardId(eq.head2Card),
+    leftCard: sanitizeEquipmentCardId(eq.leftCard),
+    bodyCard: sanitizeEquipmentCardId(eq.bodyCard),
+    shoulderCard: sanitizeEquipmentCardId(eq.shoulderCard),
+    shoesCard: sanitizeEquipmentCardId(eq.shoesCard),
+    acc1Card: sanitizeEquipmentCardId(eq.acc1Card),
+    acc2Card: sanitizeEquipmentCardId(eq.acc2Card),
   };
 
   return {

@@ -20,7 +20,9 @@ import {
   RO_CALC_SAVE_SLOT_COUNT,
   writeSaveSlot,
   clearSaveSlot,
+  type RoCalcSaveSlotSummary,
 } from "../engine/roCalcLocalSaves";
+import { JOB_NAMES } from "../engine/jobConstants";
 import { roCalcPaperSx, roCalcSectionTitleSx } from "../roCalcDenseSx";
 
 function formatSavedAt(iso: string | null): string {
@@ -33,6 +35,24 @@ function formatSavedAt(iso: string | null): string {
     hour: "2-digit",
     minute: "2-digit",
   });
+}
+
+function jobName(formJobId: number | null | undefined): string | null {
+  if (formJobId == null || !Number.isFinite(formJobId)) return null;
+  const i = Math.trunc(formJobId);
+  const n = JOB_NAMES[i];
+  return n ?? null;
+}
+
+/** 槽位下拉 / 「当前」一行文案 */
+function formatOccupiedSlotLine(slotIndex: number, s: RoCalcSaveSlotSummary): string {
+  const j = jobName(s.formJobId);
+  const t = formatSavedAt(s.savedAt);
+  const bits: string[] = [`${slotIndex + 1}`];
+  if (j) bits.push(j);
+  if (t) bits.push(t);
+  else if (!j) bits.push("已存");
+  return bits.join(" · ");
 }
 
 type RoCalcSaveDataBarProps = {
@@ -55,8 +75,7 @@ const RoCalcSaveDataBar: FC<RoCalcSaveDataBarProps> = ({ onAfterLoad }) => {
   const slotLabel = useMemo(() => {
     const s = summaries[slot];
     if (!s?.occupied) return `${slot + 1} · 空`;
-    const t = formatSavedAt(s.savedAt);
-    return t ? `${slot + 1} · ${t}` : `${slot + 1} · 已存`;
+    return formatOccupiedSlotLine(slot, s);
   }, [summaries, slot]);
 
   const showSnack = (msg: string, severity: "success" | "error" | "info" = "info") => {
@@ -70,7 +89,8 @@ const RoCalcSaveDataBar: FC<RoCalcSaveDataBarProps> = ({ onAfterLoad }) => {
       return;
     }
     refreshSummaries();
-    showSnack(`已保存到槽位 ${slot + 1}`, "success");
+    const j = jobName(input.formJobId);
+    showSnack(j ? `已保存到槽位 ${slot + 1}（${j}）` : `已保存到槽位 ${slot + 1}`, "success");
   };
 
   const handleLoad = () => {
@@ -82,7 +102,8 @@ const RoCalcSaveDataBar: FC<RoCalcSaveDataBarProps> = ({ onAfterLoad }) => {
     applyInput(data);
     onAfterLoad?.(data.equipment.weaponCustomEquipId ? 0 : data.equipment.weaponId);
     refreshSummaries();
-    showSnack(`已从槽位 ${slot + 1} 读取`, "success");
+    const j = jobName(data.formJobId);
+    showSnack(j ? `已从槽位 ${slot + 1} 读取（${j}）` : `已从槽位 ${slot + 1} 读取`, "success");
   };
 
   const handleClear = () => {
@@ -100,7 +121,7 @@ const RoCalcSaveDataBar: FC<RoCalcSaveDataBarProps> = ({ onAfterLoad }) => {
     <>
       <Paper variant="outlined" sx={{ ...roCalcPaperSx, borderColor: "divider" }}>
         <Typography component="h2" variant="subtitle2" sx={roCalcSectionTitleSx}>
-          存档（localStorage · {RO_CALC_SAVE_SLOT_COUNT} 槽，同 refer 多槽）
+          存档（localStorage · {RO_CALC_SAVE_SLOT_COUNT} 槽）
         </Typography>
         <Stack
           direction={{ xs: "column", sm: "row" }}
@@ -119,8 +140,7 @@ const RoCalcSaveDataBar: FC<RoCalcSaveDataBarProps> = ({ onAfterLoad }) => {
             >
               {Array.from({ length: RO_CALC_SAVE_SLOT_COUNT }, (_, i) => {
                 const s = summaries[i];
-                const label =
-                  !s?.occupied ? `${i + 1} · 空` : `${i + 1} · ${formatSavedAt(s.savedAt) || "已存"}`;
+                const label = !s?.occupied ? `${i + 1} · 空` : formatOccupiedSlotLine(i, s);
                 return (
                   <MenuItem key={i} value={i}>
                     {label}

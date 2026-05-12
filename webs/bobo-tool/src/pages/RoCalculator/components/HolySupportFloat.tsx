@@ -29,6 +29,7 @@ import {
   DraggableOpacityFloat,
   type HorizontalAnchor,
 } from "./DraggableOpacityFloat";
+import { FLOAT_STACK_KEYS } from "../RoCalcFloatStackContext";
 
 const RO_CALC_SCROLL_ROOT_SELECTOR = ".ro-calc-scroll-root";
 const PANEL_WIDTH_PX = 300;
@@ -63,6 +64,7 @@ type HolySideFloatProps = {
   title: string;
   rootClassName: string;
   zIndex: number;
+  stackKey: string;
   onDragStop: (x: number, y: number) => void;
   dragPos: { x: number; y: number };
   setDragPos: React.Dispatch<React.SetStateAction<{ x: number; y: number }>>;
@@ -82,6 +84,7 @@ const HolySideFloat: FC<HolySideFloatProps> = ({
   title,
   rootClassName,
   zIndex,
+  stackKey,
   onDragStop,
   dragPos,
   setDragPos,
@@ -159,6 +162,7 @@ const HolySideFloat: FC<HolySideFloatProps> = ({
       anchorInset={PEEK_ANCHOR_INSET}
       floatRootRef={floatRootRef}
       zIndex={zIndex}
+      stackKey={stackKey}
       rootClassName={rootClassName}
       onDragStop={(_, d) => {
         if (dockAnchor !== "none") {
@@ -359,6 +363,7 @@ const HolySupportFloat: FC = () => {
         title={HOLY_SUPPORT_FLOAT_TITLE}
         rootClassName="ro-calc-holy-sanctity-float"
         zIndex={zBase}
+        stackKey={FLOAT_STACK_KEYS.holySanctity}
         peekDockSide="right"
         dragPos={posTop}
         setDragPos={setPosTop}
@@ -378,6 +383,7 @@ const HolySupportFloat: FC = () => {
         title={HOLY_DOMAIN_RAPTOR_FLOAT_TITLE}
         rootClassName="ro-calc-holy-domain-float"
         zIndex={zBase + 1}
+        stackKey={FLOAT_STACK_KEYS.holyDomain}
         peekDockSide="right"
         dragPos={posBot}
         setDragPos={setPosBot}

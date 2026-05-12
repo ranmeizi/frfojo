@@ -32,6 +32,8 @@ import {
   type ItemOption,
   weaponItemOptions,
 } from "../engine/itemLists";
+import { activeCardSetBonusCardIds } from "../engine/cardSetBonus";
+import { formatActiveCardSetDescriptions } from "../engine/cardSetBonusText";
 import { jobSupportsDualWield } from "../engine/nitouSupport";
 import { resolveCombatJob } from "../engine/jobResolve";
 import { roCalcPaperSx, roCalcSectionTitleSx } from "../roCalcDenseSx";
@@ -335,6 +337,15 @@ const EquipmentPanel: FC<EquipmentPanelProps> = ({
   const eq = value.equipment;
   const wt = value.weaponType;
 
+  const activeCardSetBonusIds = useMemo(
+    () => activeCardSetBonusCardIds(eq, effectiveJobId),
+    [eq, effectiveJobId],
+  );
+  const activeCardSetDescText = useMemo(
+    () => formatActiveCardSetDescriptions(activeCardSetBonusIds),
+    [activeCardSetBonusIds],
+  );
+
   useEffect(() => {
     onPreviewItemId?.(eq.weaponCustomEquipId ? 0 : eq.weaponId);
   }, [eq.weaponId, eq.weaponCustomEquipId, effectiveJobId, isTensei, wt, onPreviewItemId]);
@@ -477,11 +488,32 @@ const EquipmentPanel: FC<EquipmentPanelProps> = ({
         display="block"
         sx={{ mb: 1, maxWidth: 900, lineHeight: 1.35, fontSize: "0.7rem" }}
       >
-        ItemOBJ 排序；精炼 DEF 计头/手/身/披肩/鞋。刺客系可开二刀副手（等同 `n_A_Equip[1]` + `n_A_card[4–7]`），与原版一致开启时左手盾位不参与套装/脚本/硬防。卡片与 refer CardSortOBJ
-        一致。快照中六维与 HIT/FLEE/暴击、武器 ATK/DEF/MDEF 含：各槽卡片脚本、激活套装虚拟行（w_SE）、以及已穿装备
-        ItemOBJ 尾部脚本（列 11+，与原版 StPlusCalc2 同源）；汇总数值见右侧「衍生属性」。套装组合以 refer item.js 的 w_SE
-        为准，可在「物品资料」浮窗的「套装」段查看需同穿哪些道具编号。
+        精炼时 DEF 计入头、手、身、披肩、鞋。刺客开启二刀流时左手盾不参与装备套装与部分攻防计算。各槽卡片、装备套装、卡片套装与装备附加效果已计入右侧「衍生属性」与六维。若某槽所选卡片不在该槽默认列表中，界面上可能显示为「无」，但存档中的卡号仍会参与计算。
       </Typography>
+      {activeCardSetBonusIds.length > 0 ? (
+        <Typography
+          variant="caption"
+          color="success.main"
+          display="block"
+          sx={{ mb: 1, fontSize: "0.7rem", lineHeight: 1.45 }}
+        >
+          已激活卡片套装（虚拟奖励卡 ID：{activeCardSetBonusIds.join("、")}）
+          {activeCardSetDescText ? (
+            <Box
+              component="span"
+              sx={{
+                display: "block",
+                mt: 0.35,
+                color: "text.secondary",
+                fontWeight: 500,
+                whiteSpace: "pre-line",
+              }}
+            >
+              {activeCardSetDescText}
+            </Box>
+          ) : null}
+        </Typography>
+      ) : null}
 
       <Stack spacing={1}>
         {wt === 0 ? (

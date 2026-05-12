@@ -1,5 +1,5 @@
 /**
- * 【新功能】与「附加附魔与手动修正」同源表单区，供玩家卡与自定义装备 Modal 复用。
+ * 与「附加附魔与手动修正」共用的表单片段，供玩家卡与自定义装备弹窗复用。
  */
 import {
   Box,
@@ -200,9 +200,7 @@ export const PlayerManualEditsFormBody: FC<PlayerManualEditsFormBodyProps> = ({
       </Box>
       {showFormulaFootnote ? (
         <Typography variant="caption" color="text.secondary" display="block" sx={{ mt: 0.75, lineHeight: 1.45 }}>
-          MaxHP / MaxSP：对齐原版 foot.js（先与前值相加平铺，再整体 ×(100+%)/100）。% ATK：平铺加在 ATK 上后，百分数与 script
-          87 段乘子 w 加算（衍生属性面板）；普攻伤害另叠 head.js ATKbai01 的 wA01。% ASPD：与 n_tok[12] 相同，并入 ASPD 权重而非对最终
-          ASPD 再乘一遍。
+          MaxHP / MaxSP：先与已有数值相加，再按百分比整体缩放。% ATK：先加在面板 ATK 上，再参与衍生属性中的百分比与普攻加成。% ASPD：参与攻速权重计算，不对最终攻速重复乘算。
         </Typography>
       ) : null}
 

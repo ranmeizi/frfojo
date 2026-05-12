@@ -13,6 +13,7 @@ import {
 import type { CharacterBaseInput } from "./engine/types";
 import { RoCalcCharacterProvider } from "./RoCalcCharacterContext";
 import { RoCalcCustomEquipmentProvider } from "./RoCalcCustomEquipmentContext";
+import { RoCalcFloatStackProvider } from "./RoCalcFloatStackContext";
 import RoCalculatorDenseTheme from "./RoCalculatorDenseTheme";
 import RoCalculatorApp from "./RoCalculatorApp";
 import EnemyCombatDrawer from "./components/EnemyCombatDrawer";
@@ -72,9 +73,11 @@ const RoCalculator: FC = () => {
               overflow: "hidden",
             }}
           >
-            <ItemInfoFloat itemId={previewItemId} />
-            <GuildLeaderSkillsFloat />
-            <HolySupportFloat />
+            <RoCalcFloatStackProvider>
+              <ItemInfoFloat itemId={previewItemId} />
+              <GuildLeaderSkillsFloat />
+              <HolySupportFloat />
+            </RoCalcFloatStackProvider>
           </Box>
           <Box
             className="ro-calc-scroll-root"

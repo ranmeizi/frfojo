@@ -1,3 +1,4 @@
+import { activeCardSetBonusCardIds } from "./cardSetBonus";
 import { legacyEquipIds } from "./equipmentSetBonus";
 import { isNitouActive } from "./nitouSupport";
 import type { EquipmentState } from "./types";
@@ -12,7 +13,7 @@ export function equipNumSearch(
   return legacyEquipIds(eq, effectiveJobId).filter((id) => id === itemId).length;
 }
 
-/** 与 `refer/foot.js` `CardNumSearch` 一致：已装卡片槽中 cardId 张数（含二刀 `n_A_card[4..7]`） */
+/** 与 `refer/foot.js` `CardNumSearch` 一致：已装卡片槽中 cardId 张数（含二刀 `n_A_card[4..7]` 与套卡虚拟槽 16～25） */
 export function cardNumSearch(
   eq: EquipmentState,
   cardId: number,
@@ -37,5 +38,9 @@ export function cardNumSearch(
     eq.acc1Card,
     eq.acc2Card,
   ];
-  return ids.filter((id) => id === cardId).length;
+  let w = ids.filter((id) => id === cardId).length;
+  for (const id of activeCardSetBonusCardIds(eq, effectiveJobId)) {
+    if (id === cardId) w += 1;
+  }
+  return w;
 }

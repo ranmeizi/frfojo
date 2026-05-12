@@ -19,6 +19,7 @@ import {
   DraggableOpacityFloat,
   type HorizontalAnchor,
 } from "./DraggableOpacityFloat";
+import { FLOAT_STACK_KEYS } from "../RoCalcFloatStackContext";
 
 /** 与 DraggableOpacityFloat.boundsSelector、滚动根 className 保持一致 */
 const RO_CALC_SCROLL_ROOT_SELECTOR = ".ro-calc-scroll-root";
@@ -113,6 +114,7 @@ const ItemInfoFloat: FC<ItemInfoFloatProps> = ({ itemId }) => {
       horizontalAnchor={dockAnchor}
       anchorInset={PEEK_ANCHOR_INSET}
       floatRootRef={floatRootRef}
+      stackKey={FLOAT_STACK_KEYS.itemInfo}
       rootClassName="ro-calc-item-info-float"
       onDragStop={(_, d) => {
         if (dockAnchor !== "none") {
@@ -209,7 +211,7 @@ const ItemInfoFloat: FC<ItemInfoFloatProps> = ({ itemId }) => {
                   <>
                     <Divider sx={{ my: 1 }} />
                     <Typography variant="caption" color="text.secondary" display="block" sx={{ mb: 0.5 }}>
-                      套装（refer w_SE / SetEquip）
+                      套装
                     </Typography>
                     <Stack component="ul" sx={{ m: 0, pl: 2 }}>
                       {detail.setMembershipLines.map((line, i) => (
@@ -231,7 +233,7 @@ const ItemInfoFloat: FC<ItemInfoFloatProps> = ({ itemId }) => {
                   <>
                     <Divider sx={{ my: 1 }} />
                     <Typography variant="caption" color="text.secondary" display="block" sx={{ mb: 0.5 }}>
-                      效果（与原版 Item_Setumei 一致）
+                      效果
                     </Typography>
                     <Stack component="ul" sx={{ m: 0, pl: 2 }}>
                       {detail.scriptLines.map((line, i) => (

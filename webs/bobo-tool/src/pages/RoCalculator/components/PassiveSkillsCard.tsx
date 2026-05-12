@@ -170,7 +170,7 @@ const PassiveSkillsCard: FC<PassiveSkillsCardProps> = ({ value, onChange }) => {
         display="block"
         sx={{ mb: 1, fontSize: "0.7rem", lineHeight: 1.35 }}
       >
-        JobSkillPassOBJ；换职业槽位与等级会重对齐。
+        按职业被动技能表；切换职业时槽位与等级会刷新。
       </Typography>
 
       {skillIds.length === 0 ? (

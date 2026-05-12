@@ -218,7 +218,7 @@ const BuffSupportSkillsCard: FC<BuffSupportSkillsCardProps> = ({ value, onChange
             </FormControl>
           ) : (
             <Typography variant="caption" color="text.secondary">
-              武器研究：弓手/游侠系用被动 SkillSearch(185)，原版 A2_Skill10 为「-」。
+              武器研究：弓手/游侠系请在「被动技能」中设置；此处为「-」。
             </Typography>
           )}
           <FormControlLabel
@@ -352,7 +352,7 @@ const BuffSupportSkillsCard: FC<BuffSupportSkillsCardProps> = ({ value, onChange
 
       <Divider sx={{ my: 1 }} />
       <Typography variant="caption" color="text.secondary" sx={{ fontSize: "0.68rem", lineHeight: 1.35 }}>
-        演奏/舞蹈见下卡；牺牲祈福等部分段未全接 foot.js。
+        演奏/舞蹈见下方卡片；部分支援技能分段仍在完善中。
       </Typography>
     </Paper>
   );

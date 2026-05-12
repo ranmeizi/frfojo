@@ -56,7 +56,7 @@ const KakutyouCard: FC<KakutyouCardProps> = ({ value, snapshot, onChange }) => {
         color="text.secondary"
         sx={{ display: "block", mb: 1, fontSize: "0.7rem", lineHeight: 1.35 }}
       >
-        对照 refer `foot.js` `KakutyouKansuu`；6～9 等需完整 n_tok / n_A_zokusei 的项为占位说明。
+        部分模式依赖完整战斗状态，当前说明为概要；后续会随计算补全。
       </Typography>
       <Box
         sx={{

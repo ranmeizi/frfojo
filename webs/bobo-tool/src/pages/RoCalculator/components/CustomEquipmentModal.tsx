@@ -69,7 +69,7 @@ const CustomEquipmentModal: FC<CustomEquipmentModalProps> = ({ open, onClose }) 
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth scroll="paper">
-      <DialogTitle>【新功能】自定义装备</DialogTitle>
+      <DialogTitle>自定义装备</DialogTitle>
       <DialogContent dividers>
         <Stack spacing={1.25}>
           <Typography variant="caption" color="text.secondary">

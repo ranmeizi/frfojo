@@ -79,7 +79,7 @@ function equipPlusStatRow(equip: number, stat: number): ReactNode {
 }
 
 const CombatStatsTable: FC<CombatStatsTableProps> = ({ snapshot }) => {
-  /** 衍生属性「ATK」：refer `foot.js` 437–444，`floor((素质段+武器平铺+精炼) * w/100)`，w 见 `atkPanelPercentWApprox` */
+  /** 衍生属性 ATK：含素质/武器平铺/精炼与百分比乘子（见 atkPanelPercentWApprox） */
   const atkSum =
     snapshot.atkStatusPortion +
     snapshot.atkWeaponLineFlat +
