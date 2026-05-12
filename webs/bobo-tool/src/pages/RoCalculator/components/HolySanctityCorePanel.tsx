@@ -9,6 +9,7 @@ import {
   Stack,
 } from "@mui/material";
 import { FC } from "react";
+import { SANCTITY_CORE_OPTIONS } from "../engine/sanctityCoreSix";
 import type { CharacterBaseInput, HolySupportState } from "../engine/types";
 
 type HolySanctityCorePanelProps = {
@@ -25,6 +26,22 @@ const HolySanctityCorePanel: FC<HolySanctityCorePanelProps> = ({ value, onChange
 
   return (
     <Stack spacing={1.5}>
+      <FormControl size="small" fullWidth>
+        <InputLabel shrink>圣域核心 A_HSE</InputLabel>
+        <Select
+          label="圣域核心 A_HSE"
+          value={h.sanctityCoreCode}
+          onChange={(e) => patch({ sanctityCoreCode: Number(e.target.value) })}
+          MenuProps={{ PaperProps: { sx: { maxHeight: 320 } } }}
+        >
+          {SANCTITY_CORE_OPTIONS.map((o) => (
+            <MenuItem key={o.value} value={o.value}>
+              {o.label}
+            </MenuItem>
+          ))}
+        </Select>
+      </FormControl>
+
       <FormControl size="small" fullWidth>
         <InputLabel shrink>领域支援</InputLabel>
         <Select

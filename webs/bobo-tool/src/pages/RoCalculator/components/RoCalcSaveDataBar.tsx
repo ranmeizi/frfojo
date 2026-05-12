@@ -13,6 +13,7 @@ import {
 } from "@mui/material";
 import { type FC, useCallback, useMemo, useState } from "react";
 import { useRoCalcCharacter } from "../RoCalcCharacterContext";
+import CustomEquipmentModal from "./CustomEquipmentModal";
 import {
   listSaveSlotSummaries,
   readSaveSlot,
@@ -41,6 +42,7 @@ type RoCalcSaveDataBarProps = {
 const RoCalcSaveDataBar: FC<RoCalcSaveDataBarProps> = ({ onAfterLoad }) => {
   const { input, applyInput } = useRoCalcCharacter();
   const [slot, setSlot] = useState(0);
+  const [customEquipOpen, setCustomEquipOpen] = useState(false);
   const [summaries, setSummaries] = useState(() => listSaveSlotSummaries());
   const [snack, setSnack] = useState<{ open: boolean; msg: string; severity: "success" | "error" | "info" }>(
     { open: false, msg: "", severity: "info" },
@@ -78,7 +80,7 @@ const RoCalcSaveDataBar: FC<RoCalcSaveDataBarProps> = ({ onAfterLoad }) => {
       return;
     }
     applyInput(data);
-    onAfterLoad?.(data.equipment.weaponId);
+    onAfterLoad?.(data.equipment.weaponCustomEquipId ? 0 : data.equipment.weaponId);
     refreshSummaries();
     showSnack(`已从槽位 ${slot + 1} 读取`, "success");
   };
@@ -140,9 +142,13 @@ const RoCalcSaveDataBar: FC<RoCalcSaveDataBarProps> = ({ onAfterLoad }) => {
             <Button size="small" color="warning" variant="outlined" onClick={handleClear}>
               清除该槽
             </Button>
+            <Button size="small" variant="outlined" color="secondary" onClick={() => setCustomEquipOpen(true)}>
+              自定义装备
+            </Button>
           </Stack>
         </Stack>
       </Paper>
+      <CustomEquipmentModal open={customEquipOpen} onClose={() => setCustomEquipOpen(false)} />
       <Snackbar
         open={snack.open}
         autoHideDuration={3200}

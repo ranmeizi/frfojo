@@ -26,12 +26,16 @@ import {
   resolveCombatJob,
   weaponTypesForJob,
 } from "../engine/jobResolve";
+import { BOW_ARROW_ROWS } from "../engine/bowArrowTable";
+import { BULLET_AMMO_ROWS, GRENADE_AMMO_ROWS } from "../engine/gunAmmoTable";
 import { roCalcPaperSx, roCalcSectionTitleSx } from "../roCalcDenseSx";
 
 type CharacterBasicsPanelProps = {
   value: CharacterBaseInput;
   onChange: (next: CharacterBaseInput) => void;
   remainingStatPoints: number;
+  /** 运算用六维合计；与手填素质之差在输入框后以颜色标出 */
+  effectiveSixStats?: SixStats;
 };
 
 const STAT_KEYS: { key: keyof SixStats; label: string }[] = [
@@ -63,6 +67,7 @@ const CharacterBasicsPanel: FC<CharacterBasicsPanelProps> = ({
   value,
   onChange,
   remainingStatPoints,
+  effectiveSixStats,
 }) => {
   const { effectiveJobId } = resolveCombatJob(value.formJobId);
   const jMax = maxJobLevel(effectiveJobId);
@@ -70,6 +75,29 @@ const CharacterBasicsPanel: FC<CharacterBasicsPanelProps> = ({
     () => weaponTypesForJob(effectiveJobId),
     [effectiveJobId],
   );
+
+  const rangedAmmoOptions = useMemo(() => {
+    const wt = value.weaponType;
+    if (wt === 10) {
+      return BOW_ARROW_ROWS.map((row, idx) => ({
+        idx,
+        label: `${row.label}（ATK ${row.atk}）`,
+      }));
+    }
+    if (wt >= 17 && wt <= 20) {
+      return BULLET_AMMO_ROWS.map((row, idx) => ({
+        idx,
+        label: `${row.label}（ATK ${row.atk}）`,
+      }));
+    }
+    if (wt === 21) {
+      return GRENADE_AMMO_ROWS.map((row, idx) => ({
+        idx,
+        label: `${row.label}（ATK ${row.atk}）`,
+      }));
+    }
+    return null;
+  }, [value.weaponType]);
 
   const patch = (partial: Partial<CharacterBaseInput>) => {
     onChange({ ...value, ...partial });
@@ -202,6 +230,28 @@ const CharacterBasicsPanel: FC<CharacterBasicsPanelProps> = ({
               ))}
             </Select>
           </FormControl>
+          {rangedAmmoOptions ? (
+            <FormControl
+              fullWidth
+              size="small"
+              sx={{ gridColumn: { xs: "1 / -1", sm: "1 / -1", md: "1 / -1" } }}
+            >
+              <InputLabel>远程弹药（普攻预览）</InputLabel>
+              <Select
+                label="远程弹药（普攻预览）"
+                value={value.bowArrowIndex}
+                onChange={(e) =>
+                  patch({ bowArrowIndex: Number(e.target.value) })
+                }
+              >
+                {rangedAmmoOptions.map((o) => (
+                  <MenuItem key={o.idx} value={o.idx}>
+                    {o.label}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          ) : null}
           <FormControl fullWidth size="small">
             <InputLabel>攻速药水</InputLabel>
             <Select
@@ -259,9 +309,17 @@ const CharacterBasicsPanel: FC<CharacterBasicsPanelProps> = ({
           sx={{ display: "block", mb: 0.5, fontSize: "0.7rem", lineHeight: 1.35 }}
         >
           每项最小 1；旁图标可单键重置。
+          {effectiveSixStats ? " 彩色数字为相对手填素质的六维加成合计。" : ""}
         </Typography>
         <Stack spacing={0.75} sx={{ width: "100%" }}>
-          {STAT_KEYS.map(({ key, label }) => (
+          {STAT_KEYS.map(({ key, label }) => {
+            const bonus =
+              effectiveSixStats != null
+                ? effectiveSixStats[key] - value.stats[key]
+                : 0;
+            const bonusText =
+              bonus === 0 ? "" : bonus > 0 ? `+${bonus}` : String(bonus);
+            return (
             <TextField
               key={key}
               label={label}
@@ -279,7 +337,25 @@ const CharacterBasicsPanel: FC<CharacterBasicsPanelProps> = ({
               }
               InputProps={{
                 endAdornment: (
-                  <InputAdornment position="end">
+                  <InputAdornment
+                    position="end"
+                    sx={{ gap: 0.5, flexWrap: "nowrap", maxWidth: "55%" }}
+                  >
+                    {bonusText ? (
+                      <Typography
+                        component="span"
+                        variant="caption"
+                        sx={{
+                          fontWeight: 700,
+                          fontSize: "0.75rem",
+                          lineHeight: 1,
+                          color: bonus > 0 ? "success.main" : "error.main",
+                          flexShrink: 0,
+                        }}
+                      >
+                        {bonusText}
+                      </Typography>
+                    ) : null}
                     <Tooltip title="此项重置为 1">
                       <IconButton
                         size="small"
@@ -297,7 +373,8 @@ const CharacterBasicsPanel: FC<CharacterBasicsPanelProps> = ({
                 ),
               }}
             />
-          ))}
+            );
+          })}
         </Stack>
         <Typography
           variant="caption"

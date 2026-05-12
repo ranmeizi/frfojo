@@ -1,7 +1,9 @@
-import Autocomplete from "@mui/material/Autocomplete";
+import Autocomplete, { createFilterOptions } from "@mui/material/Autocomplete";
 import {
   Box,
+  Checkbox,
   FormControl,
+  FormControlLabel,
   InputLabel,
   MenuItem,
   Paper,
@@ -24,7 +26,13 @@ import {
   weaponCard234Options,
 } from "../engine/cardSlotOptions";
 import type { CharacterBaseInput, EquipmentState } from "../engine/types";
-import { armorItemOptions, type ItemOption, weaponItemOptions } from "../engine/itemLists";
+import {
+  armorItemOptions,
+  dualWieldWeapon2ItemOptions,
+  type ItemOption,
+  weaponItemOptions,
+} from "../engine/itemLists";
+import { jobSupportsDualWield } from "../engine/nitouSupport";
 import { resolveCombatJob } from "../engine/jobResolve";
 import { roCalcPaperSx, roCalcSectionTitleSx } from "../roCalcDenseSx";
 
@@ -87,6 +95,69 @@ function patchEq(
   };
 }
 
+function patchWeaponMainPick(o: ItemOption, eq: EquipmentState): Partial<EquipmentState> {
+  if (o.customEquipId) {
+    return {
+      weaponId: 0,
+      weaponRefine: 0,
+      weaponCustomEquipId: o.customEquipId,
+      weaponCard1: 0,
+      weaponCard2: 0,
+      weaponCard3: 0,
+      weaponCard4: 0,
+    };
+  }
+  return {
+    weaponId: o.id,
+    weaponCustomEquipId: null,
+    weaponRefine: o.id === 0 ? 0 : eq.weaponRefine,
+  };
+}
+
+function patchWeapon2Pick(o: ItemOption, eq: EquipmentState): Partial<EquipmentState> {
+  if (o.customEquipId) {
+    return {
+      weapon2Id: 0,
+      weapon2Refine: 0,
+      weapon2CustomEquipId: o.customEquipId,
+      weapon2Card1: 0,
+      weapon2Card2: 0,
+      weapon2Card3: 0,
+      weapon2Card4: 0,
+    };
+  }
+  return {
+    weapon2Id: o.id,
+    weapon2CustomEquipId: null,
+    weapon2Refine: o.id === 0 ? 0 : eq.weapon2Refine,
+  };
+}
+
+type ArmorSlotPickKeys = {
+  idKey: keyof EquipmentState;
+  customKey: keyof EquipmentState;
+  refineKey: keyof EquipmentState | null;
+  cardKey: keyof EquipmentState | null;
+};
+
+function patchArmorSlotPick(row: ArmorSlotPickKeys, o: ItemOption): Partial<EquipmentState> {
+  if (o.customEquipId) {
+    const p: Partial<EquipmentState> = {
+      [row.idKey]: 0,
+      [row.customKey]: o.customEquipId,
+    } as Partial<EquipmentState>;
+    if (row.refineKey) (p as Record<string, number>)[row.refineKey] = 0;
+    if (row.cardKey) (p as Record<string, number>)[row.cardKey] = 0;
+    return p;
+  }
+  return { [row.idKey]: o.id, [row.customKey]: null } as Partial<EquipmentState>;
+}
+
+const filterCardOptions = createFilterOptions<ItemOption>({
+  matchFrom: "any",
+  stringify: (o) => `${o.label} ${o.id}`,
+});
+
 const CardSelect: FC<{
   label: string;
   value: number;
@@ -94,33 +165,65 @@ const CardSelect: FC<{
   disabled?: boolean;
   onChange: (id: number) => void;
 }> = ({ label, value, options, disabled, onChange }) => {
-  const safe = options.some((o) => o.id === value) ? value : 0;
+  const safeId = options.some((o) => o.id === value) ? value : 0;
+  const selected = useMemo(
+    () => options.find((o) => o.id === safeId) ?? options[0],
+    [options, safeId],
+  );
   return (
-    <FormControl
-      size="small"
+    <Autocomplete
       fullWidth
+      size="small"
       disabled={disabled}
+      options={options}
+      value={selected}
+      onChange={(_, v) => {
+        onChange(v?.id ?? 0);
+      }}
+      getOptionLabel={(o) => o.label}
+      isOptionEqualToValue={(a, b) => a.id === b.id}
+      filterOptions={filterCardOptions}
       sx={{
         minWidth: 0,
         width: "100%",
         maxWidth: { xs: "100%", sm: colCard },
         justifySelf: "stretch",
       }}
-    >
-      <InputLabel shrink>{label}</InputLabel>
-      <Select
-        label={label}
-        value={safe}
-        onChange={(e) => onChange(Number(e.target.value))}
-        MenuProps={{ PaperProps: { sx: { maxHeight: 280 } } }}
-      >
-        {options.map((o) => (
-          <MenuItem key={o.id} value={o.id} sx={{ whiteSpace: "normal", typography: "caption" }}>
-            {o.label}
-          </MenuItem>
-        ))}
-      </Select>
-    </FormControl>
+      slotProps={{
+        paper: {
+          elevation: 3,
+          sx: {
+            minWidth: 280,
+            maxWidth: "min(100vw - 24px, 520px)",
+          },
+        },
+      }}
+      ListboxProps={{
+        style: { maxHeight: 320 },
+        sx: {
+          "& .MuiAutocomplete-option": {
+            alignItems: "flex-start",
+            whiteSpace: "normal",
+            wordBreak: "break-word",
+            py: 0.5,
+            typography: "caption",
+          },
+        },
+      }}
+      renderInput={(params) => (
+        <TextField
+          {...params}
+          label={label}
+          InputLabelProps={{ ...params.InputLabelProps, shrink: true }}
+          sx={{
+            minWidth: 0,
+            "& .MuiInputBase-input": {
+              textOverflow: "ellipsis",
+            },
+          }}
+        />
+      )}
+    />
   );
 };
 
@@ -154,23 +257,35 @@ const RefineSelect: FC<{
 const ItemAutocomplete: FC<{
   label: string;
   options: ItemOption[];
-  valueId: number;
-  onPick: (id: number) => void;
-}> = ({ label, options, valueId, onPick }) => {
-  const selected = useMemo(
-    () => options.find((o) => o.id === valueId) ?? options[0],
-    [options, valueId],
-  );
+  valueItemId: number;
+  valueCustomEquipId: string | null;
+  onPickOption: (o: ItemOption) => void;
+  disabled?: boolean;
+}> = ({ label, options, valueItemId, valueCustomEquipId, onPickOption, disabled }) => {
+  const selected = useMemo(() => {
+    if (valueCustomEquipId) {
+      const c = options.find((o) => o.customEquipId === valueCustomEquipId);
+      if (c) return c;
+    }
+    const plain = options.find((o) => o.id === valueItemId && !o.customEquipId);
+    if (plain) return plain;
+    return options.find((o) => o.id === valueItemId) ?? options[0];
+  }, [options, valueItemId, valueCustomEquipId]);
   return (
     <Autocomplete
       fullWidth
       size="small"
+      disabled={disabled}
       options={options}
       value={selected}
       getOptionLabel={(o) => o.label}
-      isOptionEqualToValue={(a, b) => a.id === b.id}
+      isOptionEqualToValue={(a, b) =>
+        a.customEquipId || b.customEquipId
+          ? a.customEquipId === b.customEquipId
+          : a.id === b.id
+      }
       onChange={(_, v) => {
-        if (v) onPick(v.id);
+        if (v) onPickOption(v);
       }}
       slotProps={{
         paper: {
@@ -221,8 +336,8 @@ const EquipmentPanel: FC<EquipmentPanelProps> = ({
   const wt = value.weaponType;
 
   useEffect(() => {
-    onPreviewItemId?.(eq.weaponId);
-  }, [eq.weaponId, effectiveJobId, isTensei, wt, onPreviewItemId]);
+    onPreviewItemId?.(eq.weaponCustomEquipId ? 0 : eq.weaponId);
+  }, [eq.weaponId, eq.weaponCustomEquipId, effectiveJobId, isTensei, wt, onPreviewItemId]);
 
   const weaponOpts = useMemo(
     () => weaponItemOptions(effectiveJobId, isTensei, wt),
@@ -260,6 +375,11 @@ const EquipmentPanel: FC<EquipmentPanelProps> = ({
     () => armorItemOptions(effectiveJobId, isTensei, 64),
     [effectiveJobId, isTensei],
   );
+  const canNitou = jobSupportsDualWield(effectiveJobId);
+  const weapon2Opts = useMemo(
+    () => dualWieldWeapon2ItemOptions(effectiveJobId, isTensei),
+    [effectiveJobId, isTensei],
+  );
 
   const wCard1Opts = useMemo(() => weaponCard1Options(), []);
   const wCard234Opts = useMemo(() => weaponCard234Options(), []);
@@ -273,23 +393,31 @@ const EquipmentPanel: FC<EquipmentPanelProps> = ({
   const applyEq = (p: Partial<EquipmentState>) => {
     const next = patchEq(value, p);
     onChange(next);
-    const idKey = Object.keys(p).find((k) => k.endsWith("Id"));
-    if (idKey) {
-      const id = next.equipment[idKey as keyof EquipmentState];
-      if (typeof id === "number") onPreviewItemId?.(id);
+    const neq = next.equipment;
+    if ("weaponId" in p || "weaponCustomEquipId" in p) {
+      onPreviewItemId?.(neq.weaponCustomEquipId ? 0 : neq.weaponId);
+    } else if ("weapon2Id" in p || "weapon2CustomEquipId" in p) {
+      onPreviewItemId?.(neq.weapon2CustomEquipId ? 0 : neq.weapon2Id);
+    } else {
+      const idKey = Object.keys(p).find((k) => k.endsWith("Id") && !k.includes("Custom"));
+      if (idKey) {
+        const id = next.equipment[idKey as keyof EquipmentState];
+        if (typeof id === "number") onPreviewItemId?.(id);
+      }
     }
   };
 
+  const shieldSlotDisabled = canNitou && eq.dualWield;
   const armorSlots = [
-    ["头饰上", head1Opts, "head1Id", "head1Refine", "head1Card" as const, headCardOpts],
-    ["头饰中", head2Opts, "head2Id", null, "head2Card" as const, headCardOpts],
-    ["头饰下", head3Opts, "head3Id", "head3Refine", null, null],
-    ["左手", leftOpts, "leftId", "leftRefine", "leftCard" as const, shieldCardOpts],
-    ["身体", bodyOpts, "bodyId", "bodyRefine", "bodyCard" as const, bodyCardOpts],
-    ["披肩", shoulderOpts, "shoulderId", "shoulderRefine", "shoulderCard" as const, garmentCardOpts],
-    ["鞋子", shoesOpts, "shoesId", "shoesRefine", "shoesCard" as const, shoesCardOpts],
-    ["饰品 1", accOpts, "acc1Id", null, "acc1Card" as const, accCardOpts],
-    ["饰品 2", accOpts, "acc2Id", null, "acc2Card" as const, accCardOpts],
+    ["头饰上", head1Opts, "head1Id", "head1CustomEquipId", "head1Refine", "head1Card" as const, headCardOpts, false],
+    ["头饰中", head2Opts, "head2Id", "head2CustomEquipId", null, "head2Card" as const, headCardOpts, false],
+    ["头饰下", head3Opts, "head3Id", "head3CustomEquipId", "head3Refine", null, null, false],
+    ["左手（盾）", leftOpts, "leftId", "leftCustomEquipId", "leftRefine", "leftCard" as const, shieldCardOpts, shieldSlotDisabled],
+    ["身体", bodyOpts, "bodyId", "bodyCustomEquipId", "bodyRefine", "bodyCard" as const, bodyCardOpts, false],
+    ["披肩", shoulderOpts, "shoulderId", "shoulderCustomEquipId", "shoulderRefine", "shoulderCard" as const, garmentCardOpts, false],
+    ["鞋子", shoesOpts, "shoesId", "shoesCustomEquipId", "shoesRefine", "shoesCard" as const, shoesCardOpts, false],
+    ["饰品 1", accOpts, "acc1Id", "acc1CustomEquipId", null, "acc1Card" as const, accCardOpts, false],
+    ["饰品 2", accOpts, "acc2Id", "acc2CustomEquipId", null, "acc2Card" as const, accCardOpts, false],
   ] as const;
 
   const colA = armorSlots.slice(0, 5);
@@ -299,23 +427,29 @@ const EquipmentPanel: FC<EquipmentPanelProps> = ({
     label: string,
     opts: ItemOption[],
     idKey: keyof EquipmentState,
+    customKey: keyof EquipmentState,
     refKey: keyof EquipmentState | null,
     cardKey: keyof EquipmentState | null,
     cardOpts: ItemOption[] | null,
+    slotDisabled = false,
   ) => {
     const hasCard = Boolean(cardKey && cardOpts);
+    const rowLocked = Boolean(eq[customKey]);
     return (
       <Box key={String(idKey)} sx={armorSlotRowSx(!!refKey, hasCard)}>
         <ItemAutocomplete
           label={label}
           options={opts}
-          valueId={eq[idKey] as number}
-          onPick={(id) => applyEq({ [idKey]: id } as Partial<EquipmentState>)}
+          valueItemId={eq[idKey] as number}
+          valueCustomEquipId={(eq[customKey] as string | null) ?? null}
+          disabled={slotDisabled}
+          onPickOption={(o) => applyEq(patchArmorSlotPick({ idKey, customKey, refineKey: refKey, cardKey }, o))}
         />
         {refKey ? (
           <RefineSelect
             label="精炼"
             value={eq[refKey] as number}
+            disabled={slotDisabled || rowLocked}
             onChange={(n) => applyEq({ [refKey]: n } as Partial<EquipmentState>)}
           />
         ) : null}
@@ -324,6 +458,7 @@ const EquipmentPanel: FC<EquipmentPanelProps> = ({
             label="卡片"
             options={cardOpts}
             value={eq[cardKey] as number}
+            disabled={slotDisabled || rowLocked}
             onChange={(id) => applyEq({ [cardKey]: id } as Partial<EquipmentState>)}
           />
         ) : null}
@@ -342,8 +477,10 @@ const EquipmentPanel: FC<EquipmentPanelProps> = ({
         display="block"
         sx={{ mb: 1, maxWidth: 900, lineHeight: 1.35, fontSize: "0.7rem" }}
       >
-        ItemOBJ 排序；精炼 DEF 计头/手/身/披肩/鞋。卡片与 refer CardSortOBJ
-        一致；六维与 HIT/FLEE/暴击、武器 ATK/DEF/MDEF 的卡片平铺已计入快照。
+        ItemOBJ 排序；精炼 DEF 计头/手/身/披肩/鞋。刺客系可开二刀副手（等同 `n_A_Equip[1]` + `n_A_card[4–7]`），与原版一致开启时左手盾位不参与套装/脚本/硬防。卡片与 refer CardSortOBJ
+        一致。快照中六维与 HIT/FLEE/暴击、武器 ATK/DEF/MDEF 含：各槽卡片脚本、激活套装虚拟行（w_SE）、以及已穿装备
+        ItemOBJ 尾部脚本（列 11+，与原版 StPlusCalc2 同源）；汇总数值见右侧「衍生属性」。套装组合以 refer item.js 的 w_SE
+        为准，可在「物品资料」浮窗的「套装」段查看需同穿哪些道具编号。
       </Typography>
 
       <Stack spacing={1}>
@@ -352,10 +489,9 @@ const EquipmentPanel: FC<EquipmentPanelProps> = ({
             <ItemAutocomplete
               label="武器"
               options={weaponOpts}
-              valueId={eq.weaponId}
-              onPick={(weaponId) =>
-                applyEq({ weaponId, weaponRefine: weaponId === 0 ? 0 : eq.weaponRefine })
-              }
+              valueItemId={eq.weaponId}
+              valueCustomEquipId={eq.weaponCustomEquipId}
+              onPickOption={(o) => applyEq(patchWeaponMainPick(o, eq))}
             />
             <RefineSelect
               label="武器精炼"
@@ -376,39 +512,42 @@ const EquipmentPanel: FC<EquipmentPanelProps> = ({
             <ItemAutocomplete
               label="武器"
               options={weaponOpts}
-              valueId={eq.weaponId}
-              onPick={(weaponId) =>
-                applyEq({ weaponId, weaponRefine: weaponId === 0 ? 0 : eq.weaponRefine })
-              }
+              valueItemId={eq.weaponId}
+              valueCustomEquipId={eq.weaponCustomEquipId}
+              onPickOption={(o) => applyEq(patchWeaponMainPick(o, eq))}
             />
             <RefineSelect
               label="武器精炼"
               value={eq.weaponRefine}
-              disabled={wt === 0}
+              disabled={wt === 0 || Boolean(eq.weaponCustomEquipId)}
               onChange={(weaponRefine) => applyEq({ weaponRefine })}
             />
             <CardSelect
               label="武器卡 1"
               options={wCard1Opts}
               value={eq.weaponCard1}
+              disabled={Boolean(eq.weaponCustomEquipId) || eq.weaponId === 0}
               onChange={(weaponCard1) => applyEq({ weaponCard1 })}
             />
             <CardSelect
               label="武器卡 2"
               options={wCard234Opts}
               value={eq.weaponCard2}
+              disabled={Boolean(eq.weaponCustomEquipId) || eq.weaponId === 0}
               onChange={(weaponCard2) => applyEq({ weaponCard2 })}
             />
             <CardSelect
               label="武器卡 3"
               options={wCard234Opts}
               value={eq.weaponCard3}
+              disabled={Boolean(eq.weaponCustomEquipId) || eq.weaponId === 0}
               onChange={(weaponCard3) => applyEq({ weaponCard3 })}
             />
             <CardSelect
               label="武器卡 4"
               options={wCard234Opts}
               value={eq.weaponCard4}
+              disabled={Boolean(eq.weaponCustomEquipId) || eq.weaponId === 0}
               onChange={(weaponCard4) => applyEq({ weaponCard4 })}
             />
           </Box>
@@ -428,15 +567,14 @@ const EquipmentPanel: FC<EquipmentPanelProps> = ({
               <ItemAutocomplete
                 label="武器"
                 options={weaponOpts}
-                valueId={eq.weaponId}
-                onPick={(weaponId) =>
-                  applyEq({ weaponId, weaponRefine: weaponId === 0 ? 0 : eq.weaponRefine })
-                }
+                valueItemId={eq.weaponId}
+                valueCustomEquipId={eq.weaponCustomEquipId}
+                onPickOption={(o) => applyEq(patchWeaponMainPick(o, eq))}
               />
               <RefineSelect
                 label="武器精炼"
                 value={eq.weaponRefine}
-                disabled={wt === 0}
+                disabled={wt === 0 || Boolean(eq.weaponCustomEquipId)}
                 onChange={(weaponRefine) => applyEq({ weaponRefine })}
               />
             </Box>
@@ -459,29 +597,188 @@ const EquipmentPanel: FC<EquipmentPanelProps> = ({
                 label="武器卡 1"
                 options={wCard1Opts}
                 value={eq.weaponCard1}
+                disabled={Boolean(eq.weaponCustomEquipId) || eq.weaponId === 0}
                 onChange={(weaponCard1) => applyEq({ weaponCard1 })}
               />
               <CardSelect
                 label="武器卡 2"
                 options={wCard234Opts}
                 value={eq.weaponCard2}
+                disabled={Boolean(eq.weaponCustomEquipId) || eq.weaponId === 0}
                 onChange={(weaponCard2) => applyEq({ weaponCard2 })}
               />
               <CardSelect
                 label="武器卡 3"
                 options={wCard234Opts}
                 value={eq.weaponCard3}
+                disabled={Boolean(eq.weaponCustomEquipId) || eq.weaponId === 0}
                 onChange={(weaponCard3) => applyEq({ weaponCard3 })}
               />
               <CardSelect
                 label="武器卡 4"
                 options={wCard234Opts}
                 value={eq.weaponCard4}
+                disabled={Boolean(eq.weaponCustomEquipId) || eq.weaponId === 0}
                 onChange={(weaponCard4) => applyEq({ weaponCard4 })}
               />
             </Box>
           </Stack>
         )}
+
+        {wt > 0 && canNitou ? (
+          <Stack spacing={1}>
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={eq.dualWield}
+                  onChange={(e) => {
+                    const on = e.target.checked;
+                    if (on) {
+                      applyEq({
+                        dualWield: true,
+                        leftId: 0,
+                        leftRefine: 0,
+                        leftCard: 0,
+                      });
+                    } else {
+                      applyEq({
+                        dualWield: false,
+                        weapon2Id: 0,
+                        weapon2CustomEquipId: null,
+                        weapon2Refine: 0,
+                        weapon2Card1: 0,
+                        weapon2Card2: 0,
+                        weapon2Card3: 0,
+                        weapon2Card4: 0,
+                      });
+                    }
+                  }}
+                />
+              }
+              label="二刀副手（刺客 / 十字刺客）"
+            />
+            {eq.dualWield ? (
+              mdUp ? (
+                <Box
+                  sx={{
+                    display: "grid",
+                    gap: 1,
+                    alignItems: "flex-start",
+                    gridTemplateColumns: `minmax(0, 1fr) ${colRefine} repeat(4, ${colCard})`,
+                  }}
+                >
+                  <ItemAutocomplete
+                    label="副手武器"
+                    options={weapon2Opts}
+                    valueItemId={eq.weapon2Id}
+                    valueCustomEquipId={eq.weapon2CustomEquipId}
+                    onPickOption={(o) => applyEq(patchWeapon2Pick(o, eq))}
+                  />
+                  <RefineSelect
+                    label="副手精炼"
+                    value={eq.weapon2Refine}
+                    disabled={eq.weapon2Id === 0 && !eq.weapon2CustomEquipId}
+                    onChange={(weapon2Refine) => applyEq({ weapon2Refine })}
+                  />
+                  <CardSelect
+                    label="副手卡 1"
+                    options={wCard1Opts}
+                    value={eq.weapon2Card1}
+                    disabled={eq.weapon2Id === 0 && !eq.weapon2CustomEquipId}
+                    onChange={(weapon2Card1) => applyEq({ weapon2Card1 })}
+                  />
+                  <CardSelect
+                    label="副手卡 2"
+                    options={wCard234Opts}
+                    value={eq.weapon2Card2}
+                    disabled={eq.weapon2Id === 0 && !eq.weapon2CustomEquipId}
+                    onChange={(weapon2Card2) => applyEq({ weapon2Card2 })}
+                  />
+                  <CardSelect
+                    label="副手卡 3"
+                    options={wCard234Opts}
+                    value={eq.weapon2Card3}
+                    disabled={eq.weapon2Id === 0 && !eq.weapon2CustomEquipId}
+                    onChange={(weapon2Card3) => applyEq({ weapon2Card3 })}
+                  />
+                  <CardSelect
+                    label="副手卡 4"
+                    options={wCard234Opts}
+                    value={eq.weapon2Card4}
+                    disabled={eq.weapon2Id === 0 && !eq.weapon2CustomEquipId}
+                    onChange={(weapon2Card4) => applyEq({ weapon2Card4 })}
+                  />
+                </Box>
+              ) : (
+                <Stack spacing={1}>
+                  <Box
+                    sx={{
+                      display: "grid",
+                      gap: 1,
+                      gridTemplateColumns: { xs: "minmax(0, 1fr)", sm: `minmax(0, 1fr) ${colRefine}` },
+                    }}
+                  >
+                    <ItemAutocomplete
+                      label="副手武器"
+                      options={weapon2Opts}
+                      valueItemId={eq.weapon2Id}
+                      valueCustomEquipId={eq.weapon2CustomEquipId}
+                      onPickOption={(o) => applyEq(patchWeapon2Pick(o, eq))}
+                    />
+                    <RefineSelect
+                      label="副手精炼"
+                      value={eq.weapon2Refine}
+                      disabled={eq.weapon2Id === 0 && !eq.weapon2CustomEquipId}
+                      onChange={(weapon2Refine) => applyEq({ weapon2Refine })}
+                    />
+                  </Box>
+                  <Box
+                    sx={{
+                      display: "grid",
+                      gap: 1,
+                      gridTemplateColumns: {
+                        xs: `repeat(2, ${colCard})`,
+                        sm: `repeat(4, ${colCard})`,
+                      },
+                      width: "max-content",
+                      maxWidth: "100%",
+                      overflowX: "auto",
+                    }}
+                  >
+                    <CardSelect
+                      label="副手卡 1"
+                      options={wCard1Opts}
+                      value={eq.weapon2Card1}
+                      disabled={eq.weapon2Id === 0 && !eq.weapon2CustomEquipId}
+                      onChange={(weapon2Card1) => applyEq({ weapon2Card1 })}
+                    />
+                    <CardSelect
+                      label="副手卡 2"
+                      options={wCard234Opts}
+                      value={eq.weapon2Card2}
+                      disabled={eq.weapon2Id === 0 && !eq.weapon2CustomEquipId}
+                      onChange={(weapon2Card2) => applyEq({ weapon2Card2 })}
+                    />
+                    <CardSelect
+                      label="副手卡 3"
+                      options={wCard234Opts}
+                      value={eq.weapon2Card3}
+                      disabled={eq.weapon2Id === 0 && !eq.weapon2CustomEquipId}
+                      onChange={(weapon2Card3) => applyEq({ weapon2Card3 })}
+                    />
+                    <CardSelect
+                      label="副手卡 4"
+                      options={wCard234Opts}
+                      value={eq.weapon2Card4}
+                      disabled={eq.weapon2Id === 0 && !eq.weapon2CustomEquipId}
+                      onChange={(weapon2Card4) => applyEq({ weapon2Card4 })}
+                    />
+                  </Box>
+                </Stack>
+              )
+            ) : null}
+          </Stack>
+        ) : null}
 
         <Box
           sx={{
@@ -492,13 +789,13 @@ const EquipmentPanel: FC<EquipmentPanelProps> = ({
           }}
         >
           <Stack spacing={1}>
-            {colA.map(([label, opts, idKey, refKey, cardKey, cardOpts]) =>
-              renderSlotRow(label, opts, idKey, refKey, cardKey, cardOpts),
+            {colA.map(([label, opts, idKey, customKey, refKey, cardKey, cardOpts, dis]) =>
+              renderSlotRow(label, opts, idKey, customKey, refKey, cardKey, cardOpts, dis),
             )}
           </Stack>
           <Stack spacing={1}>
-            {colB.map(([label, opts, idKey, refKey, cardKey, cardOpts]) =>
-              renderSlotRow(label, opts, idKey, refKey, cardKey, cardOpts),
+            {colB.map(([label, opts, idKey, customKey, refKey, cardKey, cardOpts, dis]) =>
+              renderSlotRow(label, opts, idKey, customKey, refKey, cardKey, cardOpts, dis),
             )}
           </Stack>
         </Box>

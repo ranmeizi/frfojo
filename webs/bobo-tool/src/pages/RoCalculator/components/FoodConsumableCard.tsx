@@ -42,7 +42,16 @@ const FoodConsumableCard: FC<FoodConsumableCardProps> = ({ value, onChange }) =>
   return (
     <Paper
       variant="outlined"
-      sx={{ ...roCalcPaperSx, ...roCalcFormControlDenseSx, width: "100%", boxSizing: "border-box" }}
+      sx={{
+        ...roCalcPaperSx,
+        ...roCalcFormControlDenseSx,
+        width: "100%",
+        height: { xs: "auto", md: "100%" },
+        boxSizing: "border-box",
+        display: "flex",
+        flexDirection: "column",
+        minHeight: 0,
+      }}
     >
       <Typography variant="subtitle2" sx={roCalcSectionTitleSx}>
         强化素质（食品／箱）
@@ -56,6 +65,7 @@ const FoodConsumableCard: FC<FoodConsumableCardProps> = ({ value, onChange }) =>
         PassSkill7；六维/HIT/FLEE/武器与 MATK 平铺已参与演算。
       </Typography>
 
+      <Box sx={{ flex: 1, display: "flex", flexDirection: "column", minHeight: 0 }}>
       <Box
         sx={{
           display: "grid",
@@ -181,6 +191,7 @@ const FoodConsumableCard: FC<FoodConsumableCardProps> = ({ value, onChange }) =>
             </Select>
           </FormControl>
         ))}
+      </Box>
       </Box>
     </Paper>
   );

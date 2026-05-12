@@ -5,6 +5,7 @@ import CharacterBasicsPanel from "./components/CharacterBasicsPanel";
 import CombatStatsTable from "./components/CombatStatsTable";
 import EquipmentPanel from "./components/EquipmentPanel";
 import FoodConsumableCard from "./components/FoodConsumableCard";
+import AdditionalManualEditsCard from "./components/AdditionalManualEditsCard";
 import JobBonusSummary from "./components/JobBonusSummary";
 import PassiveSkillsCard from "./components/PassiveSkillsCard";
 import PerformanceDanceCard from "./components/PerformanceDanceCard";
@@ -62,6 +63,7 @@ const RoCalculatorApp: FC<RoCalculatorAppProps> = ({ onPreviewItemId }) => {
             value={input}
             onChange={applyInput}
             remainingStatPoints={snapshot.remainingStatPoints}
+            effectiveSixStats={snapshot.totalStats}
           />
         </Stack>
         <Box
@@ -93,13 +95,34 @@ const RoCalculatorApp: FC<RoCalculatorAppProps> = ({ onPreviewItemId }) => {
         alignItems="stretch"
         sx={{ width: "100%", minWidth: 0 }}
       >
-        <Box sx={{ flex: 1, minWidth: 0, width: "100%" }}>
+        <Box
+          sx={{
+            flex: 1,
+            minWidth: 0,
+            width: "100%",
+            display: "flex",
+            flexDirection: "column",
+            minHeight: 0,
+          }}
+        >
           <PerformanceDanceCard value={input} onChange={applyInput} />
         </Box>
-        <Box sx={{ flex: 1, minWidth: 0, width: "100%" }}>
+        <Box
+          sx={{
+            flex: 1,
+            minWidth: 0,
+            width: "100%",
+            display: "flex",
+            flexDirection: "column",
+            minHeight: 0,
+          }}
+        >
           <FoodConsumableCard value={input} onChange={applyInput} />
         </Box>
       </Stack>
+      <Box sx={{ width: "100%" }}>
+        <AdditionalManualEditsCard value={input} onChange={applyInput} />
+      </Box>
     </Box>
   );
 };

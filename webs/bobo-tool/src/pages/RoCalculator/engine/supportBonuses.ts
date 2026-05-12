@@ -8,25 +8,80 @@ import {
   computePerfectDodge,
   computeSpr,
 } from "./secondaryStats";
-import { JOB_PASSIVE_SKILL_IDS } from "./skillBoard.generated";
 import {
   passSkill6DomainLevel,
   passSkill6ProvokeMatkLevel,
 } from "./holyPassSkill6";
 import { cardSixStatDelta } from "./cardBonuses";
+import {
+  setSixStatDelta,
+  wornEquipSixStatDelta212215Only,
+  wornEquipSixStatDeltaExcluding212215,
+} from "./equipmentSetBonus";
+import { cardDynamicSixStat } from "./cardDynamicSixStat";
+import { cardNumSearch, equipNumSearch } from "./equipCardCount";
+import { passiveLevelBySkillId } from "./passiveSkillLevel";
+import { stPlusCalcEquipConditionalSix } from "./stPlusCalcEquipConditionalSix";
+import { sanctityCoreSixStatDelta } from "./sanctityCoreSix";
+import { legacyJobSearch } from "./legacyJobSearch";
 import { resolveCombatJob } from "./jobResolve";
 import type { CharacterBaseInput, SixStats } from "./types";
 
-/** legacy SkillSearch：从当前职业被动槽读取技能等级 */
-export function passiveLevelBySkillId(
-  formJobId: number,
-  levels: readonly number[],
-  skillId: number,
-): number {
-  const ids = JOB_PASSIVE_SKILL_IDS[formJobId] ?? [];
-  const idx = ids.indexOf(skillId);
-  if (idx === -1) return 0;
-  return levels[idx] ?? 0;
+export { passiveLevelBySkillId } from "./passiveSkillLevel";
+
+const ZERO_SIX: SixStats = {
+  str: 0,
+  agi: 0,
+  vit: 0,
+  int: 0,
+  dex: 0,
+  luk: 0,
+};
+
+/**
+ * legacy `StPlusCalc` 中在心灵(42)/领域% 之前、对 `wSPC_*` 的 `SkillSearch` 平铺六维段（foot.js 约 1630–1647、1722–1733）。
+ * 不含 42 的 AGI/DEX%（见 `computeEffectiveSixStats`）；不含卡片/装备条件分支。
+ */
+export function passiveSkillSearchSixStatDelta(
+  input: CharacterBaseInput,
+): SixStats {
+  const d = { ...ZERO_SIX };
+  const L = (id: number) =>
+    passiveLevelBySkillId(input.formJobId, input.passiveSkillLevels, id);
+
+  d.dex += L(38);
+  d.str += L(68) * 4;
+  d.str += L(146);
+  const n404 = L(404);
+  d.str += n404;
+  d.int += n404;
+  const n234 = L(234);
+  if (n234) d.int += Math.round(n234 / 2);
+
+  const n286 = L(286);
+  if (n286 >= 1) d.str += 1;
+  if (n286 >= 2) d.str += 2;
+  if (n286 >= 3) d.str += 4;
+  if (n286 >= 4) d.str += 8;
+  if (n286 >= 5) d.str += 16;
+
+  if (L(422)) {
+    d.dex += 4;
+    d.agi += 4;
+  }
+
+  if (input.formJobId === 24 && L(270)) {
+    d.str += 5;
+    d.agi += 5;
+    d.vit += 5;
+    d.dex += 5;
+    d.int += 5;
+    d.luk += 5;
+  }
+
+  if (L(379) && input.weaponType === 0) d.str += 10;
+
+  return d;
 }
 
 /** legacy 傀儡：未满级时加半值，STR 等单项封顶 99 */
@@ -38,13 +93,18 @@ function addDollHalfCap(totalBefore: number, puppetVal: number, full: boolean): 
 }
 
 /**
- * 对应 legacy StPlusCalc 末尾六维加成（装备 StPlus 以外：领域/辅助/演奏/工会/圣音/食品/傀儡）。
- * 另含卡片 `StPlusCard(1～7)` 平铺六维；不含 ItemOBJ 装备随机属性。
+ * 对应 legacy StPlusCalc 六维链：Job 板 + `SkillSearch` 被动平铺 + 心灵(42)/领域 AGI·DEX% + 其余支援与装备脚本。
+ * 末尾另含卡片 `StPlusCard(1～7)`、套装虚拟行、已穿装备 ItemOBJ 尾部脚本（列 11+）平铺六维。
  */
 export function computeEffectiveSixStats(input: CharacterBaseInput): SixStats {
+  const { effectiveJobId } = resolveCombatJob(input.formJobId);
   const job = computeJobBoardBonus(input.formJobId, input.jobLv);
   const m = input.stats;
+  const eq = input.equipment;
   let s = addSix(m, job);
+  s = addSix(s, wornEquipSixStatDeltaExcluding212215(eq, effectiveJobId));
+  s = addSix(s, setSixStatDelta(eq, effectiveJobId));
+  s = addSix(s, passiveSkillSearchSixStatDelta(input));
 
   const mental42 = passiveLevelBySkillId(
     input.formJobId,
@@ -53,13 +113,18 @@ export function computeEffectiveSixStats(input: CharacterBaseInput): SixStats {
   );
   if (mental42 > 0) {
     const fac = 102 + mental42;
-    s.agi = Math.floor((m.agi + job.agi) * fac / 100);
-    s.dex = Math.floor((m.dex + job.dex) * fac / 100);
+    s.agi = Math.floor(s.agi * fac / 100);
+    s.dex = Math.floor(s.dex * fac / 100);
   } else if (passSkill6DomainLevel(input.holySupport) > 0) {
     const fac = 102 + passSkill6DomainLevel(input.holySupport);
-    s.agi = Math.floor((m.agi + job.agi) * fac / 100);
-    s.dex = Math.floor((m.dex + job.dex) * fac / 100);
+    s.agi = Math.floor(s.agi * fac / 100);
+    s.dex = Math.floor(s.dex * fac / 100);
   }
+
+  s = addSix(s, wornEquipSixStatDelta212215Only(eq, effectiveJobId));
+  s = addSix(s, stPlusCalcEquipConditionalSix(input));
+  s = addSix(s, cardSixStatDelta(eq, effectiveJobId));
+  s = addSix(s, cardDynamicSixStat(input));
 
   const b = input.buffSupport;
   s.str += b.blessLv;
@@ -126,7 +191,9 @@ export function computeEffectiveSixStats(input: CharacterBaseInput): SixStats {
   s.dex += f.dexBonus;
   s.luk += f.lukBonus;
 
-  return addSix(s, cardSixStatDelta(input.equipment));
+  s = addSix(s, sanctityCoreSixStatDelta(input.holySupport.sanctityCoreCode));
+
+  return s;
 }
 
 function hpSpCtx(
@@ -213,6 +280,13 @@ export function computeWeaponAtkSupportFlat(input: CharacterBaseInput): number {
   return w;
 }
 
+/** `PassSkill3[9]` 战舞：武器 ATK 平铺（foot.js 约 434–435） */
+export function performanceDanceWeaponAtkFlat(input: CharacterBaseInput): number {
+  const lv = input.performanceDance.lv9;
+  if (lv <= 0) return 0;
+  return 25 + 25 * lv;
+}
+
 export function computeMatkWithSupport(
   input: CharacterBaseInput,
   effectiveInt: number,
@@ -248,37 +322,98 @@ export function computeMatkWithSupport(
   return m;
 }
 
-/** legacy 速度激发 + 布莱奇之诗等对 ASPD 权重 w 的额外部分（可负） */
-export function computeAspdExtraWeight(input: CharacterBaseInput, weaponType: number): number {
+/**
+ * legacy 速度激发 + 布莱奇之诗等对 ASPD 权重 w 的额外部分（可负）。
+ * `SkillSearch(357)` / `(361)` 先置 `ASPDch` 后，原版不再走 `PassSkill2[6]` 与 `PassSkill3[1]`（foot.js 约 1273–1297）。
+ */
+export function computeAspdExtraWeight(
+  input: CharacterBaseInput,
+  weaponType: number,
+  totalStats: SixStats,
+): number {
   let w = 0;
+  const L = (id: number) =>
+    passiveLevelBySkillId(input.formJobId, input.passiveSkillLevels, id);
+
+  let aspdCh = false;
+  const n357 = L(357);
+  if (n357 > 0) {
+    aspdCh = true;
+    w += Math.floor((input.baseLv + totalStats.luk + totalStats.dex) / 10);
+  }
+  const n361 = L(361);
+  if (n361 > 0) {
+    aspdCh = true;
+    w += 3 * n361;
+  }
+
   const b = input.buffSupport;
   const ad = b.adrenalineMode;
   const isBowLike =
     weaponType === 10 || (weaponType >= 17 && weaponType <= 21);
 
-  if (!isBowLike && ad === 2) w += 25;
-  else if (ad === 1 && weaponType >= 6 && weaponType <= 8) w += 25;
-  else if (ad === 3 && weaponType >= 6 && weaponType <= 8) w += 30;
+  if (!aspdCh) {
+    if (!isBowLike && ad === 2) w += 25;
+    else if (ad === 1 && weaponType >= 6 && weaponType <= 8) w += 25;
+    else if (ad === 3 && weaponType >= 6 && weaponType <= 8) w += 30;
+  }
 
   const p = input.performanceDance;
   if (p.lv2 > 0) {
     w -= p.lv2 * 3 + p.row2Instrument + Math.floor(p.row2PoetDex / 10);
   }
 
-  if (p.lv1 > 0 && !isBowLike) {
+  if (!aspdCh && p.lv1 > 0 && !isBowLike) {
     w += 5 + p.lv1 + Math.floor(p.row1Instrument / 2) + Math.floor(p.row1PoetAgi / 20);
   }
 
   return w;
 }
 
+/** `refer/foot.js` `Mikiri[SkillSearch(191)]` */
+function mikiriFleeFromSkill191(level: number): number {
+  const t = [0, 1, 3, 4, 6, 7, 9, 10, 12, 13, 15];
+  if (level <= 0) return 0;
+  const i = Math.min(level, t.length - 1);
+  return t[i] ?? 0;
+}
+
 export function computeHitWithSupport(
   input: CharacterBaseInput,
-  effectiveDex: number,
+  effective: SixStats,
 ): number {
-  let hit = input.baseLv + effectiveDex;
+  const { effectiveJobId } = resolveCombatJob(input.formJobId);
+  const eq = input.equipment;
+  const L = (id: number) =>
+    passiveLevelBySkillId(input.formJobId, input.passiveSkillLevels, id);
+
+  let hit = input.baseLv + effective.dex;
+  if (equipNumSearch(eq, 656, effectiveJobId) > 0) hit -= Math.floor(input.stats.dex / 3);
+  const wt = input.weaponType;
+  if (wt === 3 || wt === 2) hit += cardNumSearch(eq, 464, effectiveJobId) * 5;
+  if (wt === 10) hit += cardNumSearch(eq, 465, effectiveJobId) * 5;
+  const n492 = cardNumSearch(eq, 492, effectiveJobId);
+  if (n492 > 0) hit += Math.floor(input.jobLv / 10) * n492;
+  if (input.stats.str >= 90 && equipNumSearch(eq, 442, effectiveJobId) > 0)
+    hit += 10 * equipNumSearch(eq, 442, effectiveJobId);
+  if (input.stats.str >= 95 && equipNumSearch(eq, 1073, effectiveJobId) > 0) hit += 10;
+  if (equipNumSearch(eq, 1074, effectiveJobId) > 0 && L(81) === 10) hit += 10;
+
+  hit += L(39);
+  hit += 2 * L(148);
+  hit += 3 * L(270);
+  hit += 10 * L(256);
+  hit += L(426);
+  if (L(421) > 0) hit -= 30;
+  if (L(422) > 0) hit += 20;
+  hit += 2 * L(425);
+  if (equipNumSearch(eq, 654, effectiveJobId) > 0) hit += Math.floor(input.stats.agi / 10);
+
   if (input.guildLeader.hitFlee50) hit += 50;
   if (input.foodConsumable.teaHit) hit += 30;
+
+  /** refer `foot.js` StAllCalc HIT 段：`n_A_ActiveSkill == 324` → +20 */
+  if (input.activeSkillId === 324) hit += 20;
 
   const pd = input.performanceDance;
   if (pd.lv4 > 0) {
@@ -290,11 +425,25 @@ export function computeHitWithSupport(
 
 export function computeFleeWithSupport(
   input: CharacterBaseInput,
-  effectiveAgi: number,
+  effective: SixStats,
 ): number {
-  let flee = input.baseLv + effectiveAgi;
-  if (input.guildLeader.hitFlee50) flee += 50;
-  if (input.foodConsumable.oilFlee) flee += 30;
+  const { effectiveJobId } = resolveCombatJob(input.formJobId);
+  const eq = input.equipment;
+  const su = input.stats;
+  const L = (id: number) =>
+    passiveLevelBySkillId(input.formJobId, input.passiveSkillLevels, id);
+
+  let flee =
+    input.baseLv + effective.agi + Math.floor(effective.luk / 5);
+
+  if (eq.head1Refine >= 7 && equipNumSearch(eq, 1052, effectiveJobId) > 0) flee += 10;
+  if (legacyJobSearch(input.formJobId) === 2 && cardNumSearch(eq, 295, effectiveJobId) > 0)
+    flee += 20;
+  if (eq.shoulderRefine >= 9 && cardNumSearch(eq, 271, effectiveJobId) > 0) flee += 20;
+  if (eq.shoulderRefine <= 4 && cardNumSearch(eq, 401, effectiveJobId) > 0) flee += 10;
+  if (eq.shoulderRefine >= 9 && cardNumSearch(eq, 403, effectiveJobId) > 0) flee += 5;
+  if (su.str >= 90 && equipNumSearch(eq, 442, effectiveJobId) > 0)
+    flee += 10 * equipNumSearch(eq, 442, effectiveJobId);
 
   const h = input.holySupport;
   const body = h.holyBodyBless ? 6 : 0;
@@ -302,20 +451,46 @@ export function computeFleeWithSupport(
     flee += h.slaughterLevel * 3;
   }
 
+  if (eq.weaponId === 483) flee -= input.baseLv + su.agi;
+
+  const n14 = L(14);
+  if (n14 > 0) {
+    const mul =
+      input.formJobId === 8 ||
+      input.formJobId === 14 ||
+      input.formJobId === 22 ||
+      input.formJobId === 28
+        ? 4
+        : 3;
+    flee += mul * n14;
+  }
+  if (L(421) > 0) flee += 30;
+  const n433 = L(433);
+  if (n433 > 0) flee -= 5 * n433;
+  flee += mikiriFleeFromSkill191(L(191));
+  if (L(383) > 0) flee += 10;
+  if (L(356) > 0) {
+    flee += Math.floor(
+      (input.baseLv + effective.luk + effective.dex) / 10,
+    );
+  }
+
+  const L273 = L(273);
+  if (input.formJobId === 24) flee += Math.round(L273 / 2);
+  else if (input.buffSupport.windWalkerLv > 0 && L273 === 0) {
+    flee += Math.round(input.buffSupport.windWalkerLv / 2);
+  }
+
+  if (input.guildLeader.hitFlee50) flee += 50;
+  if (input.foodConsumable.oilFlee) flee += 30;
+
   const pd = input.performanceDance;
   if (pd.lv0 > 0) {
     flee +=
       pd.lv0 + Math.floor(pd.row0Instrument / 2) + Math.floor(pd.row0PoetAgi / 10);
   }
 
-  const wwPassive = passiveLevelBySkillId(
-    input.formJobId,
-    input.passiveSkillLevels,
-    273,
-  );
-  if (input.buffSupport.windWalkerLv > 0 && wwPassive === 0) {
-    flee += Math.round(input.buffSupport.windWalkerLv / 2);
-  }
+  if (L(258) > 0) flee = Math.floor(flee / 2);
 
   return flee;
 }

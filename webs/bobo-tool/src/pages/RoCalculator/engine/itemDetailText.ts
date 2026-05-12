@@ -1,49 +1,7 @@
 import { getItemRow, itemAtkOrDef, itemKind, itemWeaponLevel } from "./itemAccessors";
-
-/** 与 legacy Item_Setumei 前段一致的基础属性码（其余显示为「效果码」行） */
-const STAT_NAMES = [
-  "",
-  "STR",
-  "AGI",
-  "VIT",
-  "INT",
-  "DEX",
-  "LUK",
-  "全素质",
-  "HIT",
-  "FLEE",
-  "CRI",
-  "完全回避",
-  "ASPD",
-  "MHP",
-  "MSP",
-  "MHP%",
-  "MSP%",
-  "ATK",
-  "DEF",
-  "MDEF",
-];
-
-function formatScriptPair(c1: number, c2: number): string {
-  const wIS = c2 < 0 ? " " : " + ";
-  if (c1 >= 1 && c1 <= 11) {
-    return `${STAT_NAMES[c1] ?? `属性${c1}`}${wIS}${c2}`;
-  }
-  if (c1 === 12) return `ASPD${wIS}${c2}%`;
-  if (c1 === 13 || c1 === 14) return `${STAT_NAMES[c1]}${wIS}${c2}`;
-  if (c1 === 15 || c1 === 16) return `${STAT_NAMES[c1]}${wIS}${c2}%`;
-  if (c1 >= 17 && c1 <= 19) return `${STAT_NAMES[c1]}${wIS}${c2}`;
-  if (c1 === 70) return `暴击伤害 +${c2}%`;
-  if (c1 === 73) return `咏唱时间${wIS}${c2}%`;
-  if (c1 === 74) return `技能延迟 ${c2}% 减少`;
-  if (c1 === 87) return `ATK${wIS}${c2}%`;
-  if (c1 === 88) return `MATK${wIS}${c2}%（杖型）`;
-  if (c1 === 89) return `MATK${wIS}${c2}%`;
-  if (c1 === 193) return "无法精炼";
-  if (c1 === 194) return "绝对不会损坏";
-  if (c1 === 195) return "双手杖";
-  return `效果码 ${c1}：${c2}`;
-}
+import { EQUIPMENT_SET_DEFINITIONS } from "./equipmentSetData";
+import { formatSetMembershipLines } from "./equipmentSetMembership";
+import { getItemScriptDisplay } from "./itemSetumei";
 
 function stripHtmlBr(s: string): string {
   return s
@@ -69,6 +27,8 @@ export type ItemDetailModel = {
   flavorText: string;
   /** ItemOBJ[11] 起成对脚本，直至 0 */
   scriptLines: string[];
+  /** 静态表无 refer 运行时写入的 (90,i) 时，由 w_SE 反查得到的套装说明 */
+  setMembershipLines: string[];
 };
 
 export function buildItemDetailModel(id: number): ItemDetailModel {
@@ -94,6 +54,7 @@ export function buildItemDetailModel(id: number): ItemDetailModel {
       reqLvDisplay: "—",
       flavorText: "",
       scriptLines: [],
+      setMembershipLines: formatSetMembershipLines(id),
     };
   }
 
@@ -121,15 +82,22 @@ export function buildItemDetailModel(id: number): ItemDetailModel {
     flavorText = stripHtmlBr(descV);
   }
 
-  const scriptLines: string[] = [];
-  for (let i = 11; i < row.length; i += 2) {
-    const a = row[i];
-    const b = row[i + 1];
-    if (a === 0 && (b === 0 || b === undefined)) break;
-    if (typeof a !== "number") break;
-    const bv = typeof b === "number" ? b : 0;
-    scriptLines.push(formatScriptPair(a, bv));
+  const disp = getItemScriptDisplay(id);
+  const { hasSetScript90, setEquipRowIndex } = disp;
+  const bonusScriptTail: string[] = [];
+  if (hasSetScript90 && setEquipRowIndex != null) {
+    const def = EQUIPMENT_SET_DEFINITIONS[setEquipRowIndex];
+    if (def) {
+      const bonusFx = getItemScriptDisplay(def.bonusItemId).scriptLines;
+      if (bonusFx.length > 0) {
+        bonusScriptTail.push("套装激活效果：");
+        bonusScriptTail.push(...bonusFx.map((x) => `· ${x}`));
+      }
+    }
   }
+  const scriptLines = [...disp.scriptLines, ...bonusScriptTail];
+
+  const setMembershipLines = hasSetScript90 ? [] : formatSetMembershipLines(id);
 
   return {
     id,
@@ -145,5 +113,6 @@ export function buildItemDetailModel(id: number): ItemDetailModel {
     reqLvDisplay,
     flavorText,
     scriptLines,
+    setMembershipLines,
   };
 }

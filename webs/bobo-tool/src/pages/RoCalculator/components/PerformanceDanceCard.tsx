@@ -75,7 +75,18 @@ const PerformanceDanceCard: FC<PerformanceDanceCardProps> = ({ value, onChange }
   };
 
   return (
-    <Paper variant="outlined" sx={{ ...roCalcPaperSx, width: "100%", boxSizing: "border-box" }}>
+    <Paper
+      variant="outlined"
+      sx={{
+        ...roCalcPaperSx,
+        width: "100%",
+        height: { xs: "auto", md: "100%" },
+        boxSizing: "border-box",
+        display: "flex",
+        flexDirection: "column",
+        minHeight: 0,
+      }}
+    >
       <Typography variant="subtitle2" sx={roCalcSectionTitleSx}>
         演奏 / 舞蹈技能范围
       </Typography>
@@ -88,7 +99,7 @@ const PerformanceDanceCard: FC<PerformanceDanceCardProps> = ({ value, onChange }
         PassSkill3；HIT/FLEE/CRIT/HP/SP/DEF/ASPD/傀儡六维等已进演算。
       </Typography>
 
-      <Stack spacing={1}>
+      <Stack spacing={1} sx={{ flex: 1, minHeight: 0 }}>
         {LV_KEYS_10.map((key, i) => (
           <LvSelect
             key={key}

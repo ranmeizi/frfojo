@@ -205,19 +205,25 @@ const ItemInfoFloat: FC<ItemInfoFloatProps> = ({ itemId }) => {
                   <Row label="要求 Lv" value={detail.reqLvDisplay} />
                 </Stack>
 
-                {detail.flavorText ? (
+                {detail.setMembershipLines.length > 0 ? (
                   <>
                     <Divider sx={{ my: 1 }} />
                     <Typography variant="caption" color="text.secondary" display="block" sx={{ mb: 0.5 }}>
-                      说明
+                      套装（refer w_SE / SetEquip）
                     </Typography>
-                    <Typography
-                      variant="body2"
-                      color="text.secondary"
-                      sx={{ whiteSpace: "pre-wrap", wordBreak: "break-word", lineHeight: 1.5 }}
-                    >
-                      {detail.flavorText}
-                    </Typography>
+                    <Stack component="ul" sx={{ m: 0, pl: 2 }}>
+                      {detail.setMembershipLines.map((line, i) => (
+                        <Typography
+                          key={`set-${detail.id}-${i}`}
+                          component="li"
+                          variant="body2"
+                          color="text.secondary"
+                          sx={{ lineHeight: 1.45 }}
+                        >
+                          {line}
+                        </Typography>
+                      ))}
+                    </Stack>
                   </>
                 ) : null}
 
@@ -225,7 +231,7 @@ const ItemInfoFloat: FC<ItemInfoFloatProps> = ({ itemId }) => {
                   <>
                     <Divider sx={{ my: 1 }} />
                     <Typography variant="caption" color="text.secondary" display="block" sx={{ mb: 0.5 }}>
-                      效果（脚本摘要）
+                      效果（与原版 Item_Setumei 一致）
                     </Typography>
                     <Stack component="ul" sx={{ m: 0, pl: 2 }}>
                       {detail.scriptLines.map((line, i) => (
@@ -240,6 +246,22 @@ const ItemInfoFloat: FC<ItemInfoFloatProps> = ({ itemId }) => {
                         </Typography>
                       ))}
                     </Stack>
+                  </>
+                ) : null}
+
+                {detail.flavorText ? (
+                  <>
+                    <Divider sx={{ my: 1 }} />
+                    <Typography variant="caption" color="text.secondary" display="block" sx={{ mb: 0.5 }}>
+                      说明
+                    </Typography>
+                    <Typography
+                      variant="body2"
+                      color="text.secondary"
+                      sx={{ whiteSpace: "pre-wrap", wordBreak: "break-word", lineHeight: 1.5 }}
+                    >
+                      {detail.flavorText}
+                    </Typography>
                   </>
                 ) : null}
               </Box>

@@ -1,5 +1,9 @@
-import type { CharacterBaseInput } from "./types";
+import type { CharacterBaseInput, CustomEquipmentRecord } from "./types";
 import { sanitizeCharacterInput } from "./sanitizeCharacter";
+import {
+  collectEmbeddedCustomEquipsForSave,
+  mergeEmbeddedCustomEquips,
+} from "./customEquipmentRegistry";
 
 /** 与 refer 存档槽数量一致：1～50 */
 export const RO_CALC_SAVE_SLOT_COUNT = 50;
@@ -44,6 +48,14 @@ export type RoCalcStoredSaveV1 = {
   data: CharacterBaseInput;
 };
 
+/** 【新功能】内嵌自定义装备条目，读取时合并进全局库 */
+export type RoCalcStoredSaveV2 = {
+  v: 2;
+  savedAt: string;
+  data: CharacterBaseInput;
+  embeddedCustomEquips?: CustomEquipmentRecord[];
+};
+
 function isRecord(x: unknown): x is Record<string, unknown> {
   return typeof x === "object" && x !== null;
 }
@@ -81,6 +93,10 @@ export function readSaveSlot(slot: number): CharacterBaseInput | null {
     return null;
   }
   if (!isRecord(parsed)) return null;
+  const v = parsed.v;
+  if (v === 2 && Array.isArray(parsed.embeddedCustomEquips)) {
+    mergeEmbeddedCustomEquips(parsed.embeddedCustomEquips as CustomEquipmentRecord[]);
+  }
   const data = parsed.data;
   if (!isRecord(data)) return null;
   try {
@@ -92,10 +108,12 @@ export function readSaveSlot(slot: number): CharacterBaseInput | null {
 
 export function writeSaveSlot(slot: number, input: CharacterBaseInput): boolean {
   if (slot < 0 || slot >= RO_CALC_SAVE_SLOT_COUNT) return false;
-  const payload: RoCalcStoredSaveV1 = {
-    v: 1,
+  const embedded = collectEmbeddedCustomEquipsForSave(input);
+  const payload: RoCalcStoredSaveV2 = {
+    v: 2,
     savedAt: new Date().toISOString(),
     data: sanitizeCharacterInput(input),
+    embeddedCustomEquips: embedded.length > 0 ? embedded : undefined,
   };
   return safeSetItem(slotKey(slot), JSON.stringify(payload));
 }

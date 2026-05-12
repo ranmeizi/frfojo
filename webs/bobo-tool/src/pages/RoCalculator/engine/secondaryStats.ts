@@ -17,7 +17,7 @@ export function computeHit(ctx: SecCtx): number {
 }
 
 export function computeFlee(ctx: SecCtx): number {
-  return ctx.baseLv + ctx.total.agi;
+  return ctx.baseLv + ctx.total.agi + Math.floor(ctx.total.luk / 5);
 }
 
 export function computePerfectDodge(ctx: SecCtx): number {

@@ -40,6 +40,7 @@ const ADRENALINE_OPTIONS = [
 const BuffSupportSkillsCard: FC<BuffSupportSkillsCardProps> = ({ value, onChange }) => {
   const b = value.buffSupport;
   const hideSpiritSphere = value.formJobId === 15 || value.formJobId === 29;
+  const hideWeaponResearch = hideSpiritSphere;
 
   const patch = (partial: Partial<BuffSupportState>) => {
     onChange({ ...value, buffSupport: { ...value.buffSupport, ...partial } });
@@ -173,6 +174,63 @@ const BuffSupportSkillsCard: FC<BuffSupportSkillsCardProps> = ({ value, onChange
             label="圣母之祈福"
           />
           <FormControl size="small" fullWidth>
+            <InputLabel shrink>诵经（Suffragium）</InputLabel>
+            <Select
+              label="诵经（Suffragium）"
+              value={b.suffragiumLv}
+              onChange={(e) => patch({ suffragiumLv: Number(e.target.value) })}
+            >
+              {lvOpts(5).map((n) => (
+                <MenuItem key={n} value={n}>
+                  Lv.{n}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+          <FormControl size="small" fullWidth>
+            <InputLabel shrink>元素领域（A2[14]）</InputLabel>
+            <Select
+              label="元素领域（A2[14]）"
+              value={b.elementalBarrierLv}
+              onChange={(e) => patch({ elementalBarrierLv: Number(e.target.value) })}
+            >
+              {lvOpts(10).map((n) => (
+                <MenuItem key={n} value={n}>
+                  Lv.{n}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+          {!hideWeaponResearch ? (
+            <FormControl size="small" fullWidth>
+              <InputLabel shrink>武器研究（A2[10]）</InputLabel>
+              <Select
+                label="武器研究（A2[10]）"
+                value={b.weaponResearchLv}
+                onChange={(e) => patch({ weaponResearchLv: Number(e.target.value) })}
+              >
+                {lvOpts(5).map((n) => (
+                  <MenuItem key={n} value={n}>
+                    Lv.{n}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          ) : (
+            <Typography variant="caption" color="text.secondary">
+              武器研究：弓手/游侠系用被动 SkillSearch(185)，原版 A2_Skill10 为「-」。
+            </Typography>
+          )}
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={b.soulBreakerEdp}
+                onChange={(e) => patch({ soulBreakerEdp: e.target.checked })}
+              />
+            }
+            label="灵魂破坏者对 EDP 暗属支（PassSkill2[11]）"
+          />
+          <FormControl size="small" fullWidth>
             <InputLabel shrink>速度激发</InputLabel>
             <Select
               label="速度激发"
@@ -259,7 +317,7 @@ const BuffSupportSkillsCard: FC<BuffSupportSkillsCardProps> = ({ value, onChange
             control={
               <Checkbox checked={b.provoke} onChange={(e) => patch({ provoke: e.target.checked })} />
             }
-            label="挑衅"
+            label="挑衅（PassSkill2[12]·VITDEF×0.9）"
           />
           <FormControl size="small" fullWidth>
             <InputLabel shrink>牺牲祈福</InputLabel>

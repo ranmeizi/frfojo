@@ -51,6 +51,11 @@ export function DraggableOpacityFloat({
   const nodeRef = useRef<HTMLDivElement>(null);
   const [hovered, setHovered] = useState(false);
 
+  const baseZ = zIndexProp ?? theme.zIndex.drawer + 2;
+  /** 收起贴边（horizontalAnchor）时抬到接近 modal，避免与其它同层浮层或底栏叠压 */
+  const effectiveZ =
+    horizontalAnchor !== "none" ? Math.max(baseZ, theme.zIndex.modal - 2) : baseZ;
+
   const setRootRef = (el: HTMLDivElement | null) => {
     const nr = nodeRef as MutableRefObject<HTMLDivElement | null>;
     nr.current = el;
@@ -81,7 +86,7 @@ export function DraggableOpacityFloat({
             : horizontalAnchor === "right"
               ? { right: anchorInset, left: "auto" }
               : { left: 0, right: "auto" }),
-          zIndex: zIndexProp ?? theme.zIndex.drawer + 2,
+          zIndex: effectiveZ,
           opacity: hovered ? 1 : dimmedOpacity,
           transition: theme.transitions.create("opacity", { duration: 200 }),
           ...rootSx,

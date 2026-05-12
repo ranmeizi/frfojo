@@ -26,23 +26,34 @@ import {
   sanitizeWeaponCard1,
   sanitizeWeaponCard234,
 } from "./cardSlotOptions";
+import { maxRangedAmmoIndex } from "./rangedAmmoResolve";
 import { MONSTER_OBJ } from "./monster.generated";
-import { armorItemOptions, weaponItemOptions } from "./itemLists";
+import { armorItemOptions, dualWieldWeapon2ItemOptions, weaponItemOptions } from "./itemLists";
+import { customEquipmentMap } from "./customEquipmentRegistry";
+import { jobSupportsDualWield } from "./nitouSupport";
+import { clampSanctityCoreCode } from "./sanctityCoreSix";
 import { clampWeaponType, resolveCombatJob } from "./jobResolve";
+import { defaultPlayerManualEdits, sanitizePlayerManualEdits } from "./playerManualEdits";
 import { clampBaseLv, clampJobLv } from "./inputClamp";
 import { JOB_PASSIVE_SKILL_IDS } from "./skillBoard.generated";
 import { clampPassiveSlotValue } from "./skillBoard";
 
-const ARMOR_SLOTS: { key: keyof EquipmentState; kind: number }[] = [
-  { key: "head1Id", kind: 50 },
-  { key: "head2Id", kind: 51 },
-  { key: "head3Id", kind: 52 },
-  { key: "leftId", kind: 61 },
-  { key: "bodyId", kind: 60 },
-  { key: "shoulderId", kind: 62 },
-  { key: "shoesId", kind: 63 },
-  { key: "acc1Id", kind: 64 },
-  { key: "acc2Id", kind: 64 },
+const ARMOR_EQUIP_CUSTOM: {
+  idKey: keyof EquipmentState;
+  customKey: keyof EquipmentState;
+  refineKey: keyof EquipmentState | null;
+  cardKey: keyof EquipmentState | null;
+  kind: number;
+}[] = [
+  { idKey: "head1Id", customKey: "head1CustomEquipId", refineKey: "head1Refine", cardKey: "head1Card", kind: 50 },
+  { idKey: "head2Id", customKey: "head2CustomEquipId", refineKey: null, cardKey: "head2Card", kind: 51 },
+  { idKey: "head3Id", customKey: "head3CustomEquipId", refineKey: "head3Refine", cardKey: null, kind: 52 },
+  { idKey: "leftId", customKey: "leftCustomEquipId", refineKey: "leftRefine", cardKey: "leftCard", kind: 61 },
+  { idKey: "bodyId", customKey: "bodyCustomEquipId", refineKey: "bodyRefine", cardKey: "bodyCard", kind: 60 },
+  { idKey: "shoulderId", customKey: "shoulderCustomEquipId", refineKey: "shoulderRefine", cardKey: "shoulderCard", kind: 62 },
+  { idKey: "shoesId", customKey: "shoesCustomEquipId", refineKey: "shoesRefine", cardKey: "shoesCard", kind: 63 },
+  { idKey: "acc1Id", customKey: "acc1CustomEquipId", refineKey: null, cardKey: "acc1Card", kind: 64 },
+  { idKey: "acc2Id", customKey: "acc2CustomEquipId", refineKey: null, cardKey: "acc2Card", kind: 64 },
 ];
 
 export function defaultBuffSupport(): BuffSupportState {
@@ -62,6 +73,10 @@ export function defaultBuffSupport(): BuffSupportState {
     provoke: false,
     sacrificePoemLv: 0,
     lightOfLordLv: 0,
+    suffragiumLv: 0,
+    elementalBarrierLv: 0,
+    weaponResearchLv: 0,
+    soulBreakerEdp: false,
   };
 }
 
@@ -83,6 +98,10 @@ export function maxBuffSupport(): BuffSupportState {
     provoke: true,
     sacrificePoemLv: 3,
     lightOfLordLv: 5,
+    suffragiumLv: 5,
+    elementalBarrierLv: 10,
+    weaponResearchLv: 5,
+    soulBreakerEdp: true,
   };
 }
 
@@ -105,6 +124,10 @@ function sanitizeBuffSupport(b: BuffSupportState | undefined): BuffSupportState 
     provoke: Boolean(x.provoke),
     sacrificePoemLv: Math.min(3, Math.max(0, Math.floor(x.sacrificePoemLv))),
     lightOfLordLv: Math.min(5, Math.max(0, Math.floor(x.lightOfLordLv))),
+    suffragiumLv: Math.min(5, Math.max(0, Math.floor(x.suffragiumLv ?? 0))),
+    elementalBarrierLv: Math.min(10, Math.max(0, Math.floor(x.elementalBarrierLv ?? 0))),
+    weaponResearchLv: Math.min(5, Math.max(0, Math.floor(x.weaponResearchLv ?? 0))),
+    soulBreakerEdp: Boolean(x.soulBreakerEdp),
   };
 }
 
@@ -120,6 +143,33 @@ function normalizePassiveSkillLevels(
 
 function clampInt(n: number, lo: number, hi: number): number {
   return Math.min(hi, Math.max(lo, Math.floor(Number.isFinite(n) ? n : 0)));
+}
+
+function clampRangedAmmoIndex(weaponType: number, n: unknown): number {
+  const maxI = maxRangedAmmoIndex(weaponType);
+  const def = weaponType === 10 ? 3 : 0;
+  const x = Math.floor(Number(n));
+  const base = Number.isFinite(x) ? x : def;
+  if (maxI == null) return base;
+  return Math.min(maxI, Math.max(0, base));
+}
+
+function clampActiveSkillId(n: unknown): number {
+  const v = Math.floor(Number.isFinite(Number(n)) ? Number(n) : 0);
+  return Math.min(999999, Math.max(0, v));
+}
+
+function clampActiveSkillLv(n: unknown): number {
+  if (n === undefined || n === null || n === "") return 1;
+  return clampInt(Number(n), 0, 50);
+}
+
+function clampKakutyouMode(n: unknown): number {
+  return clampInt(Number(n), 0, 10);
+}
+
+function clampKakutyouSelNum(n: unknown): number {
+  return clampInt(Number(n), 0, 10);
 }
 
 export function defaultPerformanceDance(): PerformanceDanceState {
@@ -257,6 +307,7 @@ export function defaultHolySupport(): HolySupportState {
     domainSupport: 0,
     provokeSupport: 0,
     holyBodyBless: false,
+    sanctityCoreCode: 0,
   };
 }
 
@@ -271,6 +322,7 @@ function sanitizeHolySupport(h?: HolySupportState): HolySupportState {
     domainSupport: clampInt(x.domainSupport, 0, 5),
     provokeSupport: clampInt(x.provokeSupport, 0, 10),
     holyBodyBless: Boolean(x.holyBodyBless),
+    sanctityCoreCode: clampSanctityCoreCode(x.sanctityCoreCode ?? 0),
   };
 }
 
@@ -372,6 +424,7 @@ export function defaultCharacterBaseInput(): CharacterBaseInput {
     formJobId: 0,
     baby: false,
     weaponType: 0,
+    bowArrowIndex: 3,
     speedPot: 0,
     stats: { str: 1, agi: 1, vit: 1, int: 1, dex: 1, luk: 1 },
     equipment: defaultEquipment(),
@@ -383,6 +436,11 @@ export function defaultCharacterBaseInput(): CharacterBaseInput {
     holySupport: defaultHolySupport(),
     foodConsumable: defaultFoodConsumable(),
     enemyCombat: defaultEnemyCombat(),
+    playerManualEdits: defaultPlayerManualEdits(),
+    activeSkillId: 0,
+    activeSkillLv: 1,
+    kakutyouMode: 0,
+    kakutyouSelNum: 10,
   };
 }
 
@@ -394,6 +452,13 @@ export function defaultEquipment(): EquipmentState {
     weaponCard2: 0,
     weaponCard3: 0,
     weaponCard4: 0,
+    dualWield: false,
+    weapon2Id: 0,
+    weapon2Refine: 0,
+    weapon2Card1: 0,
+    weapon2Card2: 0,
+    weapon2Card3: 0,
+    weapon2Card4: 0,
     head1Id: 0,
     head1Refine: 0,
     head1Card: 0,
@@ -417,7 +482,91 @@ export function defaultEquipment(): EquipmentState {
     acc1Card: 0,
     acc2Id: 0,
     acc2Card: 0,
+    weaponCustomEquipId: null,
+    weapon2CustomEquipId: null,
+    head1CustomEquipId: null,
+    head2CustomEquipId: null,
+    head3CustomEquipId: null,
+    leftCustomEquipId: null,
+    bodyCustomEquipId: null,
+    shoulderCustomEquipId: null,
+    shoesCustomEquipId: null,
+    acc1CustomEquipId: null,
+    acc2CustomEquipId: null,
   };
+}
+
+/** 【新功能】校验自定义装备 id、kind 与槽位一致；合法则清空对应 Item id / 精炼 / 卡 */
+function sanitizeEquipmentCustomBindings(eq: EquipmentState, weaponType: number): EquipmentState {
+  const cm = customEquipmentMap();
+  let e: EquipmentState = { ...eq };
+
+  let wC = typeof e.weaponCustomEquipId === "string" ? e.weaponCustomEquipId.trim() : "";
+  if (wC.length > 128 || !cm.has(wC)) wC = "";
+  if (wC && weaponType > 0) {
+    const r = cm.get(wC)!;
+    if (r.kind === weaponType) {
+      e = {
+        ...e,
+        weaponCustomEquipId: wC,
+        weaponId: 0,
+        weaponRefine: 0,
+        weaponCard1: 0,
+        weaponCard2: 0,
+        weaponCard3: 0,
+        weaponCard4: 0,
+      };
+    } else {
+      e = { ...e, weaponCustomEquipId: null };
+    }
+  } else {
+    e = { ...e, weaponCustomEquipId: null };
+  }
+
+  let w2c = typeof e.weapon2CustomEquipId === "string" ? e.weapon2CustomEquipId.trim() : "";
+  if (w2c.length > 128 || !cm.has(w2c)) w2c = "";
+  if (w2c) {
+    const r = cm.get(w2c)!;
+    if ([1, 2, 6].includes(r.kind)) {
+      e = {
+        ...e,
+        weapon2CustomEquipId: w2c,
+        weapon2Id: 0,
+        weapon2Refine: 0,
+        weapon2Card1: 0,
+        weapon2Card2: 0,
+        weapon2Card3: 0,
+        weapon2Card4: 0,
+      };
+    } else {
+      e = { ...e, weapon2CustomEquipId: null };
+    }
+  } else {
+    e = { ...e, weapon2CustomEquipId: null };
+  }
+
+  for (const row of ARMOR_EQUIP_CUSTOM) {
+    let cid = typeof e[row.customKey] === "string" ? (e[row.customKey] as string).trim() : "";
+    if (cid.length > 128 || !cm.has(cid)) cid = "";
+    if (cid) {
+      const r = cm.get(cid)!;
+      if (r.kind === row.kind) {
+        const patch: Partial<EquipmentState> = {
+          [row.customKey]: cid,
+          [row.idKey]: 0,
+        };
+        if (row.refineKey) (patch as Record<string, number>)[row.refineKey] = 0;
+        if (row.cardKey) (patch as Record<string, number>)[row.cardKey] = 0;
+        e = { ...e, ...patch };
+      } else {
+        e = { ...e, [row.customKey]: null } as EquipmentState;
+      }
+    } else {
+      e = { ...e, [row.customKey]: null } as EquipmentState;
+    }
+  }
+
+  return e;
 }
 
 function clampRefine(n: number): number {
@@ -442,26 +591,48 @@ export function sanitizeCharacterInput(input: CharacterBaseInput): CharacterBase
     shoesRefine: clampRefine(input.equipment.shoesRefine),
   };
 
+  eq = sanitizeEquipmentCustomBindings(eq, weaponType);
+
   const wIds = weaponItemOptions(effectiveJobId, isTensei, weaponType).map((o) => o.id);
-  if (!wIds.includes(eq.weaponId)) {
+  if (!eq.weaponCustomEquipId && !wIds.includes(eq.weaponId)) {
     eq.weaponId = wIds[0] ?? 0;
     eq.weaponRefine = 0;
   }
 
-  for (const { key, kind } of ARMOR_SLOTS) {
-    const ids = armorItemOptions(effectiveJobId, isTensei, kind).map((o) => o.id);
-    const cur = eq[key];
+  for (const row of ARMOR_EQUIP_CUSTOM) {
+    if (eq[row.customKey]) continue;
+    const ids = armorItemOptions(effectiveJobId, isTensei, row.kind).map((o) => o.id);
+    const cur = eq[row.idKey];
     if (typeof cur === "number" && !ids.includes(cur)) {
-      eq = { ...eq, [key]: 0 };
+      eq = { ...eq, [row.idKey]: 0 };
     }
+  }
+
+  const canNitou = jobSupportsDualWield(effectiveJobId);
+  const w2Ids = dualWieldWeapon2ItemOptions(effectiveJobId, isTensei).map((o) => o.id);
+  const dualWield = canNitou && Boolean(eq.dualWield);
+  let weapon2Id = 0;
+  if (dualWield) {
+    if (eq.weapon2CustomEquipId) weapon2Id = 0;
+    else if (w2Ids.includes(eq.weapon2Id)) weapon2Id = eq.weapon2Id;
+  }
+  if (weapon2Id === 0 && !eq.weapon2CustomEquipId) {
+    eq = { ...eq, weapon2Refine: 0, weapon2Card1: 0, weapon2Card2: 0, weapon2Card3: 0, weapon2Card4: 0 };
   }
 
   eq = {
     ...eq,
+    dualWield,
+    weapon2Id,
+    weapon2Refine: weapon2Id === 0 && !eq.weapon2CustomEquipId ? 0 : clampRefine(eq.weapon2Refine),
     weaponCard1: sanitizeWeaponCard1(eq.weaponCard1),
     weaponCard2: sanitizeWeaponCard234(eq.weaponCard2),
     weaponCard3: sanitizeWeaponCard234(eq.weaponCard3),
     weaponCard4: sanitizeWeaponCard234(eq.weaponCard4),
+    weapon2Card1: sanitizeWeaponCard1(eq.weapon2Card1),
+    weapon2Card2: sanitizeWeaponCard234(eq.weapon2Card2),
+    weapon2Card3: sanitizeWeaponCard234(eq.weapon2Card3),
+    weapon2Card4: sanitizeWeaponCard234(eq.weapon2Card4),
     head1Card: sanitizeHeadgearCard(eq.head1Card),
     head2Card: sanitizeHeadgearCard(eq.head2Card),
     leftCard: sanitizeShieldCard(eq.leftCard),
@@ -477,6 +648,7 @@ export function sanitizeCharacterInput(input: CharacterBaseInput): CharacterBase
     baseLv,
     jobLv,
     weaponType,
+    bowArrowIndex: clampRangedAmmoIndex(weaponType, input.bowArrowIndex),
     equipment: eq,
     passiveSkillLevels: normalizePassiveSkillLevels(input.formJobId, input.passiveSkillLevels),
     buffSupport: sanitizeBuffSupport(input.buffSupport),
@@ -486,5 +658,10 @@ export function sanitizeCharacterInput(input: CharacterBaseInput): CharacterBase
     holySupport: sanitizeHolySupport(input.holySupport),
     foodConsumable: sanitizeFoodConsumable(input.foodConsumable),
     enemyCombat: sanitizeEnemyCombat(input.enemyCombat),
+    playerManualEdits: sanitizePlayerManualEdits(input.playerManualEdits),
+    activeSkillId: clampActiveSkillId(input.activeSkillId),
+    activeSkillLv: clampActiveSkillLv(input.activeSkillLv),
+    kakutyouMode: clampKakutyouMode(input.kakutyouMode),
+    kakutyouSelNum: clampKakutyouSelNum(input.kakutyouSelNum),
   };
 }

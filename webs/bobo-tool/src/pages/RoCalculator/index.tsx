@@ -12,6 +12,7 @@ import {
 } from "./engine/sanitizeCharacter";
 import type { CharacterBaseInput } from "./engine/types";
 import { RoCalcCharacterProvider } from "./RoCalcCharacterContext";
+import { RoCalcCustomEquipmentProvider } from "./RoCalcCustomEquipmentContext";
 import RoCalculatorDenseTheme from "./RoCalculatorDenseTheme";
 import RoCalculatorApp from "./RoCalculatorApp";
 import EnemyCombatDrawer from "./components/EnemyCombatDrawer";
@@ -42,9 +43,10 @@ const RoCalculator: FC = () => {
 
   return (
     <LayoutMenu header={header}>
-      <RoCalcCharacterProvider
-        value={{ input: characterInput, applyInput: applyCharacterInput }}
-      >
+        <RoCalcCustomEquipmentProvider>
+          <RoCalcCharacterProvider
+            value={{ input: characterInput, applyInput: applyCharacterInput }}
+          >
         <RoCalculatorDenseTheme>
         <Box
           ref={calcRootRef}
@@ -64,7 +66,8 @@ const RoCalculator: FC = () => {
             sx={{
               position: "absolute",
               inset: 0,
-              zIndex: 2,
+              /** 高于对方底栏 / Drawer（其 z-index 为 5～6），避免物品资料等浮层被挡住 */
+              zIndex: 10,
               pointerEvents: "none",
               overflow: "hidden",
             }}
@@ -106,7 +109,8 @@ const RoCalculator: FC = () => {
           />
         </Box>
         </RoCalculatorDenseTheme>
-      </RoCalcCharacterProvider>
+        </RoCalcCharacterProvider>
+        </RoCalcCustomEquipmentProvider>
     </LayoutMenu>
   );
 };
