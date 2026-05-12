@@ -36,12 +36,8 @@ import {
   type ParsedMonster,
 } from "../engine/monsterCatalog";
 import { MONSTER_OBJ } from "../engine/monster.generated";
-import type {
-  BattlePhysicalRoughPreview,
-  CharacterBaseInput,
-  CombatSnapshot,
-  EnemyCombatState,
-} from "../engine/types";
+import { enemyBattleResultReferCell, type EnemyBattleReferRowContext } from "../engine/enemyBattleResultRefer";
+import type { CharacterBaseInput, CombatSnapshot, EnemyCombatState } from "../engine/types";
 import {
   roCalcFormControlDenseSx,
   roCalcPaperSx,
@@ -84,54 +80,6 @@ function patchDefender(value: CharacterBaseInput, slot: number, v: number): Char
   return patchEnemy(value, { defender: next });
 }
 
-function fmtHits(n: number | null | undefined): string {
-  if (n == null || !Number.isFinite(n)) return "—";
-  return String(n);
-}
-
-/** 与 `BATTLE_RESULT_ROW_LABELS` 下标对应；仅普攻略化子集，其余为「—」 */
-function battleResultCellText(
-  rowIndex: number,
-  bp: BattlePhysicalRoughPreview,
-  parsed: ParsedMonster | null,
-): string {
-  if (!bp.enabled) return "—";
-  switch (rowIndex) {
-    case 0:
-      return `${Math.round(bp.battleHitPercentApprox * 10) / 10}%`;
-    case 1:
-      return "—";
-    case 2:
-      return String(bp.dmgMin);
-    case 3:
-      return String(bp.dmgAvg);
-    case 4:
-      return String(bp.dmgMax);
-    case 5:
-      return "—";
-    case 6:
-      return fmtHits(bp.hitsToKillMin);
-    case 7:
-      return fmtHits(bp.hitsToKillAvg);
-    case 8:
-      return fmtHits(bp.hitsToKillMax);
-    case 9:
-      return "—";
-    case 10: {
-      const hk = bp.hitsToKillExpectedApprox;
-      if (!parsed || hk == null || hk <= 0) return "—";
-      return String(Math.floor(parsed.baseExp / hk));
-    }
-    case 11: {
-      const hk = bp.hitsToKillExpectedApprox;
-      if (!parsed || hk == null || hk <= 0) return "—";
-      return String(Math.floor(parsed.jobExp / hk));
-    }
-    default:
-      return "—";
-  }
-}
-
 const EnemyCombatCard: FC<EnemyCombatCardProps> = ({
   snapshot: snap,
   value,
@@ -158,6 +106,10 @@ const EnemyCombatCard: FC<EnemyCombatCardProps> = ({
 
   const [showBattleCalc, setShowBattleCalc] = useState(false);
   const bp = snap.battlePhysicalRough;
+
+  const battleReferCtx = useMemo((): EnemyBattleReferRowContext => {
+    return { snap, input: value, bp: snap.battlePhysicalRough, legacyNB: snap.legacyNB };
+  }, [snap, value]);
 
   const monsterRows = (m: ParsedMonster) => [
     { la: "HP", va: String(m.hp), lb: "BaseExp", vb: String(m.baseExp) },
@@ -469,6 +421,27 @@ const EnemyCombatCard: FC<EnemyCombatCardProps> = ({
 
         {/* nm052 战斗结果 */}
         <Stack spacing={0.5} alignItems="stretch">
+          <Stack direction="row" alignItems="center" spacing={1} flexWrap="wrap" useFlexGap>
+            <TextField
+              size="small"
+              label="限制延迟 Conf01 %"
+              type="number"
+              sx={{ width: 140 }}
+              inputProps={{ min: 1, max: 99 }}
+              value={ec.clientDelayCapPercent}
+              onChange={(e) => {
+                const n = Math.floor(Number(e.target.value));
+                onChange(
+                  patchEnemy(value, {
+                    clientDelayCapPercent: Number.isFinite(n) ? Math.min(99, Math.max(1, n)) : 33,
+                  }),
+                );
+              }}
+            />
+            <Typography variant="caption" color="text.secondary" sx={{ flex: "1 1 120px", minWidth: 0 }}>
+              主动技 DPS/战斗时间：与 ASPD 延迟取 max（原版 Conf01，默认 33）。
+            </Typography>
+          </Stack>
           <Stack direction="row" alignItems="center" justifyContent="space-between" flexWrap="wrap" gap={0.75}>
             <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600 }}>
               战斗结果（普攻预览）
@@ -493,17 +466,17 @@ const EnemyCombatCard: FC<EnemyCombatCardProps> = ({
                   <TableRow key={label}>
                     <TableCell sx={{ fontWeight: 500 }}>{label}</TableCell>
                     <TableCell align="right" sx={{ color: "text.secondary" }}>
-                      {showBattleCalc ? battleResultCellText(rowIndex, bp, parsed) : "—"}
+                      {showBattleCalc ? enemyBattleResultReferCell(rowIndex, battleReferCtx, parsed) : "—"}
                     </TableCell>
                   </TableRow>
                 ))}
                 <TableRow>
                   <TableCell colSpan={2} sx={{ color: "text.secondary", fontSize: 12 }}>
                     {!showBattleCalc
-                      ? "点击「计算」显示命中率、伤害与击杀次数等普攻略化近似（随左侧角色与魔物实时更新）。"
+                      ? "点击「计算」：命中率 w998K、回避率、LUK 幸运项、承伤 BattleHiDam 子集、Conf01 限制延迟、DPS/时间/Exp 等与 refer 对齐；伤害三档仍来自普攻略化引擎。"
                       : !bp.enabled
-                        ? bp.reasonDisabled ?? "当前无法演算普攻预览。"
-                        : `期望一击约 ${bp.dmgPerSwingExpectedApprox}；暴击率约 ${Math.round(bp.battleCritPercentApprox * 10) / 10}%。回避率、每秒伤害、承伤等尚未接入。`}
+                        ? `${bp.reasonDisabled ?? "当前无法演算普攻伤害预览。"} 命中率、回避率、承伤仍可显示。`
+                        : `期望一击约 ${bp.dmgPerSwingExpectedApprox}；暴击率约 ${Math.round(bp.battleCritPercentApprox * 10) / 10}%。`}
                   </TableCell>
                 </TableRow>
               </TableBody>

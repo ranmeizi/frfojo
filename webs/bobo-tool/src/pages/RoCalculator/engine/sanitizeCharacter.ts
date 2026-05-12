@@ -373,6 +373,7 @@ export function defaultEnemyCombat(): EnemyCombatState {
     defenderPanelOpen: false,
     abnormal: Array.from({ length: IJYOU_SLOT_COUNT }, () => 0),
     defender: Array.from({ length: KYOUKA_SLOT_COUNT }, () => 0),
+    clientDelayCapPercent: 33,
   };
 }
 
@@ -397,6 +398,9 @@ function sanitizeEnemyCombat(e: EnemyCombatState | undefined): EnemyCombatState 
     if (spec.kind === "select5") return Math.min(5, Math.max(0, n));
     return Math.min(10, Math.max(0, n));
   });
+  const capRaw = x.clientDelayCapPercent ?? d.clientDelayCapPercent;
+  const clientDelayCapPercent = Math.min(99, Math.max(1, Math.floor(Number(capRaw) || 33)));
+
   return {
     monsterIndex: Math.min(maxMon, Math.max(0, Math.floor(x.monsterIndex ?? 0))),
     attackKind: Math.min(2, Math.max(0, Math.floor(x.attackKind ?? 2))),
@@ -405,6 +409,7 @@ function sanitizeEnemyCombat(e: EnemyCombatState | undefined): EnemyCombatState 
     defenderPanelOpen: Boolean(x.defenderPanelOpen),
     abnormal,
     defender,
+    clientDelayCapPercent,
   };
 }
 

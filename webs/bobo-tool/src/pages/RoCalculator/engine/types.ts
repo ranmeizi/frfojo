@@ -173,6 +173,11 @@ export type EnemyCombatState = {
   abnormal: number[];
   /** n_B_KYOUKA[0..9]；[6] 为 ZoHe 属性值 */
   defender: number[];
+  /**
+   * 原版 `Conf01`：主动技 CastAndDelay「限制延迟」用（百分数 ÷100 秒）；默认 33。
+   * 与 ASPD 延迟取 max（`activeSkillId !== 0 && !== 284` 时）。
+   */
+  clientDelayCapPercent: number;
 };
 
 /** legacy n_A_PassSkill7：食品/箱等 */
@@ -390,6 +395,8 @@ export type CombatSnapshot = {
   hit: number;
   flee: number;
   perfectDodge: number;
+  /** `foot.js` `n_A_LUCKY` 展示值（回避率/承伤用；缺 `n_tok[11]` 等全链） */
+  refNLuckyDisplay: number;
   crit: number;
   matkMin: number;
   matkMax: number;

@@ -88,6 +88,7 @@ import {
   manualPhysDamageMultiplier,
 } from "./playerManualEdits";
 import { aggregateCustomEquippedBonuses } from "./customEquipmentAggregate";
+import { computeReferNLucky } from "./referPlayerLucky";
 
 export function computeCombatSnapshot(raw: CharacterBaseInput): CombatSnapshot {
   const input = sanitizeCharacterInput(raw);
@@ -289,6 +290,7 @@ export function computeCombatSnapshot(raw: CharacterBaseInput): CombatSnapshot {
 
   /** 【新功能】% ASPD：与装备/技能 ASPD% 相同，作为 `computeAspd` 的权重 `w` 加在 `aspdExtra` 上（`secondaryStats` 中 `(200-nA_ASPD)*w/100`），不得对最终 ASPD 再乘 `(100+p)/100`。 */
   const aspdVal = computeAspd(sec, aspdExtra + man.aspdPct);
+  const refNLuckyDisplay = computeReferNLucky(input, totalStats.luk, effectiveJobId);
   const hprVal = Math.max(
     0,
     Math.floor((computeHpr(totalStats.vit, maxHp) * (100 + man.hpRegenPct)) / 100),
@@ -318,6 +320,7 @@ export function computeCombatSnapshot(raw: CharacterBaseInput): CombatSnapshot {
     hit: hitTotal,
     flee: computeFleeWithSupport(input, totalStats) + fleeCard + fleeSet + fleeWorn + man.flee,
     perfectDodge: computePerfectDodge(sec) + man.perfectDodge,
+    refNLuckyDisplay,
     crit: critTotal,
     matkMin: matk.min,
     matkMax: matk.max,

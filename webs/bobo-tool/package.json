@@ -5,6 +5,8 @@
   "type": "module",
   "scripts": {
     "gen:ro-sets": "node scripts/gen-equipment-set-data.mjs",
+    "gen:ro-itemobj": "node scripts/gen-item-object-from-azh.mjs",
+    "gen:ro-itemobj:refer": "node scripts/gen-item-object-from-azh.mjs --refer-only",
     "gen:ro-card-sets": "node scripts/gen-card-set-data.mjs",
     "ro:gap-scan": "node src/pages/RoCalculator/engine/scripts/extractFootSkillSearch.mjs",
     "dev": "vite",
