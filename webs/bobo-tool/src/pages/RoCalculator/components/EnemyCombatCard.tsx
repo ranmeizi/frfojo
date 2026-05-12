@@ -1,6 +1,7 @@
 import {
   Autocomplete,
   Box,
+  Button,
   Checkbox,
   FormControl,
   FormControlLabel,
@@ -17,7 +18,7 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import { type FC, useMemo } from "react";
+import { type FC, useMemo, useState } from "react";
 import {
   ATTACK_KIND_LABELS,
   BATTLE_RESULT_ROW_LABELS,
@@ -35,7 +36,12 @@ import {
   type ParsedMonster,
 } from "../engine/monsterCatalog";
 import { MONSTER_OBJ } from "../engine/monster.generated";
-import type { CharacterBaseInput, CombatSnapshot, EnemyCombatState } from "../engine/types";
+import type {
+  BattlePhysicalRoughPreview,
+  CharacterBaseInput,
+  CombatSnapshot,
+  EnemyCombatState,
+} from "../engine/types";
 import {
   roCalcFormControlDenseSx,
   roCalcPaperSx,
@@ -78,6 +84,54 @@ function patchDefender(value: CharacterBaseInput, slot: number, v: number): Char
   return patchEnemy(value, { defender: next });
 }
 
+function fmtHits(n: number | null | undefined): string {
+  if (n == null || !Number.isFinite(n)) return "—";
+  return String(n);
+}
+
+/** 与 `BATTLE_RESULT_ROW_LABELS` 下标对应；仅普攻略化子集，其余为「—」 */
+function battleResultCellText(
+  rowIndex: number,
+  bp: BattlePhysicalRoughPreview,
+  parsed: ParsedMonster | null,
+): string {
+  if (!bp.enabled) return "—";
+  switch (rowIndex) {
+    case 0:
+      return `${Math.round(bp.battleHitPercentApprox * 10) / 10}%`;
+    case 1:
+      return "—";
+    case 2:
+      return String(bp.dmgMin);
+    case 3:
+      return String(bp.dmgAvg);
+    case 4:
+      return String(bp.dmgMax);
+    case 5:
+      return "—";
+    case 6:
+      return fmtHits(bp.hitsToKillMin);
+    case 7:
+      return fmtHits(bp.hitsToKillAvg);
+    case 8:
+      return fmtHits(bp.hitsToKillMax);
+    case 9:
+      return "—";
+    case 10: {
+      const hk = bp.hitsToKillExpectedApprox;
+      if (!parsed || hk == null || hk <= 0) return "—";
+      return String(Math.floor(parsed.baseExp / hk));
+    }
+    case 11: {
+      const hk = bp.hitsToKillExpectedApprox;
+      if (!parsed || hk == null || hk <= 0) return "—";
+      return String(Math.floor(parsed.jobExp / hk));
+    }
+    default:
+      return "—";
+  }
+}
+
 const EnemyCombatCard: FC<EnemyCombatCardProps> = ({
   snapshot: snap,
   value,
@@ -101,6 +155,9 @@ const EnemyCombatCard: FC<EnemyCombatCardProps> = ({
     () => flatOptions.find((o) => o.index === ec.monsterIndex) ?? flatOptions[0],
     [flatOptions, ec.monsterIndex],
   );
+
+  const [showBattleCalc, setShowBattleCalc] = useState(false);
+  const bp = snap.battlePhysicalRough;
 
   const monsterRows = (m: ParsedMonster) => [
     { la: "HP", va: String(m.hp), lb: "BaseExp", vb: String(m.baseExp) },
@@ -411,34 +468,48 @@ const EnemyCombatCard: FC<EnemyCombatCardProps> = ({
         </TableContainer>
 
         {/* nm052 战斗结果 */}
-        <TableContainer
-          component={Paper}
-          variant="outlined"
-          sx={{ borderColor: "divider", borderRadius: 1 }}
-        >
-          <Table size="small" sx={roCalcTableDenseSx}>
-            <TableBody>
-              <TableRow>
-                <TableCell colSpan={2} sx={headerCellSx}>
-                  战斗结果
-                </TableCell>
-              </TableRow>
-              {BATTLE_RESULT_ROW_LABELS.map((label) => (
-                <TableRow key={label}>
-                  <TableCell sx={{ fontWeight: 500 }}>{label}</TableCell>
-                  <TableCell align="right" sx={{ color: "text.secondary" }}>
-                    —
+        <Stack spacing={0.5} alignItems="stretch">
+          <Stack direction="row" alignItems="center" justifyContent="space-between" flexWrap="wrap" gap={0.75}>
+            <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600 }}>
+              战斗结果（普攻预览）
+            </Typography>
+            <Button size="small" variant="contained" onClick={() => setShowBattleCalc(true)}>
+              计算
+            </Button>
+          </Stack>
+          <TableContainer
+            component={Paper}
+            variant="outlined"
+            sx={{ borderColor: "divider", borderRadius: 1 }}
+          >
+            <Table size="small" sx={roCalcTableDenseSx}>
+              <TableBody>
+                <TableRow>
+                  <TableCell colSpan={2} sx={headerCellSx}>
+                    战斗结果
                   </TableCell>
                 </TableRow>
-              ))}
-              <TableRow>
-                <TableCell colSpan={2} sx={{ color: "text.secondary", fontSize: 12 }}>
-                  伤害等结果将随武器、技能与目标设置扩展显示。
-                </TableCell>
-              </TableRow>
-            </TableBody>
-          </Table>
-        </TableContainer>
+                {BATTLE_RESULT_ROW_LABELS.map((label, rowIndex) => (
+                  <TableRow key={label}>
+                    <TableCell sx={{ fontWeight: 500 }}>{label}</TableCell>
+                    <TableCell align="right" sx={{ color: "text.secondary" }}>
+                      {showBattleCalc ? battleResultCellText(rowIndex, bp, parsed) : "—"}
+                    </TableCell>
+                  </TableRow>
+                ))}
+                <TableRow>
+                  <TableCell colSpan={2} sx={{ color: "text.secondary", fontSize: 12 }}>
+                    {!showBattleCalc
+                      ? "点击「计算」显示命中率、伤害与击杀次数等普攻略化近似（随左侧角色与魔物实时更新）。"
+                      : !bp.enabled
+                        ? bp.reasonDisabled ?? "当前无法演算普攻预览。"
+                        : `期望一击约 ${bp.dmgPerSwingExpectedApprox}；暴击率约 ${Math.round(bp.battleCritPercentApprox * 10) / 10}%。回避率、每秒伤害、承伤等尚未接入。`}
+                  </TableCell>
+                </TableRow>
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </Stack>
       </Stack>
   );
 
