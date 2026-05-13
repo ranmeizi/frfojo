@@ -13,6 +13,7 @@ import { captureRequest, getMvpDeathNote } from "../../services/momoro";
 import { AsyncButton, message } from "@frfojo/components";
 import { useConstant } from "@frfojo/common/hooks";
 import config, { EnumMvpIndex, MvpConfig, MvpDeathNote } from "../../mvp";
+import { rmsMapGifUrl, rmsMobGifUrl } from "../../rmsAssetsBase";
 import dayjs from "dayjs";
 import { DeathNote } from "../../note";
 import duration from "dayjs/plugin/duration";
@@ -321,7 +322,7 @@ function MvpMapItem(props: {
               height: "96px",
               width: "96px",
               backgroundRepeat: "no-repeat",
-              background: `url(https://file5s.ratemyserver.net/maps/${mapId}.gif)`,
+              background: `url(${rmsMapGifUrl(mapId)})`,
               backgroundSize: "100% 100%",
               display: "flex",
               justifyContent: "center",
@@ -335,7 +336,7 @@ function MvpMapItem(props: {
               sx={{
                 height: "80%",
                 width: "80%",
-                background: `url(${mvpInfo.imgUrl})`,
+                background: `url(${rmsMobGifUrl(mvpId)})`,
                 backgroundSize: "contain",
                 backgroundRepeat: "no-repeat",
                 backgroundPosition: "50%",
