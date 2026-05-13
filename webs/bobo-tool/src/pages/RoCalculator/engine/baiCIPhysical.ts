@@ -1,3 +1,5 @@
+import { baiCISkipsFullCardTokBlock } from "./baiCINotUseCardActiveSkills";
+import { footNtTokDeltaForBaiCI } from "./baiCINFootNtTokDelta";
 import { sumCardStPlus } from "./cardBonuses";
 import { cardNumSearch, equipNumSearch } from "./equipCardCount";
 import {
@@ -7,17 +9,23 @@ import {
 import { passiveLevelBySkillId } from "./passiveSkillLevel";
 import type { CharacterBaseInput, EquipmentState } from "./types";
 
-/** 卡 + 套装虚拟行 + 已穿装备 ItemOBJ 尾部 script 对某 `statCode` 之和（近似 `StPlusCalc2`+`StPlusCard` 装备段） */
+/**
+ * 卡 + 套装虚拟行 + 已穿装备 ItemOBJ 尾部 script 对某 `statCode` 之和
+ *（对齐 refer **`StPlusCalc2` + `StPlusCard`** 的 `n_tok` 初始化段；`StPlusCalc2` 本体即各槽 ItemOBJ 列 11+）。
+ * 若传入 **`input`**，再叠加 **`foot.js`** 在初始化之后写入、且 **`BaiCI`** 会读到的 **`n_tok` 补丁**（见 `baiCINFootNtTokDelta.ts`）。
+ */
 export function stTokEquipApprox(
   eq: EquipmentState,
   statCode: number,
   effectiveJobId: number,
+  input?: CharacterBaseInput,
 ): number {
-  return (
+  const base =
     sumCardStPlus(eq, statCode, effectiveJobId) +
     sumSetBonusStPlus(eq, statCode, effectiveJobId) +
-    sumWornEquipItemScriptStPlus(eq, statCode, effectiveJobId)
-  );
+    sumWornEquipItemScriptStPlus(eq, statCode, effectiveJobId);
+  if (!input) return base;
+  return base + footNtTokDeltaForBaiCI(input, effectiveJobId, statCode);
 }
 
 export type BaiCIPhysicalCtx = {
@@ -44,12 +52,32 @@ function mul100Floor(w: number, plus: number): number {
 type BaiCIPhysicalMode = "normal" | "crit";
 
 /**
+ * 原版 **`not_use_card=1`** 的主动（见 **`baiCINotUseCardActiveSkills.ts`**）：`BaiCI` 跳过 **`wBCEDPch==0 && not_use_card==0`** 大卡段（约 **4175～4258**），
+ * 仅 **`tPlusDamCut`** + 尾 **`5000+skill`** 与 **`baiCIActiveTailBonusPercent`**（对齐 **4260～4298**）。
+ */
+function baiCIPhysicalNotUseCardTailOnly(wIn: number, ctx: BaiCIPhysicalCtx): number {
+  const { input, effectiveJobId } = ctx;
+  const eq = input.equipment;
+  const activeId = Math.floor(Number(input.activeSkillId) || 0);
+  let w = Math.floor(wIn);
+  if (!(w > 0)) return w;
+  w = Math.floor(tPlusDamCutTaijinZero(w, ctx));
+  let w1 = baiCIActiveTailBonusPercent(input, effectiveJobId);
+  if (ctx.tyouEnkakuSousa3dan === -1 && equipNumSearch(eq, 639, effectiveJobId)) {
+    w1 += 15;
+  }
+  const tailScript = stTokEquipApprox(eq, 5000 + activeId, effectiveJobId, input);
+  w = Math.floor((w * (100 + tailScript + w1)) / 100);
+  return Math.max(1, w);
+}
+
+/**
  * `refer/head.js` `BaiCI` 的 **PvE（Taijin=0）可迁子集**：
- * - 假定 **`wBCEDPch==0` 且 `not_use_card==0`**（与普攻预览一致）。
- * - **`n_tok[k]`** 以 **`stTokEquipApprox(..., k)`** 近似（缺被动/其它写入 `n_tok` 的来源）。
+ * - 假定 **`wBCEDPch==0` 且 `not_use_card==0`**（与普攻预览一致）；**`not_use_card`** 主动见 **`baiCIPhysicalNotUseCardTailOnly`**（清单 **`baiCINotUseCardActiveSkills.ts`**）。
+ * - **`n_tok[k]`** 以 **`stTokEquipApprox(..., k, input)`** 近似（另含 `foot.js` 末段 **`n_tok[25]`/`[80]`** 补丁；其它 `n_tok` 条件写入仍可能缺）。
  * - **`mode:"crit"`**：在 **`n_tok[80]/[26]`** 之后乘 **`n_tok[70]`**（对齐 **`wCriTyuu==1`** 且主动 **≠272/401**）；普攻预览用于 **BC3 暴伤支**。
  * - **`tPlusDamCut`**：仅 Taijin=0 时 `foot` **4605～4628** 子集（`wBTw1` 视为 0；`wLAch` 视为 0）。
- * - **未接** 4262～4296 中大量 **`EquipNumSearch` / `CardNumSearch` / 主动条件**（仅 `639`+`Tyou==-1` 等极少项）。
+ * - **`BaiCI` 尾段（4264～4296）**：已并入 **`baiCIActiveTailBonusPercent`**（**`639`** 在 **`Tyou==-1`** 时于尾乘前另 **`+15`**，与原版 **4292～4293** 一致）。
  */
 function applyBaiCIPhysicalCore(
   wIn: number,
@@ -60,8 +88,11 @@ function applyBaiCIPhysicalCore(
   const eq = input.equipment;
   const fj = input.formJobId;
   const passive = input.passiveSkillLevels;
-  const activeId = input.activeSkillId;
-  const activeLv = input.activeSkillLv;
+  const activeId = Math.floor(Number(input.activeSkillId) || 0);
+  const activeLv = Math.max(0, Math.floor(input.activeSkillLv));
+  if (baiCISkipsFullCardTokBlock(activeId)) {
+    return baiCIPhysicalNotUseCardTailOnly(wIn, ctx);
+  }
 
   let w = Math.floor(wIn);
   if (!(w > 0)) return w;
@@ -73,22 +104,22 @@ function applyBaiCIPhysicalCore(
   const mobHp = Math.floor(Number(nB[6]) || 0);
   const bossFlag = Math.floor(Number(nB[19]) || 0);
 
-  const tokRace = stTokEquipApprox(eq, 30 + race, effectiveJobId);
+  const tokRace = stTokEquipApprox(eq, 30 + race, effectiveJobId, input);
   w = mul100Floor(w, tokRace);
 
-  const tokElemDecade = stTokEquipApprox(eq, 40 + Math.floor(elem / 10), effectiveJobId);
+  const tokElemDecade = stTokEquipApprox(eq, 40 + Math.floor(elem / 10), effectiveJobId, input);
   w = mul100Floor(w, tokElemDecade);
 
-  const tokSize = stTokEquipApprox(eq, 27 + size, effectiveJobId);
+  const tokSize = stTokEquipApprox(eq, 27 + size, effectiveJobId, input);
   w = mul100Floor(w, tokSize);
 
   if (ctx.rangedLike && ctx.tyouEnkakuSousa3dan !== -1) {
-    const tok25 = stTokEquipApprox(eq, 25, effectiveJobId);
+    const tok25 = stTokEquipApprox(eq, 25, effectiveJobId, input);
     w = mul100Floor(w, tok25);
   }
 
-  let w1 = stTokEquipApprox(eq, 80, effectiveJobId);
-  if (bossFlag === 1) w1 += stTokEquipApprox(eq, 26, effectiveJobId);
+  let w1 = stTokEquipApprox(eq, 80, effectiveJobId, input);
+  if (bossFlag === 1) w1 += stTokEquipApprox(eq, 26, effectiveJobId, input);
   w = mul100Floor(w, w1);
 
   if (
@@ -96,23 +127,23 @@ function applyBaiCIPhysicalCore(
     activeId !== 272 &&
     activeId !== 401
   ) {
-    w = mul100Floor(w, stTokEquipApprox(eq, 70, effectiveJobId));
+    w = mul100Floor(w, stTokEquipApprox(eq, 70, effectiveJobId, input));
   }
 
-  if (108 <= mobId && mobId <= 115) w = mul100Floor(w, stTokEquipApprox(eq, 81, effectiveJobId));
-  else if (mobId === 319) w = mul100Floor(w, stTokEquipApprox(eq, 81, effectiveJobId));
+  if (108 <= mobId && mobId <= 115) w = mul100Floor(w, stTokEquipApprox(eq, 81, effectiveJobId, input));
+  else if (mobId === 319) w = mul100Floor(w, stTokEquipApprox(eq, 81, effectiveJobId, input));
 
-  if (116 <= mobId && mobId <= 120) w = mul100Floor(w, stTokEquipApprox(eq, 82, effectiveJobId));
+  if (116 <= mobId && mobId <= 120) w = mul100Floor(w, stTokEquipApprox(eq, 82, effectiveJobId, input));
 
   if ((49 <= mobId && mobId <= 52) || mobId === 55 || mobId === 221) {
-    w = mul100Floor(w, stTokEquipApprox(eq, 83, effectiveJobId));
+    w = mul100Floor(w, stTokEquipApprox(eq, 83, effectiveJobId, input));
   }
 
   if (mobId === 106 || mobId === 152 || mobId === 308 || mobId === 32) {
-    w = mul100Floor(w, stTokEquipApprox(eq, 84, effectiveJobId));
+    w = mul100Floor(w, stTokEquipApprox(eq, 84, effectiveJobId, input));
   }
 
-  const tokMob = stTokEquipApprox(eq, 1000 + mobId, effectiveJobId);
+  const tokMob = stTokEquipApprox(eq, 1000 + mobId, effectiveJobId, input);
   w = mul100Floor(w, tokMob);
 
   const L258 = passiveLevelBySkillId(fj, passive, 258);
@@ -161,7 +192,7 @@ function applyBaiCIPhysicalCore(
     w1 += 15;
   }
 
-  const tailScript = stTokEquipApprox(eq, 5000 + activeId, effectiveJobId);
+  const tailScript = stTokEquipApprox(eq, 5000 + activeId, effectiveJobId, input);
   w = Math.floor((w * (100 + tailScript + w1)) / 100);
 
   return Math.max(1, w);
@@ -191,7 +222,7 @@ export function applyBaiCIPhysicalEdpCh1Preview(wIn: number, ctx: BaiCIPhysicalC
   if (ctx.tyouEnkakuSousa3dan === -1 && equipNumSearch(eq, 639, effectiveJobId)) {
     w1 += 15;
   }
-  const tailScript = stTokEquipApprox(eq, 5000 + input.activeSkillId, effectiveJobId);
+  const tailScript = stTokEquipApprox(eq, 5000 + input.activeSkillId, effectiveJobId, input);
   w = Math.floor((w * (100 + tailScript + w1)) / 100);
   return Math.max(1, w);
 }

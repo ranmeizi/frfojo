@@ -9,6 +9,8 @@ import {
   ZOKUSEI_BASE_LABELS,
 } from "./monsterCatalog";
 
+/** refer `foot.js` `KakutyouKansuu`：**1～5、10** 可预览；**6～9** 仍为占位。路线图 **H3** 与 **`LEGACY_GAP_SCAN.md`** 残差 **Kakutyou / 咏唱** 互链。 */
+
 /** refer `foot.js` `IjyouOBJ`（与 `itemSetumei.ts` 一致） */
 const IJYOU_LABELS = [
   "中毒",
@@ -150,7 +152,7 @@ export function computeKakutyouLines(
   if (wKK === 8) {
     return [
       "异常状态耐性需 n_tok[150..159] 与面板 VIT/INT/LUK/MDEF 等组合，当前未接全链。",
-      ...IJYOU_LABELS.map((lab, i) => `${lab} （待接）`),
+      ...IJYOU_LABELS.map((lab) => `${lab} （待接）`),
     ];
   }
 

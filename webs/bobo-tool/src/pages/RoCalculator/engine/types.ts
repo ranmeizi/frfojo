@@ -367,6 +367,10 @@ export type CharacterBaseInput = {
   activeSkillId: number;
   /** 主动技等级；0 关 */
   activeSkillLv: number;
+  /**
+   * 主动技子下拉（原版 **`SkillSubNum`**）：仅 **394/395**（手里剑 / 苦无种类，下标 0～4）使用；其它主动固定为 **0**。
+   */
+  activeSkillSubIndex: number;
   /** 扩展函数模式 `A_Kakutyou`：0 关，1～10 见 `kakutyouPreview.ts` */
   kakutyouMode: number;
   /** 扩展函数子下拉（快速恢复/禅心/运气调息/商人负重等） */
@@ -407,6 +411,8 @@ export type CombatSnapshot = {
   hardDef: number;
   /** 衍生属性展示：VIT 段（`foot.js` `n_A_VITDEF[0]` 初值；196/258 时与硬 DEF 展示一致为 0） */
   defVitStatDisplay: number;
+  /** `foot.js` **`n_A_VITDEF[0/1/2]`** 全链（**775～813**；**`BattleHiDam`** **2075～2081** 分段扣减） */
+  vitDefSoftTriplet: readonly [number, number, number];
   /** 卡片 + 套装 + 已穿 script code19 + foot 841–876 条件段 + 196/258 覆盖 */
   mdef: number;
   /** 衍生属性展示：INT 段（常见 `INT+⌊INT/2⌋`；196/258 覆盖 MDEF 时为 0） */

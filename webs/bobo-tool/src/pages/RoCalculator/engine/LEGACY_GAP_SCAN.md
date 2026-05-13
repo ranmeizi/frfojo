@@ -19,16 +19,84 @@
 
 | 域 | 说明 |
 |----|------|
-| **VITDEF** | `vitDefLegacyMultiplier.ts` 已覆盖 Magnes/虎蜥/256/258/挑衅 等主段；原版 **`n_A_VITDEF` 三档数组**与装备 **`StPlusCalc2(24)`** 等未全量迁。 |
-| **咏唱** | `castTimeMultiplier.ts`：已加 **132/133+1083**、**51+493**、**54+488**、**131+精炼+1047** 及 **script(7000+`activeSkillId`)** 卡/套/穿减成；仍缺完整 `StPlusCalc2` 条件树与其余主动分支。 |
+| **VITDEF** | 承伤 **`BattleHiDam`** 已用 **`computeVitDefSoftTriplet`**（`vitDefLegacyMultiplier.ts`，**`775～813`** 与 **`StPlusCalc2(24)`** 除数）；衍生展示 **`defVitStatDisplay`** 仍为单行近似；与原版 **`n_tok` 全量**叠加若有差见 **HIT/FLEE** 行。 |
+| **咏唱** | `castTimeMultiplier.ts`：已加 **132/133+1083**、**51+493**、**54+488**、**131+精炼+1047** 及 **script(7000+`activeSkillId`)** 卡/套/穿减成；仍缺完整 `StPlusCalc2` 条件树与其余主动分支（路线图 **H3** 已互链 **`castTimeMultiplier.ts`**）。 |
 | **HIT/FLEE `n_tok[8/9]`** | 卡/套/穿 **code8/code9** 已进快照；与 foot **全量 `n_tok` 累加**是否逐字节一致未做总表 diff。 |
-| **`n_A_ATK` 前段** | **300–420** 大量 `EquipNumSearch` / 条件 ATK 未迁；**437–444** 已由 `weaponAtkPercentChainWApprox` 等近似。 |
+| **`n_A_ATK` 前段** | **300–420** 大量 `EquipNumSearch` / 条件 ATK 未迁（路线图 **H1**：`atkBai01Preview.ts` 头注释互链本表）；**437–444** 已由 `weaponAtkPercentChainWApprox` 等近似。 |
 | **`n_A_MDEF`** | `mdefStAllCalcExtras.ts` + code19 + 196/258 等已接；**ItemOBJ 若含独立 MDEF 列**与 foot 叠加规则未单独核对。 |
-| **工会 [3]/[5] 伤害链** | **`ATKbai01`** 已进 `atkBai01PercentApprox`；**`PassSkill5[5]`** 已对普攻略化最终伤害（含 BC3 期望与 Miss）整体 **`×0.5`**；`BattleHighCalc` 阈值逻辑仍简化。 |
-| **Kakutyou** | `kakutyouPreview.ts`：**1～5、10** 可预览；**6～9** 依赖完整 `n_tok`/属抗等，仍为占位说明。 |
-| **BattleCalc 全链** | 普攻略化已接 **`BattleCalc2`** 主段（`battleCalc2Approx.ts`）、**`BaiCI`** 子集、**BC2 尾**（169/二刀 79）、**`BattleCalcEDP`** 近似（266/PassSkill2[11]、`wBCEDPch1` 内层）；**BC3** + **`tPlusLucky`**。仍缺 **423/437**、六合拳、二刀副手完整链、**`EDP_DMG`** 全部分支（`w_HIT_EDP`/`n_PerHIT_DMG` 等）。 |
+| **工会 [3]/[5] 伤害链** | **`ATKbai01`** 已进 `atkBai01PercentApprox`；**`PassSkill5[5]`** 已对普攻略化最终伤害（含 BC3 期望与 Miss）整体 **`×0.5`**；承伤 **`BattleHiDam`** 工会行亦 **`/2`**（`battleHiDamRefer.ts`）；`BattleHighCalc` 阈值逻辑仍简化。 |
+| **Kakutyou** | `kakutyouPreview.ts`：**1～5、10** 可预览；**6～9** 依赖完整 `n_tok`/属抗等，仍为占位说明（路线图 **H3** 已互链本表）。 |
+| **BattleCalc 全链** | 对敌物伤预览：**`physicalRoughPreviewPolicy.ts`**（**`w_ActS`** ∪ **394/395**；排除 **272/401/275**）；**423** 期望行含 **759～760** Hit/Miss 混合；**二刀**：**`nitouPhysicalRough.ts`** 对齐 **`247～291`**（**`BattleCalc4` 第三参** 用副手精炼、**`259～270`** 星加段、**`287～291`** **`w_left_Ave`** 先均再 **`tPlusDamCut`**）；**`BattleCalc3left`**（**`battleCalc3Approx.ts`**）对齐 **`4318～4334`**（**`cardOBJ[0].code==106`** Miss、**`tPlusDamCut`**→**`tPlusLucky`**；**不经 `BaiCI`** 与原版一致）；仍缺六合拳 **`w998B`**、**`EDP_DMG`** 全主动 **`w_HIT`** 细枝等。 |
+| **`n_tok` foot 补丁 → BaiCI** | `baiCINFootNtTokDelta.ts`：**`[25]`**、**`[80]`**、**`[36]`**（神圣箭→魔族乘段）、**`[39]`**（被动 **234**→龙族乘段），经 **`stTokEquipApprox(..., input)`** 并入物伤 BaiCI。`foot` **1440～1526** 等对 **`[51]`～`[59]`、`[60+]`、`[150+]`** 等依路线图 **B2** 不并入本路径（属抗/Kakutyou）。 |
 | **主动技** | **324→HIT+20** 已接；咏唱侧已部分 **`n_A_ActiveSkill`**；**78** 已进普攻略化体型乘（`head.js` `calc`）；**78+ASPD**（foot **1216**）与负重等仍在 ASPD/负重链。 |
 | **附录 A** | 仅 foot.js 内 **`SkillSearch` 出现索引**；**`head.js`** 内同名调用未纳入该表。 |
+| **分阶段补齐** | 见下文 **「分阶段补齐路线图」**；执行中请在对应阶段勾选并同步本表「残差汇总」行。 |
+
+---
+
+## 分阶段补齐路线图（对敌物伤 / BattleCalc / BaiCI 为主轴）
+
+**原则**：对照基准固定为 **`refer/js2`**；每阶段合入前在 **`webs/bobo-tool`** 下跑 **`pnpm exec eslint`**；优先迁「**进入 `BattleCalc4` / `BattleCalc2` / `BaiCI` 物伤乘子**」的公式，避免把 **属抗 / Kakutyou** 链误并进物伤。
+
+### 阶段 A — `BattleCalc2` 收口（`head.js` 4113 后未迁段）
+
+- [x] **A1** 主动 **394**：`SyurikenOBJ[SkillSubNum][0] + 3*SkillSearch(393) + 4*Lv` — 输入 **`activeSkillSubIndex`** + `ninjaAmmoTables.ts` 常量表 + `battleCalc2Approx.ts`（位于卡 **106** 之后）
+- [x] **A2** 主动 **395**：`KunaiOBJ[SkillSubNum][0] * 3` — 同上；**395** 时 **`BattleCalc2`** 首段属克用 **`KunaiOBJ[i][1]`**（`battlePhysicalRough` 内 **`bc2WeaponZokuseiIndex`**）
+- [x] **A3** **394/395** 与 **`wBCEDPch1`**（无 `wBCEDPch==0` 包裹，内层仍执行加段）、**`not_use_card`**（与 **437** 同走 **`baiCIPhysicalNotUseCardTailOnly`**）及 **4133～4140** 相对 **4114～4130**（423/437 → 卡106 → 394/395）顺序已对齐 refer
+
+**主要落点**：`battleCalc2Approx.ts`、`types.ts`、`sanitizeCharacter.ts`（子项）、新建 `ninjaAmmoTables.ts`（或脚本生成）
+
+### 阶段 B — `foot.js` → `n_tok` 补丁（仅收「进 BaiCI 物伤」下标）
+
+- [x] **B1** 已对照 **`refer/js2/foot.js` 1411～1526**：在本段内进入 **`BaiCI`** **`30+种族`** 的增量除原 **25/80** 外，已补 **1413～1416**（**`n_tok[36]`** 神圣箭、**`n_tok[39]`** `SkillSearch(234)*4`）→ **`baiCINFootNtTokDelta.ts`**；同段 **452/971–977/1445～1456** 等写入 **`[51]`～`[59]`** 及 **1460+** 的 **`[60+]`、`[150+]`** 等见 **B2**，不迁入
+- [x] **B2** 上述 **属抗 / 演奏抗歌 / 卡片 176 等** 仍走 **`n_A_zokusei` / Kakutyou** 或后续专链，**不**混入 **`stTokEquipApprox`** 物伤 BaiCI 增量
+
+**主要落点**：`baiCINFootNtTokDelta.ts`、`baiCIPhysical.ts`（必要时）
+
+### 阶段 C — `BaiCI` 尾段与 `not_use_card`
+
+- [x] **C1** **`head.js` `BaiCI` 4264～4296**：已并入 **`baiCIActiveTailBonusPercent`**（**6/76/41/169/264/84**、**1048/1044/1074+81/1066**、**83/388+381** 与 **`wBCEDPch1`** 分支）；**`639`** 在 **`Tyou==-1`** 时于尾乘前 **`+15`**
+- [x] **C2** **`not_use_card=1`** 主动清单见 **`baiCINotUseCardActiveSkills.ts`**（含 **423** 及 **394/395/437** 等），**`applyBaiCIPhysicalCore`** 统一走 **`baiCIPhysicalNotUseCardTailOnly`**
+
+**主要落点**：`baiCIPhysical.ts`、`baiCINotUseCardActiveSkills.ts`
+
+### 阶段 D — `EDP_DMG` / `BattleCalc3` / `tPlusLucky` / 展示
+
+- [x] **D1** **`EDP_DMG`**：**`edpDmgHead4443.ts`** — **`BattleCalcEDP` 恒 0 主动（4396）**、**4445～4448** 零段（沿用 **`isEdpAllZeroByHead4444`**）、**4443～4471** 三档（**`w_HIT_EDP`** 钳 **3775**、**num==1** 双分支；**337/432**、**394/395** 的 **`w_HIT_HYOUJI` / `n_PerHIT`** 开关已接）
+- [x] **D2** **`BattleCalc3`**：文档化 **`w998B`** 在 **`tyou=0`** 时省略；**`tPlusLucky`** 仍为魔物表恒等 + PvP 可选（`tPlusLucky.ts`）
+- [x] **D3** **`enemyBattleResultRefer`**：注明伤害/DPS 等行与 **`battlePhysicalRough`** 同源快照
+
+**主要落点**：`battlePhysicalRough.ts`、`edpDmgHead4443.ts`、`battleCalc3Approx.ts`、`tPlusLucky.ts`、`enemyBattleResultRefer.ts`
+
+### 阶段 E — 主动技扩展与 `n_A_DMG` 同源
+
+- [x] **E1** 清单：**`physicalRoughPreviewPolicy.ts`** 内 **`W_ACTS_HEAD_ACTIVE_IDS`**（与 **`refer/js2/head.js` ~479** `w_ActS` 一致）+ **`ACTIVE_PHYSICAL_PREVIEW_TRIPLET_EXTRA`**（**394/395**）
+- [x] **E2** **`computeBattlePhysicalRoughPreview`**：以 **`isPhysicalRoughTripletPreviewSupported`** 放行 **`w_ActS`** ∪ **扩展**；**272 / 401 / 275** 等入 **`ACTIVE_PHYSICAL_PREVIEW_EXCLUDE`** 并返回明确 **`reasonDisabled`**；对敌卡 **`EnemyCombatCard`** 已注明范围与文件名
+- [x] **E3** **423**：**752～754** 三 MATK 行仍由 **`matkDamageLineIdx` 0/1/2**；**759～760** 期望行 = **`phys1*w_HIT + Miss×(100−w_HIT)`**（Miss 为 **`BattleCalc(0,1)`** 链，**`battleCalc2ZeroMissApprox`** 在 **423** 时传入 **`matk*`** + **`legacyNB`**）；**暴击行**仍用 **`matkDamageLineIdx:1`** 的 **`battleCalcCritStub`**
+
+**主要落点**：`physicalRoughPreviewPolicy.ts`、`battlePhysicalRough.ts`、`battleCalc2ZeroMiss.ts`、`EnemyCombatCard.tsx`
+
+### 阶段 F — 二刀与副手
+
+- [x] **F1** **`nitouPhysicalRough.ts`**：副手与 refer **左手 / `n_Nitou`**（**247～291**）逐项对齐子集：**`BattleCalc4(...,_,1)`** → **`n_A_Weapon2LV_seirenATK`**；**`259～270`** **`w_left_star`**（三连 **id106** / 槽 **4～6** 首 script **code106** 各 **+5** / 槽 **7** **id106** **+10**）；**`287～291`** **`w_left_Aveatk = tPlusDamCut((Max+Min)/2)`**（非 **`mean(cut Max, cut Min)`**）
+- [x] **F2** **`BattleCalc3left`**：**`battleCalc3Approx.ts`** 对齐 **`4318～4334`**（**`wBC3L2`** 用 **`cardOBJ[0].code==106`**；**`tPlusDamCutTaijinZero`** 在 **`tPlusLucky`** 前、与主预览 **`baiCtx`** 同源）；**不经 `BaiCI`** 与原版一致（非「缺链」）
+
+**主要落点**：`nitouPhysicalRough.ts`、`battleCalc3Approx.ts`、`baiCIPhysical.ts`
+
+### 阶段 G — 承伤 `BattleHiDam`（与物伤解耦）
+
+- [x] **G1** **`battleHiDamRefer.ts`**：已接 **`n_tok[50+n_B[2]]`**、**`n_tok[190+n_B[4]]`**、**`n_B[19]/[20]`** 下 **`n_tok[77]～[79]`** 与 **`SkillSearch(165)`**、**`stTokEquipApprox(..., 3000+n_B[0])`**（对齐 **`StPlusCard`+`StPlusCalc2`**）；**`n_A_VITDEF`** 七段扣减改用快照 **`vitDefSoftTriplet`**
+- [x] **G2** **`enemyBattleResultRefer.ts`** / **`EnemyCombatCard.tsx`**：承伤 **12～13** 行与上述实现同源说明已更新
+
+**主要落点**：`battleHiDamRefer.ts`、`enemyBattleResultRefer.ts`、`vitDefLegacyMultiplier.ts`、`computeSnapshot.ts`
+
+### 阶段 H — 面板与全局（积差来源，可并行）
+
+- [x] **H1** **`foot.js` 300–420**：`n_A_ATK` 条件链仍以 **`atkBai01Preview.ts` / `weaponAtkPercentChainWApprox`** 等为子集；**未迁段**文档化互链 **`LEGACY_GAP_SCAN`** 残差 **「n_A_ATK 前段」**
+- [x] **H2** **VITDEF**：**`computeVitDefSoftTriplet`**（**`775～813`** + **`StPlusCalc2(24)`**）已入快照并驱动 **`BattleHiDam`**；展示行 **`defVitStatDisplay`** 仍为单行近似
+- [x] **H3** **Kakutyou 6～9**、**咏唱全树**：**`kakutyouPreview.ts`**、**`castTimeMultiplier.ts`** 头注释与本表残差行互链；实现仍分任务
+
+**建议节奏**：**A+B** 与 **H** 可并行；**D** 与 **E** 强相关时以 **E** 先收窄主动范围再扩 **D**；每 1～2 阶段发一次 PR 便于回滚与对照。
 
 ---
 

@@ -1,7 +1,8 @@
 /**
  * 对敌「战斗结果」表与 refer `head.js` `BattleCalc998` / `foot.js` 末段展示对齐。
- * 仍可能偏差：伤害三档与 `battlePhysicalRough` 全链、`BattleHiDam` 中 `n_tok[50+]`/`StPlus*(3000+)`、
- * `n_tok[11]`、`n_tok[74]` 固定延迟细分、主动技 `wCast` 秒数等。
+ * **阶段 D3**：伤害/DPS/击杀/时间等行在 **`battlePhysicalRough.enabled`** 时直接取 **`CombatSnapshot.battlePhysicalRough`**（与 `computeBattlePhysicalRoughPreview` 同源），避免与主物伤链分裂。
+ * **阶段 G2**：承伤 **12～13** 行取 **`computeBattleHiDamIncomingPair`**（与 **`battleHiDamRefer.ts`** 同源；已含 **`n_tok[50+]`/`[190+]`/`[77–79]`**、**`StPlus*(3000+魔物)`**、**`vitDefSoftTriplet`**）。
+ * 仍可能偏差：`n_tok[11]`、`n_tok[74]` 固定延迟细分、主动技 **`wCast`** 秒数、**`BattleHighCalc`** 等。
  */
 import {
   clampBattleCritPercent,
@@ -162,7 +163,6 @@ export function enemyBattleResultReferCell(
   const wHitRaw = snap.hit + 80 - flee27;
   const skill13 = passiveLevelBySkillId(input.formJobId, input.passiveSkillLevels, 13);
   const skill187 = passiveLevelBySkillId(input.formJobId, input.passiveSkillLevels, 187);
-  const skill301 = passiveLevelBySkillId(input.formJobId, input.passiveSkillLevels, 301);
   const nLucky = snap.refNLuckyDisplay;
   const wDA = computeReferWDA(input, effectiveJobId);
   const period = referAttackPeriodForDps(input, snap);

@@ -56,7 +56,10 @@ import {
   computeWeaponAtkSupportFlat,
   performanceDanceWeaponAtkFlat,
 } from "./supportBonuses";
-import { computeVitDefLegacyMultiplierApprox } from "./vitDefLegacyMultiplier";
+import {
+  computeVitDefLegacyMultiplierApprox,
+  computeVitDefSoftTriplet,
+} from "./vitDefLegacyMultiplier";
 import { remainingStatPoints } from "./statPoints";
 import { computeCastTimeMultiplierApprox } from "./castTimeMultiplier";
 import {
@@ -277,6 +280,8 @@ export function computeCombatSnapshot(raw: CharacterBaseInput): CombatSnapshot {
     weaponAtkManualFlat: man.atk,
     /** 【新功能】 */
     manualPhysDmgMult,
+    matkMin: matk.min,
+    matkMax: matk.max,
   });
 
   const sk196def = passiveLevelBySkillId(input.formJobId, input.passiveSkillLevels, 196) > 0;
@@ -284,6 +289,7 @@ export function computeCombatSnapshot(raw: CharacterBaseInput): CombatSnapshot {
   const vit = totalStats.vit;
   const defVitStatDisplay =
     sk258def || sk196def ? 0 : Math.floor(vit / 2) + Math.floor((vit * 3) / 10);
+  const vitDefSoftTriplet = computeVitDefSoftTriplet(vit, input, effectiveJobId);
   const intv = totalStats.int;
   const mdefIntStatDisplay =
     sk258def || sk196def ? 0 : intv + Math.floor(intv / 2);
@@ -329,6 +335,7 @@ export function computeCombatSnapshot(raw: CharacterBaseInput): CombatSnapshot {
     spr: sprVal,
     hardDef,
     defVitStatDisplay,
+    vitDefSoftTriplet,
     mdef,
     mdefIntStatDisplay,
     mdefStAllCalcExtraFlat,

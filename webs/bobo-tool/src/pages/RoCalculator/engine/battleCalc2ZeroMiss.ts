@@ -1,5 +1,4 @@
 import type { CharacterBaseInput, EquipmentState } from "./types";
-import { passiveLevelBySkillId } from "./passiveSkillLevel";
 import { battleCalc2ApproxNoBaiCI } from "./battleCalc2Approx";
 
 /**
@@ -25,8 +24,21 @@ export function battleCalc2ZeroMissApprox(p: {
   input: CharacterBaseInput;
   monsterElementCode: number;
   weaponZokuseiIndex: number;
+  /** 主动 **423** 时与 **`w_MagiclBulet`** 一致，供 **`BattleCalc2(0)`** 内 MATK 加段 */
+  legacyNB?: readonly number[];
+  matkDamageLineIdx?: 0 | 1 | 2;
+  matkMin?: number;
+  matkMax?: number;
 }): number {
-  const { input, monsterElementCode, weaponZokuseiIndex } = p;
+  const {
+    input,
+    monsterElementCode,
+    weaponZokuseiIndex,
+    legacyNB,
+    matkDamageLineIdx,
+    matkMin,
+    matkMax,
+  } = p;
   // Miss 段：w999 起始为 0，原版 `w999_AB` 为 0，因此不会触发 254 段。
   // 这里复用 `battleCalc2ApproxNoBaiCI` 并强制 weaponType=0，以避免误触发 254。
   const w999 = battleCalc2ApproxNoBaiCI({
@@ -35,6 +47,10 @@ export function battleCalc2ZeroMissApprox(p: {
     monsterElementCode,
     weaponZokuseiIndex,
     weaponType: 0,
+    legacyNB,
+    matkDamageLineIdx,
+    matkMin,
+    matkMax,
   });
   return Math.max(0, Math.floor(w999));
 }

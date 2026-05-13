@@ -163,7 +163,8 @@ const EnemyCombatCard: FC<EnemyCombatCardProps> = ({
               </TableRow>
               <TableRow>
                 <TableCell colSpan={2} sx={{ color: "text.secondary", fontSize: "0.68rem", py: 0.5 }}>
-                  主动技能与伤害联动后，此处将显示对应计算项。
+                  对敌物伤三档与 DPS 取自快照「battlePhysicalRough」；支持主动范围见源码
+                  physicalRoughPreviewPolicy.ts（对齐 refer「w_ActS」主链及忍者投系等）。272 / 401 / 275 等未接普攻型三档近似。
                 </TableCell>
               </TableRow>
             </TableBody>
@@ -473,7 +474,7 @@ const EnemyCombatCard: FC<EnemyCombatCardProps> = ({
                 <TableRow>
                   <TableCell colSpan={2} sx={{ color: "text.secondary", fontSize: 12 }}>
                     {!showBattleCalc
-                      ? "点击「计算」：命中率 w998K、回避率、LUK 幸运项、承伤 BattleHiDam 子集、Conf01 限制延迟、DPS/时间/Exp 等与 refer 对齐；伤害三档仍来自普攻略化引擎。"
+                      ? "点击「计算」：命中率 w998K、回避率、LUK 幸运项、承伤 BattleHiDam（含 n_tok[50+/190+]/77～79、魔物 StPlus3000+、VITDEF 三档）、Conf01 限制延迟、DPS/时间/Exp 等与 refer 对齐；伤害三档仍来自普攻略化引擎。"
                       : !bp.enabled
                         ? `${bp.reasonDisabled ?? "当前无法演算普攻伤害预览。"} 命中率、回避率、承伤仍可显示。`
                         : `期望一击约 ${bp.dmgPerSwingExpectedApprox}；暴击率约 ${Math.round(bp.battleCritPercentApprox * 10) / 10}%。`}

@@ -4,6 +4,14 @@ import { isNitouActive } from "./nitouSupport";
 import { sixStatsFromItemScriptCodes } from "./itemScriptSixStats";
 import type { EquipmentState, SixStats } from "./types";
 
+/** 等同 `cardOBJ[id][0].code`（`card.js` 首条 script 的 code），用于与 `head.js` 以首字段判定的分支对齐 */
+export function cardScriptFirstCode(cardId: number): number | null {
+  if (cardId <= 0 || cardId > CARD_STAT_TABLE_MAX_ID) return null;
+  const row = CARD_STAT_TABLE[cardId];
+  const c0 = row?.[0]?.code;
+  return typeof c0 === "number" ? c0 : null;
+}
+
 /** 等同 `StPlusCard(nSTP2)`：所有已装卡片上 stat code 与 `nSTP2` 一致的 value 之和 */
 function addCardStPlusFromId(id: number, statCode: number): number {
   if (id <= 0 || id > CARD_STAT_TABLE_MAX_ID) return 0;

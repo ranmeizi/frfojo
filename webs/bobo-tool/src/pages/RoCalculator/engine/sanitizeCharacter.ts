@@ -28,6 +28,7 @@ import { defaultPlayerManualEdits, sanitizePlayerManualEdits } from "./playerMan
 import { clampBaseLv, clampJobLv } from "./inputClamp";
 import { JOB_PASSIVE_SKILL_IDS } from "./skillBoard.generated";
 import { clampPassiveSlotValue } from "./skillBoard";
+import { clampActiveSkillSubIndex } from "./ninjaAmmoTables";
 
 const ARMOR_EQUIP_CUSTOM: {
   idKey: keyof EquipmentState;
@@ -435,6 +436,7 @@ export function defaultCharacterBaseInput(): CharacterBaseInput {
     playerManualEdits: defaultPlayerManualEdits(),
     activeSkillId: 0,
     activeSkillLv: 1,
+    activeSkillSubIndex: 0,
     kakutyouMode: 0,
     kakutyouSelNum: 10,
   };
@@ -657,6 +659,10 @@ export function sanitizeCharacterInput(input: CharacterBaseInput): CharacterBase
     playerManualEdits: sanitizePlayerManualEdits(input.playerManualEdits),
     activeSkillId: clampActiveSkillId(input.activeSkillId),
     activeSkillLv: clampActiveSkillLv(input.activeSkillLv),
+    activeSkillSubIndex: clampActiveSkillSubIndex(
+      clampActiveSkillId(input.activeSkillId),
+      input.activeSkillSubIndex ?? 0,
+    ),
     kakutyouMode: clampKakutyouMode(input.kakutyouMode),
     kakutyouSelNum: clampKakutyouSelNum(input.kakutyouSelNum),
   };

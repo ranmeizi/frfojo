@@ -1,5 +1,6 @@
+import { battleCalc4PhysicalApprox } from "./battleCalc4PhysicalApprox";
 import { tPlusDamCutTaijinZero, type BaiCIPhysicalCtx } from "./baiCIPhysical";
-import { sumCardStPlusWeapon2Slots } from "./cardBonuses";
+import { cardScriptFirstCode, sumCardStPlusWeapon2Slots } from "./cardBonuses";
 import { CARD_STAT_TABLE, CARD_STAT_TABLE_MAX_ID } from "./cardStats.generated";
 import { itemAtkOrDef, itemScriptFirstValueForCode, itemWeaponLevel } from "./itemAccessors";
 import { passiveLevelBySkillId } from "./passiveSkillLevel";
@@ -34,16 +35,22 @@ export function resolveWeapon2ZokuseiIndex(
   return mainHandWeaponZokuseiIndex;
 }
 
+/** `head.js` **259～270**：槽 **4～6** 三连 **卡 id 106** → **40**；否则 **4～6** 按 **`cardOBJ[0].code==106`** 各 **+5**；槽 **7** 仅 **`n_A_card[7]==106`** → **+10** */
 function weapon2Slot106Bonus(eq: EquipmentState): number {
   const a = eq.weapon2Card1;
   const b = eq.weapon2Card2;
   const c = eq.weapon2Card3;
-  if (a === 106 && b === 106 && c === 106) return 40;
+  const d = eq.weapon2Card4;
+  if (a === 106 && b === 106 && c === 106) {
+    let s = 40;
+    if (d === 106) s += 10;
+    return s;
+  }
   let s = 0;
-  if (a === 106) s += 5;
-  if (b === 106) s += 5;
-  if (c === 106) s += 5;
-  if (eq.weapon2Card4 === 106) s += 10;
+  for (const id of [a, b, c]) {
+    if (cardScriptFirstCode(id) === 106) s += 5;
+  }
+  if (d === 106) s += 10;
   return s;
 }
 
@@ -53,13 +60,21 @@ function battleCalc4NitouLeft(
   softDefIndex: 0 | 1 | 2,
   def2: readonly [number, number, number],
   seirenWeapon2: number,
+  input: CharacterBaseInput,
+  effectiveJobId: number,
+  legacyNB: readonly number[],
 ): number {
-  const d = Math.max(0, Math.min(100, Math.floor(monsterHardDefPercent)));
-  return (
-    Math.floor((Math.floor(wAtkAfterBai) * (100 - d)) / 100) -
-    def2[softDefIndex] +
-    seirenWeapon2
-  );
+  return battleCalc4PhysicalApprox({
+    nAdmg: wAtkAfterBai,
+    seirenAtk: seirenWeapon2,
+    monsterHardDefPercent,
+    softDefSubtract: def2[softDefIndex],
+    softDefIdx: softDefIndex,
+    def2Triplet: def2,
+    input,
+    effectiveJobId,
+    legacyNB,
+  });
 }
 
 export type NitouLeftRoughTriplet = {
@@ -71,7 +86,7 @@ export type NitouLeftRoughTriplet = {
 
 /**
  * `head.js` **`n_Nitou`** 分支 **`w_left_*`**（约 **247～291**）可迁子集：
- * 共用 **`n_A_ATK`**（此处为 **`nAAtk`**）、**`wCSize`**、**`wImp`**、**`wbairitu`**；副手精炼与 **`ItemOBJ`** ATK；**`zokusei`** 用副手属性下标；**106** 仅副手四槽；**`SkillSearch(80)`** 二刀倍率；副手卡槽 **code17** 平铺；尾 **`tPlusDamCutTaijinZero`**（与主链 BaiCI 段对齐）。
+ * 共用 **`n_A_ATK`**（此处 **`nAAtk`**）、**`wCSize`**、**`wImp`**、**`wbairitu`**（**`atkBai01PercentApprox`**）；副手精炼与 **`ItemOBJ`** ATK；**`zokusei`** 用副手属性下标；**106** 星加段对齐 **`259～270`**（三连 id **106** / 首 script **code106** / 第 **4** 槽 id **106**）；**`SkillSearch(80)`** 二刀倍率；副手卡 **code17** 平铺；**`BattleCalc4(...,_,1)`** 用 **`n_A_Weapon2LV_seirenATK`**（见 **`battleCalc4PhysicalApprox`**）；**`tPlusDamCutTaijinZero`** 顺序对齐 **`287～291`**（**`w_left_Aveatk`** 为 **`cut((Max+Min)/2)`**）。
  */
 export function computeNitouLeftRoughTriplet(p: {
   input: CharacterBaseInput;
@@ -118,7 +133,16 @@ export function computeNitouLeftRoughTriplet(p: {
     (workDex2 >= w2Atk
       ? Math.floor((w2Atk + wImp) * wCSize)
       : Math.floor((w2Atk - 1 + wImp) * wCSize));
-  wMax = battleCalc4NitouLeft(wMax * bai, monsterHardDef, 2, def2, seiren2);
+  wMax = battleCalc4NitouLeft(
+    wMax * bai,
+    monsterHardDef,
+    2,
+    def2,
+    seiren2,
+    input,
+    p.effectiveJobId,
+    baiCtx.legacyNB,
+  );
   if (wMax < 1) wMax = 1;
   wMax = Math.floor(wMax * z2);
   wMax += wStar;
@@ -128,15 +152,26 @@ export function computeNitouLeftRoughTriplet(p: {
   if (workDexForMin > w2Atk) workDexForMin = w2Atk;
   let wMin =
     nAAtk + w2CardAtk + minPlus2 + Math.floor((workDexForMin + wImp) * wCSize);
-  wMin = battleCalc4NitouLeft(wMin * bai, monsterHardDef, 0, def2, seiren2);
+  wMin = battleCalc4NitouLeft(
+    wMin * bai,
+    monsterHardDef,
+    0,
+    def2,
+    seiren2,
+    input,
+    p.effectiveJobId,
+    baiCtx.legacyNB,
+  );
   if (wMin < 1) wMin = 1;
   wMin = Math.floor(wMin * z2);
   wMin += wStar;
   wMin = Math.floor(wMin * scaleMin);
 
+  /** `head.js` **287～291**：先 **`(Max+Min)/2`** 再分别 **`tPlusDamCut`**，与 **`⌊(cut(Max)+cut(Min))/2⌋`** 不同 */
+  const wAveRaw = (wMax + wMin) / 2;
   wMax = Math.floor(tPlusDamCutTaijinZero(wMax, baiCtx));
   wMin = Math.floor(tPlusDamCutTaijinZero(wMin, baiCtx));
-  const wAve = Math.floor((wMax + wMin) / 2);
+  const wAve = Math.floor(tPlusDamCutTaijinZero(wAveRaw, baiCtx));
 
   return { wLeftMin: wMin, wLeftMax: wMax, wLeftAve: wAve };
 }

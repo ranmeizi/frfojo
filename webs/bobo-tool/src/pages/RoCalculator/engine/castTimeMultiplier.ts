@@ -9,6 +9,7 @@ import type { CharacterBaseInput } from "./types";
 /**
  * 近似 `refer/foot.js` 约 1353–1399 的 `n_A_CAST` 乘段。
  * 已含部分 **`n_A_ActiveSkill`** 装备/卡条件及 **`StPlusCalc2(7000+skill)`** 的卡/套/穿 script 同源和（见 `sum*StPlus`）。
+ * **路线图 H3**：完整 **`StPlusCalc2`** 条件树与全主动分支见 **`LEGACY_GAP_SCAN.md`** 残差 **咏唱**。
  */
 export function computeCastTimeMultiplierApprox(
   input: CharacterBaseInput,

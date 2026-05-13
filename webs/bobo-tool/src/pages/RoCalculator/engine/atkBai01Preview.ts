@@ -28,6 +28,7 @@ function sumStPlusCode(
 /**
  * 近似 `refer/head.js` `ATKbai01` 的 **`wA01` 百分底**（从 100 起加算）。
  * 含：`SkillSearch(12)` / `PassSkill6[5]` / `PassSkill2[12]` 互斥前三项、`256`/`270`、**`PassSkill5[3]`**、**`PassSkill6[2]`**、script **87**。
+ * **路线图 H1**：`foot.js` **300～420** 大量 **`EquipNumSearch`** / 条件 **`n_A_ATK`** 仍未并入面板伤害用 ATK；见 **`LEGACY_GAP_SCAN.md`** 残差 **「n_A_ATK 前段」**。
  */
 export function computeAtkBai01PercentApprox(
   input: CharacterBaseInput,

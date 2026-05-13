@@ -1,3 +1,5 @@
+import { tPlusDamCutTaijinZero, type BaiCIPhysicalCtx } from "./baiCIPhysical";
+import { cardScriptFirstCode } from "./cardBonuses";
 import { applyTPlusLuckyBattleCalc3, type TPlusLuckyBattleCalc3Input } from "./tPlusLucky";
 import type { EquipmentState } from "./types";
 import { isNitouActive } from "./nitouSupport";
@@ -6,6 +8,8 @@ import { isNitouActive } from "./nitouSupport";
  * `head.js` `BattleCalc3`：在六合拳发动率、二刀/凶砍等均为 0 时，
  * `wBC3_X = (w998I * w998 + w998G * n_A_CriATK[1] + w998L * BattleCalc2(0)) / 100`，
  * 末尾 **`return tPlusLucky(wBC3_X)`**（`tPlusLucky.ts`；魔物表 **Taijin=0** 为恒等）。
+ *
+ * **阶段 D 注**：原版 **`w998B * TyouEnkakuSousa3dan`**（六合拳）在普攻略化中 **`tyouEnkakuSousa3dan=0`** 时恒为 **0**，本模块未单独拆 **`w998B`** 项。
  *
  * 暴伤支：**`BattleCalc(...,10)`**（跳过 BC4、`4035～4068`、属克）+ **`BaiCI` 含 `n_tok[70]`** + 拳刃 **L13**；Miss 段见 `battleCalc2ZeroMissApprox`。
  */
@@ -48,7 +52,10 @@ export function battleCalc3ExpectedApprox(
 }
 
 /**
- * `head.js` **`BattleCalc3left`**（约 **4318～4334**）可迁子集：副手 **106** Miss 段；**`tPlusLucky`** 魔物表恒等。**`w_left_*`** 上 **`tPlusDamCut`** 已在 `nitouPhysicalRough` 左段尾接入。
+ * `head.js` **`BattleCalc3left`**（约 **4318～4334**）：
+ * - Miss 段 **`wBC3L2`**：槽 **4～7** 上 **`cardOBJ[id][0].code==106`** 各 **+5**（与 **`w_left_star`** 的槽 **7** id **106** 规则不同，原版即如此）。
+ * - **`tPlusDamCut`**（**4332**）：在 **`tPlusLucky`** 前作用于 **`wBC3_X`**；本处用 **`tPlusDamCutTaijinZero`**（Taijin=0 子集，与主预览 **`baiCtx`** 同源）。
+ * - **不经 `BaiCI`**：与原版 **`BattleCalc3left`** 一致。
  */
 export function battleCalc3leftApprox(
   w998: number,
@@ -56,18 +63,22 @@ export function battleCalc3leftApprox(
   eq: EquipmentState,
   effectiveJobId: number,
   tPlusLucky?: TPlusLuckyBattleCalc3Input,
+  baiCtx?: BaiCIPhysicalCtx,
 ): number {
   let wBC3L2 = 0;
   if (isNitouActive(eq, effectiveJobId)) {
     const c = [eq.weapon2Card1, eq.weapon2Card2, eq.weapon2Card3, eq.weapon2Card4];
     for (const id of c) {
-      if (id === 106) wBC3L2 += 5;
+      if (cardScriptFirstCode(id) === 106) wBC3L2 += 5;
     }
   }
   const hit = normalizeHitForBattleCalc3(wHitRaw);
   const wBC3_Normal = (w998 * hit) / 100;
   const wBC3_Miss = (wBC3L2 * (100 - hit)) / 100;
-  const wBC3_X = wBC3_Normal + wBC3_Miss;
+  let wBC3_X = wBC3_Normal + wBC3_Miss;
+  if (baiCtx) {
+    wBC3_X = Math.floor(tPlusDamCutTaijinZero(wBC3_X, baiCtx));
+  }
   return Math.max(0, Math.floor(applyTPlusLuckyBattleCalc3(wBC3_X, tPlusLucky ?? { taijin: false })));
 }
 

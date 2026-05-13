@@ -27,6 +27,9 @@ export const BOW_ARROW_ROWS: readonly BowArrowRow[] = [
 
 export const BOW_ARROW_INDEX_MAX = BOW_ARROW_ROWS.length - 1;
 
+/** 与 refer `ArrowOBJ` **「聖なる矢」** 同一下标；`foot.js` **1413～1414** → **`n_tok[36]+=5`**（对魔族 **30+6** 乘段） */
+export const BOW_ARROW_HOLY_SACRED_INDEX = 14;
+
 export function bowArrowRow(index: number): BowArrowRow {
   const i = Math.min(BOW_ARROW_INDEX_MAX, Math.max(0, Math.floor(index)));
   return BOW_ARROW_ROWS[i] ?? BOW_ARROW_ROWS[0];
