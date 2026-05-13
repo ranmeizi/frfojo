@@ -5,11 +5,8 @@ import type { EquipmentState } from "./types";
 import { isNitouActive } from "./nitouSupport";
 
 /**
- * `head.js` `BattleCalc3`：在六合拳发动率、二刀/凶砍等均为 0 时，
- * `wBC3_X = (w998I * w998 + w998G * n_A_CriATK[1] + w998L * BattleCalc2(0)) / 100`，
- * 末尾 **`return tPlusLucky(wBC3_X)`**（`tPlusLucky.ts`；魔物表 **Taijin=0** 为恒等）。
- *
- * **阶段 D 注**：原版 **`w998B * TyouEnkakuSousa3dan`**（六合拳）在普攻略化中 **`tyouEnkakuSousa3dan=0`** 时恒为 **0**，本模块未单独拆 **`w998B`** 项。
+ * `head.js` **`BattleCalc3`**（**4305～4312**）与 **3877～3888** 权重（**`w998D`/`w998E`** 双满/天使之怒、**`w998B×六合中档`**）。
+ * 末尾 **`return tPlusLucky(wBC3_X)`**（`tPlusLucky.ts`；魔物表 **Taijin=0** 恒等）。**`computeBattleCalc998Weights`** 与 **`referHitDisplayW998K`** / **`battleCalc3ExpectedApprox(..., head998)`** 共用 **`w998K`** 段。
  *
  * 暴伤支：**`BattleCalc(...,10)`**（跳过 BC4、`4035～4068`、属克）+ **`BaiCI` 含 `n_tok[70]`** + 拳刃 **L13**；Miss 段见 `battleCalc2ZeroMissApprox`。
  */
@@ -26,6 +23,68 @@ export function clampBattleCritPercent(n: number): number {
   return Math.min(100, Math.max(0, n));
 }
 
+/** `head.js` **3877～3888** 与 **`BattleCalc3`**（**4305～4312**）权重（**`w998D`/`w998E`** 双满/天使之怒期望段）。 */
+export function computeBattleCalc998Weights(p: {
+  wHitRaw: number;
+  playerCritStat: number;
+  monsterLuk: number;
+  weaponType: number;
+  skill13Lv: number;
+  skill187Lv: number;
+  wDA: number;
+}): {
+  w_HIT: number;
+  w_Cri: number;
+  wBC3_3danHatudouRitu: number;
+  w998A: number;
+  w998B: number;
+  w998D: number;
+  w998E: number;
+  w998G: number;
+  w998H: number;
+  w998I: number;
+  w998K: number;
+  w998L: number;
+} {
+  const w_HIT = normalizeHitForBattleCalc3(p.wHitRaw);
+  let w_Cri = legacyCritRateVsMonster(p.playerCritStat, p.monsterLuk);
+  w_Cri = clampBattleCritPercent(w_Cri);
+
+  const wBC3_3danHatudouRitu = p.skill187Lv > 0 ? 30 - p.skill187Lv : 0;
+  const wDA = p.wDA;
+
+  let w_HIT_DA = w_HIT;
+  if (wDA !== 0 && Math.floor(p.weaponType) !== 17) {
+    w_HIT_DA = (w_HIT_DA * (100 + p.skill13Lv)) / 100;
+    if (w_HIT_DA >= 100) w_HIT_DA = 100;
+  }
+
+  const w998A = 100 - wBC3_3danHatudouRitu;
+  const w998B = (wBC3_3danHatudouRitu * w_HIT) / 100;
+  const w998D = (w998A * wDA) / 100;
+  const w998E = (w998D * w_HIT_DA) / 100;
+  const w998G = ((100 - wBC3_3danHatudouRitu - w998D) * w_Cri) / 100;
+  const w998H = 100 - wBC3_3danHatudouRitu - w998D - w998G;
+  const w998I = (w998H * w_HIT) / 100;
+  const w998K = w998B + w998E + w998G + w998I;
+  const w998L = 100 - w998K;
+
+  return {
+    w_HIT,
+    w_Cri,
+    wBC3_3danHatudouRitu,
+    w998A,
+    w998B,
+    w998D,
+    w998E,
+    w998G,
+    w998H,
+    w998I,
+    w998K,
+    w998L,
+  };
+}
+
 /** @param w998 普攻段经 BattleCalc 后的一击（本链路用 min/ave/max 之一） */
 export function battleCalc3ExpectedApprox(
   w998: number,
@@ -35,18 +94,52 @@ export function battleCalc3ExpectedApprox(
   battleCalc2MissDamage: number,
   /** 默认魔物表（`taijin: false`）→ **`tPlusLucky` 恒等** */
   tPlusLucky?: TPlusLuckyBattleCalc3Input,
+  /** 与 **`head.js` 3877～4312** 一致（**`w998E`** 双满/天使之怒、**`w998B×六合中档`**）；不传则退化为旧版（无 **w998D** 拆分）。 */
+  head998?: {
+    weaponType: number;
+    skill13Lv: number;
+    skill187Lv: number;
+    wDA: number;
+    critStat: number;
+    monsterLuk: number;
+    /** 六合拳中档 **`san[1]`**（**`head.js` 346～351`**）；无 **187** 时省略 */
+    sixMidSan?: number;
+  },
 ): number {
-  const hit = normalizeHitForBattleCalc3(wHitRaw);
-  const cri = clampBattleCritPercent(wCriRaw);
-  const w998H = 100 - cri;
-  const w998I = (w998H * hit) / 100;
-  const w998G = cri;
-  const w998L = 100 - w998G - w998I;
-  const wBC3_Normal = w998I * w998;
-  const wBC3_Cri = w998G * criAtkApprox;
   const miss = Number.isFinite(battleCalc2MissDamage) ? Math.max(0, battleCalc2MissDamage) : 0;
-  const wBC3_Miss = w998L * miss;
-  const wBC3_X = (wBC3_Normal + wBC3_Cri + wBC3_Miss) / 100;
+
+  if (!head998) {
+    const hit = normalizeHitForBattleCalc3(wHitRaw);
+    const cri = clampBattleCritPercent(wCriRaw);
+    const w998H = 100 - cri;
+    const w998I = (w998H * hit) / 100;
+    const w998G = cri;
+    const w998L = 100 - w998G - w998I;
+    const wBC3_Normal = w998I * w998;
+    const wBC3_Cri = w998G * criAtkApprox;
+    const wBC3_Miss = w998L * miss;
+    const wBC3_X = (wBC3_Normal + wBC3_Cri + wBC3_Miss) / 100;
+    const lucky = applyTPlusLuckyBattleCalc3(wBC3_X, tPlusLucky ?? { taijin: false });
+    return Math.max(0, Math.floor(lucky));
+  }
+
+  const w = computeBattleCalc998Weights({
+    wHitRaw,
+    playerCritStat: head998.critStat,
+    monsterLuk: head998.monsterLuk,
+    weaponType: head998.weaponType,
+    skill13Lv: head998.skill13Lv,
+    skill187Lv: head998.skill187Lv,
+    wDA: head998.wDA,
+  });
+
+  const tyou = head998.sixMidSan ?? 0;
+  const wBC3_3dan = w.w998B * tyou;
+  const wBC3_DA = w.w998E * w998 * 2;
+  const wBC3_Cri = w.w998G * criAtkApprox;
+  const wBC3_Normal = w.w998I * w998;
+  const wBC3_Miss = w.w998L * miss;
+  const wBC3_X = (wBC3_3dan + wBC3_DA + wBC3_Cri + wBC3_Normal + wBC3_Miss) / 100;
   const lucky = applyTPlusLuckyBattleCalc3(wBC3_X, tPlusLucky ?? { taijin: false });
   return Math.max(0, Math.floor(lucky));
 }

@@ -26,7 +26,7 @@
 | **`n_A_MDEF`** | `mdefStAllCalcExtras.ts` + code19 + 196/258 等已接；**ItemOBJ 若含独立 MDEF 列**与 foot 叠加规则未单独核对。 |
 | **工会 [3]/[5] 伤害链** | **`ATKbai01`** 已进 `atkBai01PercentApprox`；**`PassSkill5[5]`** 已对普攻略化最终伤害（含 BC3 期望与 Miss）整体 **`×0.5`**；承伤 **`BattleHiDam`** 工会行亦 **`/2`**（`battleHiDamRefer.ts`）；`BattleHighCalc` 阈值逻辑仍简化。 |
 | **Kakutyou** | `kakutyouPreview.ts`：**1～5、10** 可预览；**6～9** 依赖完整 `n_tok`/属抗等，仍为占位说明（路线图 **H3** 已互链本表）。 |
-| **BattleCalc 全链** | 对敌物伤预览：**`physicalRoughPreviewPolicy.ts`**（**`w_ActS`** ∪ **394/395**；排除 **272/401/275**）；**423** 期望行含 **759～760** Hit/Miss 混合；**二刀**：**`nitouPhysicalRough.ts`** 对齐 **`247～291`**（**`BattleCalc4` 第三参** 用副手精炼、**`259～270`** 星加段、**`287～291`** **`w_left_Ave`** 先均再 **`tPlusDamCut`**）；**`BattleCalc3left`**（**`battleCalc3Approx.ts`**）对齐 **`4318～4334`**（**`cardOBJ[0].code==106`** Miss、**`tPlusDamCut`**→**`tPlusLucky`**；**不经 `BaiCI`** 与原版一致）；仍缺六合拳 **`w998B`**、**`EDP_DMG`** 全主动 **`w_HIT`** 细枝等。 |
+| **BattleCalc 全链** | 对敌物伤预览：**`physicalRoughPreviewPolicy.ts`**（**`w_ActS`** ∪ **394/395**；排除 **272/401/275**）；**423** 期望行含 **759～760** Hit/Miss 混合；**二刀**：**`nitouPhysicalRough.ts`**；**`BattleCalc3left`**：**`battleCalc3Approx.ts`**；**普攻 BC3+998**：**`battleCalc3ExpectedApprox(..., head998)`**（**3877～4312**，含 **`w998D`/`w998E`** 与 **`w998B×六合中档`**，`battlePhysicalRough` 传 **`sixMidSan`**）；**弓猎鹰**：**`battleTakaApprox.ts`**；**`enemyBattleResultRefer`**：**DPS** 用 **`dmgPerSwingExpectedApprox`**，击数 **≥1000** / 战斗时间 / Exp 与 **`head.js` `BattleCalc998`** 展示文案一致。仍缺 **`EDP_DMG`** 全主动 **`w_HIT`** 细枝、**`tPlusDamCut`** 全形态与原版三档 vs **`w_DMG[1]`** 展示行等口径差。 |
 | **`n_tok` foot 补丁 → BaiCI** | `baiCINFootNtTokDelta.ts`：**`[25]`**、**`[80]`**、**`[36]`**（神圣箭→魔族乘段）、**`[39]`**（被动 **234**→龙族乘段），经 **`stTokEquipApprox(..., input)`** 并入物伤 BaiCI。`foot` **1440～1526** 等对 **`[51]`～`[59]`、`[60+]`、`[150+]`** 等依路线图 **B2** 不并入本路径（属抗/Kakutyou）。 |
 | **主动技** | **324→HIT+20** 已接；咏唱侧已部分 **`n_A_ActiveSkill`**；**78** 已进普攻略化体型乘（`head.js` `calc`）；**78+ASPD**（foot **1216**）与负重等仍在 ASPD/负重链。 |
 | **附录 A** | 仅 foot.js 内 **`SkillSearch` 出现索引**；**`head.js`** 内同名调用未纳入该表。 |
@@ -117,7 +117,7 @@
 | [x] | Job 板 `w2` + `StPlusCalc2(1–7)`、`213`、`214` | `computeJobBoardBonus` + `wornEquipSixStatDelta` / `setSixStatDelta` 等 script 码 |
 | [x] | `SkillSearch` 38/68/146/404/234/286/422、270+JOB24、379+徒手 | `passiveSkillSearchSixStatDelta` |
 | [x] | 心灵 42 / `PassSkill6[3]` 对 AGI·DEX `%` | `computeEffectiveSixStats` |
-| [x] | `StPlusCalc2(212)`、`(215)` 在 `%` **之后** 再累加 | `wornEquipSixStatDeltaExcluding212215` / `wornEquipSixStatDelta212215Only` + `computeEffectiveSixStats`（`supportBonuses.ts`） |
+| [x] | `StPlusCalc2(212)`、`(215)` 在 `%` **之后**再累加（**已穿 + 套装**） | `wornEquipSixStatDelta212215Only` + **`setSixStatDelta212215Only`** + `computeEffectiveSixStats`（`supportBonuses.ts` / `equipmentSetBonus.ts`） |
 | [x] | 装备条件（约 1661–1682） | `stPlusCalcEquipConditionalSix` + `equipNumSearch` / `legacyJobSearch` |
 | [x] | 卡片按精炼位 / `SU_*`（约 1693–1714） | `cardDynamicSixStat`（与 `cardSixStatDelta` 叠加） |
 | [x] | `A_HSE` 圣域核心素质（约 1785–1799） | `HolySupportState.sanctityCoreCode` + `sanctityCoreSixStatDelta` + `HolySanctityCorePanel` |

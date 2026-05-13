@@ -3,10 +3,7 @@ import { computeMaxHp, computeMaxSp } from "./maxHpSp";
 import {
   type SecCtx,
   computeCritBase,
-  computeHpr,
   computeMatk,
-  computePerfectDodge,
-  computeSpr,
 } from "./secondaryStats";
 import {
   passSkill6DomainLevel,
@@ -14,10 +11,13 @@ import {
 } from "./holyPassSkill6";
 import { cardSixStatDelta } from "./cardBonuses";
 import {
-  setSixStatDelta,
+  setSixStatDelta212215Only,
+  setSixStatDeltaExcluding212215,
+  wornAccessoryEquipSlotsSixStatDeltaExcluding212215,
   wornEquipSixStatDelta212215Only,
   wornEquipSixStatDeltaExcluding212215,
 } from "./equipmentSetBonus";
+import { customAccessorySlotSixFlat } from "./customEquipmentAggregate";
 import { cardDynamicSixStat } from "./cardDynamicSixStat";
 import { cardNumSearch, equipNumSearch } from "./equipCardCount";
 import { passiveLevelBySkillId } from "./passiveSkillLevel";
@@ -40,7 +40,7 @@ const ZERO_SIX: SixStats = {
 
 /**
  * legacy `StPlusCalc` 中在心灵(42)/领域% 之前、对 `wSPC_*` 的 `SkillSearch` 平铺六维段（foot.js 约 1630–1647、1722–1733）。
- * 不含 42 的 AGI/DEX%（见 `computeEffectiveSixStats`）；不含卡片/装备条件分支。
+ * 不含 42 的 AGI/DEX%（见 `computeEffectiveSixStats`）；不含卡片/装备条件分支（见 `foot.js` **1573～1590** 相对 **1622+**）。
  */
 export function passiveSkillSearchSixStatDelta(
   input: CharacterBaseInput,
@@ -93,8 +93,12 @@ function addDollHalfCap(totalBefore: number, puppetVal: number, full: boolean): 
 }
 
 /**
- * 对应 legacy StPlusCalc 六维链：Job 板 + `SkillSearch` 被动平铺 + 心灵(42)/领域 AGI·DEX% + 其余支援与装备脚本。
- * 末尾另含卡片 `StPlusCard(1～7)`、套装虚拟行、已穿装备 ItemOBJ 尾部脚本（列 11+）平铺六维。
+ * 对应 legacy `foot.js` **`StPlusCalc`** 六维链（约 **1540～1720**）：
+ * Job 板 + **主装备槽 0～8** / 套装 **`StPlusCalc2(1–7,213,214)`**（**不含 212/215**；**不含饰品 9～10 脚本**）+ `SkillSearch` 被动平铺；
+ * **`SkillSearch(42)` / 领域**：与 **`foot.js` 1595～1596** 一致——**`wSPC_* = floor((n_A_* + wSPC_*) * w / 100) - n_A_*`**，等价于总 **`floor((n_A_* + wSPC_*) * w / 100)`**；
+ * 再累加 **`StPlusCalc2(212|215)`**（已穿 + 套装附魔类码）、装备条件六维、卡片、支援等。
+ *
+ * **手动修正六维**（`computeSnapshot` 的 **`playerManualEdits`**）在 **`computeEffectiveSixStats` 之后**相加，**不**进心神 **%**，与 refer **`n_A_*` 仅面板分配**一致。
  */
 export function computeEffectiveSixStats(input: CharacterBaseInput): SixStats {
   const { effectiveJobId } = resolveCombatJob(input.formJobId);
@@ -103,7 +107,7 @@ export function computeEffectiveSixStats(input: CharacterBaseInput): SixStats {
   const eq = input.equipment;
   let s = addSix(m, job);
   s = addSix(s, wornEquipSixStatDeltaExcluding212215(eq, effectiveJobId));
-  s = addSix(s, setSixStatDelta(eq, effectiveJobId));
+  s = addSix(s, setSixStatDeltaExcluding212215(eq, effectiveJobId));
   s = addSix(s, passiveSkillSearchSixStatDelta(input));
 
   const mental42 = passiveLevelBySkillId(
@@ -111,17 +115,33 @@ export function computeEffectiveSixStats(input: CharacterBaseInput): SixStats {
     input.passiveSkillLevels,
     42,
   );
+  /** refer **`n_A_AGI`/`n_A_DEX`**：仅手选素质（与 **`input.stats`** 同源），与 Job/装备加成 **`wSPC_*`** 分离后进 **`foot.js` 1595～1596**。 */
+  const nAAgi = m.agi;
+  const nADex = m.dex;
+  /**
+   * **`foot.js` 1592～1599**：**212/215** 在 **1602～1603** 才加回。
+   * 本工具：**主槽 0～8** 的 **code 2/5/7…** 进心神 **%**；**饰品 9～10** 与 **自定义饰品六维** 在心神 **%** **之后**再加（见上文 **`wornAccessoryEquipSlotsSixStatDeltaExcluding212215`** / **`customAccessorySlotSixFlat`**）。
+   */
   if (mental42 > 0) {
-    const fac = 102 + mental42;
-    s.agi = Math.floor(s.agi * fac / 100);
-    s.dex = Math.floor(s.dex * fac / 100);
+    const w = 102 + mental42;
+    const wSpcAgiPre = s.agi - nAAgi;
+    const wSpcDexPre = s.dex - nADex;
+    s.agi = nAAgi + Math.floor(((nAAgi + wSpcAgiPre) * w) / 100) - nAAgi;
+    s.dex = nADex + Math.floor(((nADex + wSpcDexPre) * w) / 100) - nADex;
   } else if (passSkill6DomainLevel(input.holySupport) > 0) {
-    const fac = 102 + passSkill6DomainLevel(input.holySupport);
-    s.agi = Math.floor(s.agi * fac / 100);
-    s.dex = Math.floor(s.dex * fac / 100);
+    const w = 102 + passSkill6DomainLevel(input.holySupport);
+    const wSpcAgiPre = s.agi - nAAgi;
+    const wSpcDexPre = s.dex - nADex;
+    s.agi = nAAgi + Math.floor(((nAAgi + wSpcAgiPre) * w) / 100) - nAAgi;
+    s.dex = nADex + Math.floor(((nADex + wSpcDexPre) * w) / 100) - nADex;
   }
 
+  /** 饰品槽 ItemOBJ 与自定义饰品六维：**不进**心神 **%**（roratorio 源码中二者在心神前，此处按产品口径后置）。 */
+  s = addSix(s, wornAccessoryEquipSlotsSixStatDeltaExcluding212215(eq, effectiveJobId));
+  s = addSix(s, customAccessorySlotSixFlat(eq));
+
   s = addSix(s, wornEquipSixStatDelta212215Only(eq, effectiveJobId));
+  s = addSix(s, setSixStatDelta212215Only(eq, effectiveJobId));
   s = addSix(s, stPlusCalcEquipConditionalSix(input));
   s = addSix(s, cardSixStatDelta(eq, effectiveJobId));
   s = addSix(s, cardDynamicSixStat(input));

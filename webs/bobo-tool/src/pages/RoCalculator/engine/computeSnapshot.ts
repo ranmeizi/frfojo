@@ -1,5 +1,5 @@
 import type { CharacterBaseInput, CombatSnapshot } from "./types";
-import { computeJobBoardBonus } from "./jobBoardBonus";
+import { addSix, computeJobBoardBonus } from "./jobBoardBonus";
 import {
   applyLegacyTotalDefSkillModifiers,
   computeHardDefTotal,
@@ -90,7 +90,7 @@ import {
   addPlayerManualEdits,
   manualPhysDamageMultiplier,
 } from "./playerManualEdits";
-import { aggregateCustomEquippedBonuses } from "./customEquipmentAggregate";
+import { aggregateCustomEquippedBonuses, customAccessorySlotSixFlat } from "./customEquipmentAggregate";
 import { computeReferNLucky } from "./referPlayerLucky";
 
 export function computeCombatSnapshot(raw: CharacterBaseInput): CombatSnapshot {
@@ -103,15 +103,16 @@ export function computeCombatSnapshot(raw: CharacterBaseInput): CombatSnapshot {
     input.playerManualEdits,
     aggregateCustomEquippedBonuses(input.equipment),
   );
+  const accCustomSix = customAccessorySlotSixFlat(input.equipment);
   let totalStats = computeEffectiveSixStats(input);
-  totalStats = {
-    str: totalStats.str + man.str,
-    agi: totalStats.agi + man.agi,
-    vit: totalStats.vit + man.vit,
-    int: totalStats.int + man.int,
-    dex: totalStats.dex + man.dex,
-    luk: totalStats.luk + man.luk,
-  };
+  totalStats = addSix(totalStats, {
+    str: man.str - accCustomSix.str,
+    agi: man.agi - accCustomSix.agi,
+    vit: man.vit - accCustomSix.vit,
+    int: man.int - accCustomSix.int,
+    dex: man.dex - accCustomSix.dex,
+    luk: man.luk - accCustomSix.luk,
+  });
 
   const weaponType = clampWeaponType(effectiveJobId, input.weaponType);
 

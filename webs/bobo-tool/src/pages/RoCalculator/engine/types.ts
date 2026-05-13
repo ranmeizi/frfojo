@@ -348,6 +348,7 @@ export type CharacterBaseInput = {
    */
   bowArrowIndex: number;
   speedPot: number;
+  /** 素质点分配；与 refer **`StAllCalc`**（`foot.js` **103～107**）的 **`n_A_STR`～`n_A_LUK`** 同源；心神 **`SkillSearch(42)`** 处参与 **`floor((n_A_AGI|DEX + wSPC) * w / 100)`**（**1595～1596**），Job/装备等先入 **`wSPC_*`** 再与该 **`n_A_*`** 相加后进公式。 */
   stats: SixStats;
   equipment: EquipmentState;
   /** 与当前职业 `JOB_PASSIVE_SKILL_IDS` 槽位一一对应 */

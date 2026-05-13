@@ -1,20 +1,23 @@
 /**
  * 对敌「战斗结果」表与 refer `head.js` `BattleCalc998` / `foot.js` 末段展示对齐。
  * **阶段 D3**：伤害/DPS/击杀/时间等行在 **`battlePhysicalRough.enabled`** 时直接取 **`CombatSnapshot.battlePhysicalRough`**（与 `computeBattlePhysicalRoughPreview` 同源），避免与主物伤链分裂。
+ * **三档伤害行**（最小/平均/最大）仍为 **`BattleCalc`** 后展示链近似；**`BattleCalc998`** 的 **DPS / 平均击数 / 战斗时间** 以 **`dmgPerSwingExpectedApprox`**（BC3+EDP+二刀 BC3left+弓 **`BattleTAKA`**）为除数，对齐 **`head.js`** **`w_DMG[1]`** 期望口径。
  * **阶段 G2**：承伤 **12～13** 行取 **`computeBattleHiDamIncomingPair`**（与 **`battleHiDamRefer.ts`** 同源；已含 **`n_tok[50+]`/`[190+]`/`[77–79]`**、**`StPlus*(3000+魔物)`**、**`vitDefSoftTriplet`**）。
  * 仍可能偏差：`n_tok[11]`、`n_tok[74]` 固定延迟细分、主动技 **`wCast`** 秒数、**`BattleHighCalc`** 等。
  */
-import {
-  clampBattleCritPercent,
-  legacyCritRateVsMonster,
-  normalizeHitForBattleCalc3,
-} from "./battleCalc3Approx";
+import { computeBattleCalc998Weights, normalizeHitForBattleCalc3 } from "./battleCalc3Approx";
 import { computeBattleHiDamIncomingPair } from "./battleHiDamRefer";
 import { computeLegacyMonsterFlee27 } from "./legacyMonsterFlee27";
 import { resolveCombatJob } from "./jobResolve";
 import { passiveLevelBySkillId } from "./passiveSkillLevel";
+import type { ParsedMonster } from "./monsterCatalog";
 import { computeReferWDA } from "./referWDA998";
 import type { BattlePhysicalRoughPreview, CharacterBaseInput, CombatSnapshot } from "./types";
+
+/** 与 `head.js` **`SubName[5/6/7]`** 一致，便于与 refer 输出对照 */
+export const REFER_BATTLE_HITS_OVER_CAP = "1000回以上";
+export const REFER_BATTLE_TIME_UNCALC = "无法计算";
+export const REFER_EXP_OUT_OF_RANGE = "计算之外";
 
 /** `head.js`：`w_FLEE` 钳 5–95 后，`BattleFLEE` 展示 */
 export function referBattleFleeDisplayPercent(params: {
@@ -41,28 +44,16 @@ export function referHitDisplayW998K(params: {
   skill187Lv: number;
   wDA: number;
 }): number {
-  const w_HIT = normalizeHitForBattleCalc3(params.wHitRaw);
-  let w_Cri = legacyCritRateVsMonster(params.playerCritStat, params.monsterLuk);
-  w_Cri = clampBattleCritPercent(w_Cri);
-
-  const wBC3_3danHatudouRitu = params.skill187Lv > 0 ? 30 - params.skill187Lv : 0;
-  const wDA = params.wDA;
-
-  let w_HIT_DA = w_HIT;
-  if (wDA !== 0 && params.weaponType !== 17) {
-    w_HIT_DA = (w_HIT_DA * (100 + params.skill13Lv)) / 100;
-    if (w_HIT_DA >= 100) w_HIT_DA = 100;
-  }
-
-  const w998A = 100 - wBC3_3danHatudouRitu;
-  const w998B = (wBC3_3danHatudouRitu * w_HIT) / 100;
-  const w998D = (w998A * wDA) / 100;
-  const w998E = (w998D * w_HIT_DA) / 100;
-  const w998G = ((100 - wBC3_3danHatudouRitu - w998D) * w_Cri) / 100;
-  const w998H = 100 - wBC3_3danHatudouRitu - w998D - w998G;
-  const w998I = (w998H * w_HIT) / 100;
-  const w998K = w998B + w998E + w998G + w998I;
-  return Math.floor(w998K * 100) / 100;
+  const w = computeBattleCalc998Weights({
+    wHitRaw: params.wHitRaw,
+    playerCritStat: params.playerCritStat,
+    monsterLuk: params.monsterLuk,
+    weaponType: params.weaponType,
+    skill13Lv: params.skill13Lv,
+    skill187Lv: params.skill187Lv,
+    wDA: params.wDA,
+  });
+  return Math.floor(w.w998K * 100) / 100;
 }
 
 /** `foot.js`：`n_A_ASPD` 展示值 → `n_Delay[1]`（秒） */
@@ -119,7 +110,7 @@ export function referAttackPeriodForDps(input: CharacterBaseInput, snap: CombatS
   return Math.max(n1, cap);
 }
 
-/** `BattleCalc998`：`round(100 * w_DMG[1] / (wCast+wDelay)) / 100` */
+/** `BattleCalc998`：`round(100 * w_DMG[1] / (wCast+wDelay)) / 100`（**`w_DMG[1]`** 用 **`dmgPerSwingExpectedApprox`**） */
 export function referDpsPerSecond(wDmgAvg: number, periodSec: number, wCast = 0): string {
   if (!(periodSec > 0) || !(wDmgAvg >= 0)) return "—";
   let w = (1 / (wCast + periodSec)) * wDmgAvg;
@@ -129,16 +120,18 @@ export function referDpsPerSecond(wDmgAvg: number, periodSec: number, wCast = 0)
   return String(w);
 }
 
-/** `BattleCalc998`：`floor((wCast+wDelay)*n_AveATKnum*100)/100` + `秒` */
+/** `BattleCalc998`：击数 **≥1000** 或无效时 **`SubName[6]`** */
 export function referBattleTimeSeconds(periodSec: number, aveHits: number | null): string {
   if (aveHits == null || !Number.isFinite(aveHits) || aveHits <= 0 || !(periodSec > 0)) return "—";
+  if (aveHits >= 1000) return REFER_BATTLE_TIME_UNCALC;
   const w = Math.floor(periodSec * aveHits * 100) / 100;
   return `${w}秒`;
 }
 
-/** `BattleCalc998`：`Math.round(n_B[16|17] / i)` */
+/** `BattleCalc998`：击数 **≥1000** 时 **`SubName[7]`** */
 export function referExpPerHitRounded(exp: number, aveHits: number | null): string {
   if (aveHits == null || !Number.isFinite(aveHits) || aveHits <= 0) return "—";
+  if (aveHits >= 1000) return REFER_EXP_OUT_OF_RANGE;
   return `${Math.round(exp / aveHits)}Exp`;
 }
 
@@ -222,7 +215,7 @@ export function enemyBattleResultReferCell(
     case 4:
       return String(bp.dmgMax);
     case 5:
-      return referDpsPerSecond(bp.dmgAvg, period, 0);
+      return referDpsPerSecond(bp.dmgPerSwingExpectedApprox, period, 0);
     case 6:
       return fmtHitsLocal(bp.hitsToKillMin);
     case 7:
@@ -242,5 +235,6 @@ export function enemyBattleResultReferCell(
 
 function fmtHitsLocal(n: number | null | undefined): string {
   if (n == null || !Number.isFinite(n)) return "—";
+  if (n >= 1000) return REFER_BATTLE_HITS_OVER_CAP;
   return String(n);
 }

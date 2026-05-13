@@ -142,7 +142,11 @@ type ArmorSlotPickKeys = {
   cardKey: keyof EquipmentState | null;
 };
 
-function patchArmorSlotPick(row: ArmorSlotPickKeys, o: ItemOption): Partial<EquipmentState> {
+function patchArmorSlotPick(
+  row: ArmorSlotPickKeys,
+  o: ItemOption,
+  prevEq: EquipmentState,
+): Partial<EquipmentState> {
   if (o.customEquipId) {
     const p: Partial<EquipmentState> = {
       [row.idKey]: 0,
@@ -152,7 +156,14 @@ function patchArmorSlotPick(row: ArmorSlotPickKeys, o: ItemOption): Partial<Equi
     if (row.cardKey) (p as Record<string, number>)[row.cardKey] = 0;
     return p;
   }
-  return { [row.idKey]: o.id, [row.customKey]: null } as Partial<EquipmentState>;
+  const prevId = Math.floor(Number(prevEq[row.idKey]) || 0);
+  const nextId = o.id;
+  const p = { [row.idKey]: nextId, [row.customKey]: null } as Partial<EquipmentState>;
+  /** 换一件普通防具时重置精炼，避免旧精炼套在新装备上；卡片不随装备 id 清空（与取消装备时保留卡号一致） */
+  if (prevId !== nextId && row.refineKey) {
+    (p as Record<string, number>)[row.refineKey] = 0;
+  }
+  return p;
 }
 
 const filterCardOptions = createFilterOptions<ItemOption>({
@@ -454,7 +465,9 @@ const EquipmentPanel: FC<EquipmentPanelProps> = ({
           valueItemId={eq[idKey] as number}
           valueCustomEquipId={(eq[customKey] as string | null) ?? null}
           disabled={slotDisabled}
-          onPickOption={(o) => applyEq(patchArmorSlotPick({ idKey, customKey, refineKey: refKey, cardKey }, o))}
+          onPickOption={(o) =>
+            applyEq(patchArmorSlotPick({ idKey, customKey, refineKey: refKey, cardKey }, o, eq))
+          }
         />
         {refKey ? (
           <RefineSelect
@@ -488,7 +501,7 @@ const EquipmentPanel: FC<EquipmentPanelProps> = ({
         display="block"
         sx={{ mb: 1, maxWidth: 900, lineHeight: 1.35, fontSize: "0.7rem" }}
       >
-        精炼时 DEF 计入头、手、身、披肩、鞋。刺客开启二刀流时左手盾不参与装备套装与部分攻防计算。各槽卡片、装备套装、卡片套装与装备附加效果已计入右侧「衍生属性」与六维。若某槽所选卡片不在该槽默认列表中，界面上可能显示为「无」，但存档中的卡号仍会参与计算。
+        精炼时 DEF 计入头、手、身、披肩、鞋。刺客开启二刀流时左手盾不参与装备套装与部分攻防计算。各槽卡片、装备套装、卡片套装与装备附加效果已计入右侧「衍生属性」与六维。若某槽所选卡片不在该槽默认列表中，界面上可能显示为「无」，但存档中的卡号仍会参与计算。更换普通防具（非自定义）时，若物品 id 变化，会重置该槽精炼；卡号保留。换为自定义装备时仍会清空该槽精炼与卡片。
       </Typography>
       {activeCardSetBonusIds.length > 0 ? (
         <Typography

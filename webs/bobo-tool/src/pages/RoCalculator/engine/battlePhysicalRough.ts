@@ -41,6 +41,8 @@ import {
   isPhysicalRoughTripletPreviewSupported,
   physicalRoughPreviewUnsupportedReason,
 } from "./physicalRoughPreviewPolicy";
+import { computeBattleTakaFalconAvgAppend } from "./battleTakaApprox";
+import { computeReferWDA } from "./referWDA998";
 
 /** `head.js` 3958、3964～3966：`n_A_CriATK[1]` 的 ATK 段（弓追加 `⌊箭ATK·wCSize⌋`；枪/榴弹不追加）。 */
 function criNdmg1FromHead3958(p: {
@@ -651,6 +653,8 @@ export function computeBattlePhysicalRoughPreview(
   const wCriRaw = legacyCritRateVsMonster(args.critStat, monsterLuk);
   const battleCritPercentApprox = clampBattleCritPercent(wCriRaw);
   const L13 = passiveLevelBySkillId(input.formJobId, input.passiveSkillLevels, 13);
+  const L187 = passiveLevelBySkillId(input.formJobId, input.passiveSkillLevels, 187);
+  const wDaRefer = computeReferWDA(input, args.effectiveJobId);
 
   const rawPhys0 = battleCalcStub(
     d0,
@@ -716,6 +720,28 @@ export function computeBattlePhysicalRoughPreview(
     );
     const hp = battleHitPercentApprox;
     phys1Display = Math.floor((phys1 * hp + miss423 * (100 - hp)) / 100);
+  }
+
+  let sixMidSan: number | undefined;
+  if (previewAc === 0 && L187 > 0 && bai > 0) {
+    const wBC3DanAtkBairitu = L187 * 0.2;
+    const ratio = (bai + wBC3DanAtkBairitu) / bai;
+    const rawSix1 = battleCalcStub(
+      d1 * ratio,
+      seiren,
+      monsterElementCode,
+      bc2WeaponZokuseiIndex,
+      monsterHardDef,
+      def2[1],
+      1,
+      def2,
+      weaponBonusCtx,
+      input,
+    );
+    let six1 = postBattleCalc2TailAfterBaiCI4145(baiPipe(rawSix1), input, wt, monsterElementCode);
+    six1 = Math.floor(six1 / 3) * 3;
+    if (Math.floor(Number(nB[19]) || 0) === 5) six1 = 3;
+    sixMidSan = six1;
   }
 
   const [e0, e1, e2] = computeEdpDmgTripletApprox({
@@ -831,6 +857,36 @@ export function computeBattlePhysicalRoughPreview(
     Math.floor(wt) === 11 ? Math.floor(phys1Display * katarSkill13Rate(L13)) : 0;
   const w998ForBc3 = phys1Display + wAveKataru;
 
+  const falconAppendBc3 =
+    previewAc === 0
+      ? computeBattleTakaFalconAvgAppend({
+          input,
+          weaponType: wt,
+          previewAc,
+          jobLv: input.jobLv,
+          totalDex: dex,
+          totalInt: args.totalStats.int,
+          totalLuk: args.totalStats.luk,
+          monsterElementCode,
+          wHitPercent: battleHitPercentApprox,
+          wCriPercent: battleCritPercentApprox,
+          baiCtx,
+        })
+      : 0;
+
+  const head998Pass =
+    previewAc === 0
+      ? {
+          weaponType: wt,
+          skill13Lv: L13,
+          skill187Lv: L187,
+          wDA: wDaRefer,
+          critStat: args.critStat,
+          monsterLuk,
+          ...(sixMidSan != null ? { sixMidSan } : {}),
+        }
+      : undefined;
+
   let dmgPerSwingExpectedApprox =
     battleCalc3ExpectedApprox(
       w998ForBc3,
@@ -839,14 +895,17 @@ export function computeBattlePhysicalRoughPreview(
       wCriRaw,
       battleCalc2MissDamageApprox,
       { taijin: false, monsterLuk },
+      head998Pass,
     ) +
     edp1 +
-    nitouBc3LeftApprox;
+    nitouBc3LeftApprox +
+    falconAppendBc3;
   let hitsToKillExpectedApprox = hitsToKill(monsterHp, dmgPerSwingExpectedApprox);
 
   let hkMin = hitsToKill(monsterHp, dmgMax);
   let hkMax = hitsToKill(monsterHp, dmgMin);
-  let hkAvg = hitsToKill(monsterHp, dmgAvg);
+  /** `BattleCalc998` 平均击数用 **`w_DMG[1]`** 期望（BC3+EDP+二刀BC3left+猎鹰），非三档展示 **`dmgAvg`** */
+  let hkAvg = hitsToKill(monsterHp, dmgPerSwingExpectedApprox);
 
   /** 【新功能】附加「% 对种族/属性/体型/MVP/任意」物伤乘子（普攻预览整段） */
   const md = args.manualPhysDmgMult ?? 1;
@@ -858,7 +917,7 @@ export function computeBattlePhysicalRoughPreview(
     hitsToKillExpectedApprox = hitsToKill(monsterHp, dmgPerSwingExpectedApprox);
     hkMin = hitsToKill(monsterHp, dmgMax);
     hkMax = hitsToKill(monsterHp, dmgMin);
-    hkAvg = hitsToKill(monsterHp, dmgAvg);
+    hkAvg = hitsToKill(monsterHp, dmgPerSwingExpectedApprox);
     if (nitouLeftRough) {
       nitouLeftRough = {
         min: Math.floor(nitouLeftRough.min * md),
@@ -877,7 +936,7 @@ export function computeBattlePhysicalRoughPreview(
           ? `枪弹「${rangedAmmo.label}」（BulletOBJ）；`
           : `榴弹「${rangedAmmo.label}」（GrenadeOBJ）；`;
   const hintDef = `BattleCalc4 已扣 n_B_DEF2；**4035～4068**、**BattleCalc2**、**BaiCI**、**169/二刀尾**、**EDP**、拳刃展示已串（仍非 head 全分支）；`;
-  const hintBc3 = `BC3 期望一击≈${dmgPerSwingExpectedApprox}（物伤支 w998=${w998ForBc3} + BC3 后再 +EDP≈${edp1}${nitouBc3LeftApprox ? ` +二刀BC3left≈${nitouBc3LeftApprox}` : ""}；n_B[27]=${enemyFleeForHit27} · w_HIT ${battleHitPercentApprox}% · w_Cri ${Math.round(battleCritPercentApprox * 10) / 10}% · 暴伤≈${criAtkApprox} · Miss≈${battleCalc2MissDamageApprox}）；`;
+  const hintBc3 = `BC3 期望一击≈${dmgPerSwingExpectedApprox}（物伤支 w998=${w998ForBc3} + BC3 后再 +EDP≈${edp1}${nitouBc3LeftApprox ? ` +二刀BC3left≈${nitouBc3LeftApprox}` : ""}${falconAppendBc3 > 0 ? ` +猎鹰BattleTAKA≈${falconAppendBc3}` : ""}；n_B[27]=${enemyFleeForHit27} · w_HIT ${battleHitPercentApprox}% · w_Cri ${Math.round(battleCritPercentApprox * 10) / 10}% · 暴伤≈${criAtkApprox} · Miss≈${battleCalc2MissDamageApprox}）；`;
   const hintZok = `属克×${elementMultiplier}（BattleCalc2 用武器属性下标 ${bc2WeaponZokuseiIndex}）；${HINT_TAIL}`;
 
   return {
