@@ -8,6 +8,11 @@ export type FilePushTransportOptions = {
   readGrid: (file: File) => Promise<number[][]>;
   pollIntervalMs?: number;
   ackTimeoutMs?: number;
+  /** 每次即将调用控制单元 `window.ffj_onPushHandle` 时触发（与 hook 实际执行次数一致） */
+  onPushHandleInvoked?: (
+    direction: number,
+    postMergeNoSpawnBoard: number[][],
+  ) => void;
 };
 
 export type FilePushHandleTransport = {
@@ -21,7 +26,9 @@ export type FilePushHandleTransport = {
 async function invokePushHandleHook(
   direction: number,
   postMergeNoSpawnBoard: number[][],
+  onInvoked?: FilePushTransportOptions["onPushHandleInvoked"],
 ) {
+  onInvoked?.(direction, postMergeNoSpawnBoard);
   try {
     await window.ffj_onPushHandle?.(direction, postMergeNoSpawnBoard);
   } catch {
@@ -45,7 +52,11 @@ export function createFilePushHandleTransport(
     postMergeNoSpawnBoard: number[][],
   ): Promise<number[][] | null> {
     const prev = opts.lastModifiedRef.current;
-    await invokePushHandleHook(direction, postMergeNoSpawnBoard);
+    await invokePushHandleHook(
+      direction,
+      postMergeNoSpawnBoard,
+      opts.onPushHandleInvoked,
+    );
     const deadline = Date.now() + timeout;
     while (Date.now() < deadline) {
       await sleep(poll);

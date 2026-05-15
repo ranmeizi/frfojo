@@ -49,6 +49,9 @@ const rightAudioUrl = new URL("/right.mp3", import.meta.url).href;
 
 window.ffj_2048_interval = 500;
 
+/** 盘面最大块 ≥ 此值时停止「运行」循环（经典 2048 目标） */
+const RUN_STOP_MIN_MAX_TILE = 2048;
+
 /** 盘面最大块 ≥ 此值时关闭乐观 UI，仅回执/文件更新（见 DEV_PLAN.md） */
 const OPTIMISTIC_UI_MAX_TILE = 1024;
 
@@ -67,6 +70,8 @@ type ExecEnhancedProps = {};
 const ExecEnhanced: FC<ExecEnhancedProps> = (props) => {
   const [handle, setHandle] = useState<FileSystemFileHandle | undefined>();
   const [mockControlUnit, setMockControlUnit] = useState(false);
+  /** 本轮「运行」内，控制单元 `ffj_onPushHandle` 被调用的次数 */
+  const [pushHandleInvokeCount, setPushHandleInvokeCount] = useState(0);
   const [bestMove, setBestMove] = useState({});
   // 文件上一次修改时间
   const lastModified = useRef<number>(0);
@@ -155,12 +160,23 @@ const ExecEnhanced: FC<ExecEnhancedProps> = (props) => {
     const fileHandle = handle;
     const net = manager.current.net;
 
+    setPushHandleInvokeCount(0);
+
     const transport = createFilePushHandleTransport({
       fileHandle,
       lastModifiedRef: lastModified,
       readGrid: readGridFromFile,
       pollIntervalMs: 50,
       ackTimeoutMs: 120_000,
+      onPushHandleInvoked: (dir) => {
+        setPushHandleInvokeCount((c) => {
+          const next = c + 1;
+          console.log(
+            `[ExecEnhanced] 执行单元第 ${next} 次调用 (direction=${dir})`,
+          );
+          return next;
+        });
+      },
     });
 
     try {
@@ -169,6 +185,9 @@ const ExecEnhanced: FC<ExecEnhancedProps> = (props) => {
       const bootGrid = await readGridFromFile(bootFile);
       manager.current.setGrid(bootGrid);
       setShowGrid(bootGrid);
+      if (maxTileInMatrix(bootGrid) >= RUN_STOP_MIN_MAX_TILE) {
+        return;
+      }
     } catch (e) {
       console.error(e);
       return;
@@ -180,11 +199,15 @@ const ExecEnhanced: FC<ExecEnhancedProps> = (props) => {
       }
 
       try {
+        const nums = exportGridFromManager(manager.current);
+        const maxVal = maxTileInMatrix(nums);
+        if (maxVal >= RUN_STOP_MIN_MAX_TILE) {
+          break;
+        }
+
         const res = manager.current.ai.getBest(net);
         setBestMove(res);
 
-        const nums = exportGridFromManager(manager.current);
-        const maxVal = maxTileInMatrix(nums);
         const allowOptimisticUi = maxVal < OPTIMISTIC_UI_MAX_TILE;
         const sim = applyMoveWithoutSpawn(nums, res.move);
 
@@ -201,6 +224,9 @@ const ExecEnhanced: FC<ExecEnhancedProps> = (props) => {
               const g = await readGridFromFile(f);
               manager.current.setGrid(g);
               setShowGrid(g);
+              if (maxTileInMatrix(g) >= RUN_STOP_MIN_MAX_TILE) {
+                break;
+              }
             }
           } catch {
             //
@@ -215,6 +241,9 @@ const ExecEnhanced: FC<ExecEnhancedProps> = (props) => {
         if (ackGrid) {
           manager.current.setGrid(ackGrid);
           setShowGrid(ackGrid);
+          if (maxTileInMatrix(ackGrid) >= RUN_STOP_MIN_MAX_TILE) {
+            break;
+          }
         }
       } catch {
         await sleep(window.ffj_2048_interval);
@@ -241,6 +270,11 @@ const ExecEnhanced: FC<ExecEnhancedProps> = (props) => {
             <Button onClick={run} disabled={!handle}>
               运行
             </Button>
+            <Typography variant="body2" sx={{ mt: 1 }}>
+              本轮执行单元调用次数（<code>ffj_onPushHandle</code>）：{" "}
+              <strong>{pushHandleInvokeCount}</strong>
+              （每次点击「运行」清零后重新计数）
+            </Typography>
             <FormControlLabel
               sx={{ ml: 1, display: "block", mt: 1 }}
               control={
@@ -258,7 +292,8 @@ const ExecEnhanced: FC<ExecEnhancedProps> = (props) => {
               <code>window.ffj_onPushHandle(direction, predictedBoard)</code>{" "}
               触发控制单元 → 以 grid.csv 变更作为回执对齐。挡板开启时由页面在
               0～500ms 内写入预测盘并随机落子。需对 grid.csv
-              选择「读写」权限。详见 <code>views/ExecEnhanced/DEV_PLAN.md</code>
+              选择「读写」权限。盘面最大数 ≥{RUN_STOP_MIN_MAX_TILE}{" "}
+              时自动停止运行。详见 <code>views/ExecEnhanced/DEV_PLAN.md</code>
               。
             </Typography>
           </Paper>
