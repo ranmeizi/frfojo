@@ -24,6 +24,14 @@ import {
 import { sleep } from "@frfojo/common/utils/delay";
 import Grid from "./components/Grid";
 import { useGameManager } from "./useGameManager";
+import {
+  applyMoveWithoutSpawn,
+  exportGridFromManager,
+  maxTileInMatrix,
+  parseGridCsvText,
+} from "./libs/board2048";
+import { createFilePushHandleTransport } from "./libs/filePushTransport";
+import { runMockControlUnitPush } from "./libs/mockControlUnit";
 import { useLocation } from "react-router-dom";
 import ArrowCircleUpOutlinedIcon from "@mui/icons-material/ArrowCircleUpOutlined";
 import ArrowCircleLeftOutlinedIcon from "@mui/icons-material/ArrowCircleLeftOutlined";
@@ -41,6 +49,9 @@ const rightAudioUrl = new URL("/right.mp3", import.meta.url).href;
 
 window.ffj_2048_interval = 500;
 
+/** 盘面最大块 ≥ 此值时关闭乐观 UI，仅回执/文件更新（见 DEV_PLAN.md） */
+const OPTIMISTIC_UI_MAX_TILE = 1024;
+
 const move_nodes: Record<string, ReactNode> = {
   0: <ArrowCircleUpOutlinedIcon sx={{ fontSize: "256px" }} />,
   1: <ArrowCircleRightOutlinedIcon sx={{ fontSize: "256px" }} />,
@@ -50,10 +61,12 @@ const move_nodes: Record<string, ReactNode> = {
 
 const Root = styled("div")(({ theme }) => ({}));
 
-type ExecProps = {};
+type ExecEnhancedProps = {};
 
-const Exec: FC<ExecProps> = (props) => {
+/** 由 Exec 复制：功能增强版在此目录迭代，原版保留在 views/Exec。开发计划见 ./DEV_PLAN.md */
+const ExecEnhanced: FC<ExecEnhancedProps> = (props) => {
   const [handle, setHandle] = useState<FileSystemFileHandle | undefined>();
+  const [mockControlUnit, setMockControlUnit] = useState(false);
   const [bestMove, setBestMove] = useState({});
   // 文件上一次修改时间
   const lastModified = useRef<number>(0);
@@ -87,10 +100,32 @@ const Exec: FC<ExecProps> = (props) => {
   window.m = manager;
   console.log("progress", progress);
 
+  useEffect(() => {
+    if (!mockControlUnit || !handle) {
+      return;
+    }
+    const fileHandle = handle;
+    const prev = window.ffj_onPushHandle;
+    const installed = async (dir: number, board: number[][]) => {
+      await runMockControlUnitPush(dir, board, fileHandle, {
+        maxDelayMs: 500,
+      });
+    };
+    window.ffj_onPushHandle = installed;
+    return () => {
+      if (window.ffj_onPushHandle === installed) {
+        window.ffj_onPushHandle = prev;
+      }
+    };
+  }, [mockControlUnit, handle]);
+
   async function getAccess() {
     stopPolling();
     try {
-      const fsFileHandle = await showOpenFilePicker();
+      const fsFileHandle = await showOpenFilePicker({
+        multiple: true,
+        mode: "readwrite",
+      });
 
       console.log("fsFileHandle", fsFileHandle);
       // pick 出文件名为 grid.csv 的文件
@@ -105,6 +140,11 @@ const Exec: FC<ExecProps> = (props) => {
     }
   }
 
+  async function readGridFromFile(file: File): Promise<number[][]> {
+    const text = await file.text();
+    return parseGridCsvText(text);
+  }
+
   async function run() {
     if (!handle) {
       return;
@@ -115,52 +155,71 @@ const Exec: FC<ExecProps> = (props) => {
     const fileHandle = handle;
     const net = manager.current.net;
 
+    const transport = createFilePushHandleTransport({
+      fileHandle,
+      lastModifiedRef: lastModified,
+      readGrid: readGridFromFile,
+      pollIntervalMs: 50,
+      ackTimeoutMs: 120_000,
+    });
+
+    try {
+      const bootFile = await fileHandle.getFile();
+      lastModified.current = bootFile.lastModified;
+      const bootGrid = await readGridFromFile(bootFile);
+      manager.current.setGrid(bootGrid);
+      setShowGrid(bootGrid);
+    } catch (e) {
+      console.error(e);
+      return;
+    }
+
     while (generation === pollGenerationRef.current) {
-      await sleep(window.ffj_2048_interval);
       if (generation !== pollGenerationRef.current) {
         break;
       }
 
       try {
-        const file: File = await fileHandle.getFile();
+        const res = manager.current.ai.getBest(net);
+        setBestMove(res);
 
-        // 若文件没有被修改，那么执行下一循环
-        if (file.lastModified === lastModified.current) {
+        const nums = exportGridFromManager(manager.current);
+        const maxVal = maxTileInMatrix(nums);
+        const allowOptimisticUi = maxVal < OPTIMISTIC_UI_MAX_TILE;
+        const sim = applyMoveWithoutSpawn(nums, res.move);
+
+        if (allowOptimisticUi && sim.moved) {
+          setShowGrid(sim.board);
+        }
+
+        if (!sim.moved) {
+          await sleep(window.ffj_2048_interval);
+          try {
+            const f = await fileHandle.getFile();
+            if (f.lastModified !== lastModified.current) {
+              lastModified.current = f.lastModified;
+              const g = await readGridFromFile(f);
+              manager.current.setGrid(g);
+              setShowGrid(g);
+            }
+          } catch {
+            //
+          }
           continue;
         }
 
-        lastModified.current = file.lastModified;
-
-        const grid = await getGrid(file);
-        manager.current.setGrid(grid);
-        setShowGrid(grid);
-        // 预测下一步
-        const res = manager.current.ai.getBest(net);
-        // console.log(res);
-        setBestMove(res);
-      } catch (e) {
-        //
+        const ackGrid = await transport.pushMove(res.move, sim.board);
+        if (generation !== pollGenerationRef.current) {
+          break;
+        }
+        if (ackGrid) {
+          manager.current.setGrid(ackGrid);
+          setShowGrid(ackGrid);
+        }
+      } catch {
+        await sleep(window.ffj_2048_interval);
       }
     }
-  }
-
-  async function getGrid(file: File) {
-    const fr = new FileReader();
-
-    fr.readAsText(file);
-
-    return new Promise((resolve) =>
-      fr.addEventListener("load", (d) => {
-        // console.log("FileReader", d.target?.result);
-        const text = d.target?.result as string;
-        const grid = text
-          ?.split("\r\n")
-          .filter((row) => row)
-          .map((row) => row.split(",").map((item) => Number(item)));
-
-        resolve(grid);
-      }),
-    );
   }
 
   return (
@@ -182,6 +241,26 @@ const Exec: FC<ExecProps> = (props) => {
             <Button onClick={run} disabled={!handle}>
               运行
             </Button>
+            <FormControlLabel
+              sx={{ ml: 1, display: "block", mt: 1 }}
+              control={
+                <Switch
+                  checked={mockControlUnit}
+                  onChange={(_, c) => setMockControlUnit(c)}
+                  disabled={!handle}
+                />
+              }
+              label="测试控制单元挡板（写 grid.csv + 随机 2/4）"
+            />
+            <Typography variant="body2" sx={{ mt: 1, maxWidth: 720 }}>
+              增强逻辑：模型基于权威 grid → 可选乐观 UI（合并、不生成随机块，max
+              &lt; {OPTIMISTIC_UI_MAX_TILE}）→{" "}
+              <code>window.ffj_onPushHandle(direction, predictedBoard)</code>{" "}
+              触发控制单元 → 以 grid.csv 变更作为回执对齐。挡板开启时由页面在
+              0～500ms 内写入预测盘并随机落子。需对 grid.csv
+              选择「读写」权限。详见 <code>views/ExecEnhanced/DEV_PLAN.md</code>
+              。
+            </Typography>
           </Paper>
 
           {/* 棋盘 */}
@@ -340,4 +419,4 @@ function LoadModelGuard({
   );
 }
 
-export default Exec;
+export default ExecEnhanced;

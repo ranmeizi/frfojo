@@ -3,6 +3,7 @@ import { Box, Stack, styled } from "@mui/material";
 import { Back, LayoutMenu } from "@frfojo/components";
 import Menu from "./components/menu";
 import Exec from "./views/Exec";
+import ExecEnhanced from "./views/ExecEnhanced";
 import { useNavigate } from "react-router-dom";
 import DocHomuInput from "./views/DocHomuInput";
 import DocReadme from "./views/DocReadme";
@@ -20,10 +21,12 @@ const PoringInOneTool: FC<PoringInOneToolProps> = (props) => {
       case 0:
         return <Exec />;
       case 1:
-        return <DocHomuInput />;
+        return <ExecEnhanced />;
       case 2:
-        return <DocAHKAutoInput />;
+        return <DocHomuInput />;
       case 3:
+        return <DocAHKAutoInput />;
+      case 4:
         return <DocReadme />;
     }
   }, [active]);

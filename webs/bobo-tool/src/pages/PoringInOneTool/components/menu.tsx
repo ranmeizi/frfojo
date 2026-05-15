@@ -37,6 +37,14 @@ const Menu: FC<MenuProps> = ({ value, onChange }) => {
               <ListItemText primary="开始合成大波利" />
             </ListItemButton>
           </ListItem>
+          <ListItem disablePadding>
+            <ListItemButton
+              selected={1 === value}
+              onClick={(event) => handleListItemClick(event, 1)}
+            >
+              <ListItemText primary="功能增强版" />
+            </ListItemButton>
+          </ListItem>
         </List>
       </nav>
       <Divider />
@@ -45,16 +53,16 @@ const Menu: FC<MenuProps> = ({ value, onChange }) => {
           <ListItemText sx={{ marginLeft: "4px" }} secondary="说明" />
           <ListItem disablePadding>
             <ListItemButton
-              selected={1 === value}
-              onClick={(event) => handleListItemClick(event, 1)}
+              selected={2 === value}
+              onClick={(event) => handleListItemClick(event, 2)}
             >
               <ListItemText primary="生命体方式" />
             </ListItemButton>
           </ListItem>
           <ListItem disablePadding>
             <ListItemButton
-              selected={2 === value}
-              onClick={(event) => handleListItemClick(event, 2)}
+              selected={3 === value}
+              onClick={(event) => handleListItemClick(event, 3)}
             >
               <ListItemText primary="AHK全自动" />
             </ListItemButton>
