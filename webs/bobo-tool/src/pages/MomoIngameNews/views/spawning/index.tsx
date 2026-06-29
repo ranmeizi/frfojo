@@ -12,10 +12,13 @@ import { PropsWithChildren, useEffect, useMemo, useState } from "react";
 import { captureRequest, getMvpDeathNote } from "../../services/momoro";
 import { AsyncButton, message } from "@frfojo/components";
 import { useConstant } from "@frfojo/common/hooks";
-import config, { EnumMvpIndex, MvpConfig, MvpDeathNote } from "../../mvp";
+import config, {
+  EnumMvpIndex,
+  MvpConfig,
+  MvpDeathNote,
+} from "@/sub/mvp-conf/mvp";
 import { rmsMapGifUrl, rmsMobGifUrl } from "../../rmsAssetsBase";
 import dayjs from "dayjs";
-import { DeathNote } from "../../note";
 import duration from "dayjs/plugin/duration";
 import utc from "dayjs/plugin/utc";
 import { RequestQueue } from "@frfojo/common/request";

@@ -19,10 +19,12 @@
     /* Linting */
     "strict": true,
     "noFallthroughCasesInSwitch": true,
+    "baseUrl": ".",
     "paths": {
       "@/*": [
         "./src/*"
-      ]
+      ],
+      "@/sub/*":["../../_submods/*"]
     },
   },
   "include": [
