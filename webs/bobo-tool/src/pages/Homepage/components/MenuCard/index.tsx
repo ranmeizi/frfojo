@@ -18,15 +18,33 @@ type MenuCardProps = {
   description?: React.ReactNode;
   img?: string;
   path?: string;
+  /** 无权限时置灰且不可点击 */
+  disabled?: boolean;
 };
 
-const MenuCard: FC<MenuCardProps> = ({ title, description, img, path }) => {
+const MenuCard: FC<MenuCardProps> = ({
+  title,
+  description,
+  img,
+  path,
+  disabled = false,
+}) => {
   const navigate = useNavigate();
   return (
-    <Root elevation={6}>
+    <Root
+      elevation={disabled ? 1 : 6}
+      sx={{
+        opacity: disabled ? 0.45 : 1,
+        filter: disabled ? "grayscale(0.7)" : "none",
+      }}
+    >
       <CardActionArea
+        disabled={disabled}
         sx={{ display: "flex", width: "100%", border: "none" }}
-        onClick={() => path && navigate(path)}
+        onClick={() => {
+          if (disabled || !path) return;
+          navigate(path);
+        }}
       >
         <CardMedia
           component="img"
@@ -46,7 +64,7 @@ const MenuCard: FC<MenuCardProps> = ({ title, description, img, path }) => {
             variant="body2"
             sx={{ fontSize: "12px", color: "text.secondary" }}
           >
-            {description}
+            {disabled ? "无访问权限" : description}
           </Typography>
         </CardContent>
       </CardActionArea>

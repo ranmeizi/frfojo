@@ -1,13 +1,14 @@
 import { FC } from "react";
 import { Box, Container, Paper, styled, Typography } from "@mui/material";
 import MenuCard from "./components/MenuCard";
-import { useNavigate } from "react-router-dom";
-import { LayoutMenu } from "@frfojo/components";
+import { LayoutMenu, useAccess } from "@frfojo/components";
+import { PERM_BONET_TRIAL, hasPermission } from "../BoNet/constants";
 
 const IconMomoro = new URL("@/assets/momoro.jpeg", import.meta.url).href;
 // const IconAHKTesting = new URL("@/assets/testing.jpeg", import.meta.url).href;
 const IconMomotu = new URL("@/assets/momotu.webp", import.meta.url).href;
 const IconRoCalc = new URL("@/assets/ro_calc.jpeg", import.meta.url).href;
+const IconArgos = new URL("@/assets/argos.jpeg", import.meta.url).href;
 
 const menus = [
   {
@@ -34,13 +35,27 @@ const menus = [
     img: IconRoCalc,
     path: "/ffj/ro-calculator",
   },
+  {
+    title: "BoNet",
+    desciption: "GID 玩家关联节点图",
+    img: IconArgos,
+    path: "/ffj/bonet",
+    require: PERM_BONET_TRIAL,
+  },
 ];
 
-const Root = styled("div")(({ theme }) => ({}));
+const Root = styled("div")(() => ({}));
 
-type HomepageProps = {};
+const Homepage: FC = () => {
+  const { permissions } = useAccess();
 
-const Homepage: FC<HomepageProps> = (props) => {
+  function canAccess(require?: string) {
+    if (!require) return true;
+    return (
+      permissions.includes(require) || hasPermission(require)
+    );
+  }
+
   return (
     <LayoutMenu
       header={
@@ -71,10 +86,12 @@ const Homepage: FC<HomepageProps> = (props) => {
           >
             {menus.map((item) => (
               <MenuCard
+                key={item.path}
                 title={item.title}
                 description={item.desciption}
                 img={item.img}
                 path={item.path}
+                disabled={!canAccess(item.require)}
               />
             ))}
           </Paper>

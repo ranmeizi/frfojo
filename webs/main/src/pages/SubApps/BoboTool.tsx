@@ -5,6 +5,7 @@ import Garfish, { interfaces } from "garfish";
 import { useLocation } from "react-router-dom";
 import { getPath } from "./utils";
 import { createPopupBridge } from "@/utils/popupBridge";
+import { useUserSelector } from "@/contexts/GlobalStates";
 
 const Root = styled("div")(() => ({
   position: "relative",
@@ -16,17 +17,17 @@ type BoboToolProps = {};
 
 const BoboTool: FC<BoboToolProps> = () => {
   const Location = useLocation();
+  const user = useUserSelector();
+  const permissions = user.permissions || [];
+  const permissionsKey = permissions.join("\0");
 
   const appRef = useRef<interfaces.App>();
 
   useEffect(() => {
-    // 每次路由变化时重新加载微前端
-    reloadApp();
-  }, [Location]);
-
-  useEffect(() => {
-    init();
-  }, []);
+    // 每次路由变化或权限变更时重新加载微前端
+    void reloadApp();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [Location.pathname, permissionsKey]);
 
   async function init() {
     const selector = "#garfish-subapp-bobotool-container";
@@ -40,6 +41,11 @@ const BoboTool: FC<BoboToolProps> = () => {
         width: rect?.width,
         height: rect?.height,
         popupBridge: createPopupBridge(),
+        permissions,
+        user: {
+          ...(user.info || {}),
+          permissions,
+        },
       },
     });
 

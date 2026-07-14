@@ -4,6 +4,7 @@ import PoringInOneTool from "@/pages/PoringInOneTool";
 import AHKTesting from "@/pages/AHKTesting";
 import MomoIngameNews from "@/pages/MomoIngameNews";
 import RoCalculator from "@/pages/RoCalculator";
+import BoNet from "@/pages/BoNet";
 import { LayoutMenu } from "@frfojo/components";
 
 const routes: RouteObject[] = [
@@ -29,6 +30,10 @@ const routes: RouteObject[] = [
       {
         path: "/ffj/ro-calculator",
         element: <RoCalculator />,
+      },
+      {
+        path: "/ffj/bonet",
+        element: <BoNet />,
       },
       {
         path: "/ffj/*",
