@@ -18,7 +18,7 @@ import { fileURLToPath } from "node:url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, "..");
-const mvpTs = path.join(root, "src/pages/MomoIngameNews/mvp.ts");
+const mvpTs = path.join(root, "../../_submods/mvp-conf/mvp.ts");
 const outRoot = path.join(root, "public/momo-ingame-news/rms-assets");
 
 const RMS = "https://file5s.ratemyserver.net";
@@ -52,7 +52,8 @@ function collectMapIdsFromMvpSource(text) {
 
 function collectMobUrlsFromMvpSource(text) {
   const set = new Set();
-  const re = /imgUrl:\s*"(https:\/\/file5s\.ratemyserver\.net\/mobs\/\d+\.gif)"/g;
+  const re = /imgUrl:\s*'(https:\/\/file5s\.ratemyserver\.net\/mobs\/\d+\.gif)'/g;
+  console.log('test collectMobUrlsFromMvpSource',text,re.exec(text))
   let m;
   while ((m = re.exec(text)) !== null) set.add(m[1]);
   return [...set].sort();
@@ -109,6 +110,8 @@ async function main() {
     url: `${RMS}/maps/${mapId}.gif`,
     dest: path.join(outRoot, "maps", `${mapId}.gif`),
   }));
+
+  console.log('mobUrls',mobUrls)
 
   const mobTasks = mobUrls.map((url) => {
     const name = path.basename(new URL(url).pathname);

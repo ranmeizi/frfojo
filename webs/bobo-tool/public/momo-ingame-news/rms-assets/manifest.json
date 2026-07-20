@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-13T02:42:47.870Z",
+  "generatedAt": "2026-07-20T10:47:29.755Z",
   "publicBase": "/momo-ingame-news/rms-assets",
   "mapIds": [
     "abyss_03",
@@ -24,7 +24,6 @@
     "jupe_core",
     "kh_dun02",
     "lhz_dun02",
-    "lhz_dun03",
     "lou_dun03",
     "mjolnir_04",
     "moc_pryd04",
@@ -35,6 +34,9 @@
     "pay_fild11",
     "prt_maze03",
     "prt_sewb4",
+    "ra_fild02",
+    "ra_fild03",
+    "ra_san05",
     "treasure02",
     "tur_dun04",
     "xmas_dun02",
@@ -61,7 +63,6 @@
     "1389.gif",
     "1418.gif",
     "1492.gif",
-    "1511.gif",
     "1583.gif",
     "1623.gif",
     "1630.gif",
@@ -76,12 +77,14 @@
     "1688.gif",
     "1719.gif",
     "1734.gif",
-    "1751.gif"
+    "1751.gif",
+    "1768.gif",
+    "1785.gif"
   ],
   "stats": {
-    "ok": 70,
-    "skipped": 0,
+    "ok": 2,
+    "skipped": 71,
     "failed": 3,
-    "total": 73
+    "total": 76
   }
 }
