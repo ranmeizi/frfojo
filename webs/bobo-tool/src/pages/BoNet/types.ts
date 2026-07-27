@@ -24,10 +24,12 @@ export type RuleSuspectHit = {
   id: number;
   sourceGid: string;
   suspectGid: string;
-  ruleType: "hex_neighbor" | "name_similarity";
+  ruleType: "hex_neighbor" | "name_similarity" | "manual";
   boundary: number | null;
   score: number | null;
   meta: Record<string, unknown> | null;
+  /** 与主目标相近的原因（后端生成） */
+  memo?: string | null;
   relation: "from_center" | "to_center";
 };
 
@@ -54,6 +56,21 @@ export type BoNetApplyListResult = {
   pageSize: number;
 };
 
+export type ManualRuleSuspect = {
+  id: number;
+  sourceGid: string;
+  suspectGid: string;
+  ruleType: "hex_neighbor" | "name_similarity" | "manual";
+  visible: boolean;
+  boundary: number | null;
+  score: number | null;
+  meta: Record<string, unknown> | null;
+  batchNo: string | null;
+  extra: Record<string, unknown> | null;
+  memo: string | null;
+  createdAt: string;
+};
+
 export type GraphNode = {
   id: string;
   kind: GidNodeKind;
@@ -65,12 +82,22 @@ export type GraphNode = {
   ruleHints?: string[];
   /** 父 GID 节点 id（E 类） */
   parentGidNodeId?: string;
+  /** 前端临时插入、尚未落库的 D 类 */
+  temporary?: boolean;
   x: number;
   y: number;
   /** 环形布局节点固定坐标 */
   fx?: number;
   fy?: number;
   opacity: number;
+};
+
+/** 对照查询后临时插入当前图的可疑 GID */
+export type TempSuspectInjection = {
+  gid: string;
+  names: MomoPlayerGid[];
+  /** 对照图的中心 GID */
+  fromCenterGid: string;
 };
 
 export type GraphEdge = {

@@ -1,5 +1,6 @@
 import { FC, useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Box, Chip, Stack, Typography } from "@mui/material";
+import { createPortal } from "react-dom";
+import { Box, Chip, Paper, Stack, Typography } from "@mui/material";
 import { message } from "@frfojo/components";
 import type { BoNetGraphData, GraphNode, GidNodeKind } from "../types";
 import {
@@ -47,6 +48,32 @@ type GidGraphCanvasProps = {
 };
 
 const AUDIT_FOCUS_COLOR = "#ed6c02";
+
+type SuspectHoverTip = {
+  nodeId: string;
+  gid: string;
+  lines: string[];
+  clientX: number;
+  clientY: number;
+};
+
+function getSuspectReasonLines(node: GraphNode): string[] {
+  if (node.kind === "E" || !node.gid) return [];
+
+  const lines: string[] = [];
+  if (node.ruleHints?.length) {
+    lines.push(...node.ruleHints);
+  } else if (node.kind === "D") {
+    lines.push(`${NODE_KIND_LABELS.D}（规则疑似）`);
+  } else if (node.kind === "C") {
+    lines.push(`${NODE_KIND_LABELS.C}`);
+  }
+
+  if (node.temporary && !lines.some((l) => l.includes("未落库"))) {
+    lines.push("临时插入 · 未落库 · 不可拖拽");
+  }
+  return lines;
+}
 
 function isAuditFocusGidNode(node: GraphNode, focus?: AuditFocus): boolean {
   if (!focus || node.kind === "E" || !node.gid) return false;
@@ -117,23 +144,146 @@ const GidGraphCanvas: FC<GidGraphCanvasProps> = ({
   centerRef.current = canvasCenter;
 
   const [liveNodes, setLiveNodes] = useState<GraphNode[]>([]);
+  const [hoverTip, setHoverTip] = useState<SuspectHoverTip | null>(null);
+  const hoverTipRef = useRef<SuspectHoverTip | null>(null);
   const frameRef = useRef(0);
   const nodesRef = useRef<GraphNode[]>([]);
   const edgesRef = useRef<BoNetGraphData["edges"]>([]);
   const dragRef = useRef<PointerGestureState | null>(null);
   const pinnedRef = useRef<Set<string>>(new Set());
 
+  const findSuspectGidAt = useCallback((svgX: number, svgY: number) => {
+    let best: GraphNode | null = null;
+    let bestDist = Infinity;
+    for (const node of nodesRef.current) {
+      if (!node.gid) continue;
+
+      // 悬停到角色名时，回查其父 GID（C/D）的可疑原因
+      if (node.kind === "E") {
+        if (!node.parentGidNodeId) continue;
+        const parent = nodesRef.current.find((n) => n.id === node.parentGidNodeId);
+        if (!parent || (parent.kind !== "C" && parent.kind !== "D")) continue;
+        const { hw, hh } = getENodeRect(node.label);
+        if (
+          svgX >= node.x - hw - 4 &&
+          svgX <= node.x + hw + 4 &&
+          svgY >= node.y - hh - 4 &&
+          svgY <= node.y + hh + 4
+        ) {
+          const dist = Math.hypot(svgX - node.x, svgY - node.y);
+          if (dist < bestDist) {
+            best = parent;
+            bestDist = dist;
+          }
+        }
+        continue;
+      }
+
+      if (node.kind !== "C" && node.kind !== "D") continue;
+      const hitR = NODE_RADIUS[node.kind] + 10;
+      const dist = Math.hypot(svgX - node.x, svgY - node.y);
+      if (dist <= hitR && dist < bestDist) {
+        best = node;
+        bestDist = dist;
+      }
+    }
+    return best;
+  }, []);
+
   const clientToSvg = useCallback((clientX: number, clientY: number) => {
     const svg = svgRef.current;
     if (!svg) return { x: clientX, y: clientY };
-    const pt = svg.createSVGPoint();
-    pt.x = clientX;
-    pt.y = clientY;
-    const ctm = svg.getScreenCTM();
-    if (!ctm) return { x: clientX, y: clientY };
-    const local = pt.matrixTransform(ctm.inverse());
-    return { x: local.x, y: local.y };
+    const rect = svg.getBoundingClientRect();
+    if (rect.width <= 0 || rect.height <= 0) {
+      return { x: clientX, y: clientY };
+    }
+    // 兼容 viewBox + width:100%：按实际渲染矩形换算到用户坐标
+    const vb = svg.viewBox.baseVal;
+    const vbW = vb.width || canvasSize.w;
+    const vbH = vb.height || canvasSize.h;
+    const scale = Math.min(rect.width / vbW, rect.height / vbH);
+    const offsetX = (rect.width - vbW * scale) / 2;
+    const offsetY = (rect.height - vbH * scale) / 2;
+    return {
+      x: (clientX - rect.left - offsetX) / scale,
+      y: (clientY - rect.top - offsetY) / scale,
+    };
+  }, [canvasSize.h, canvasSize.w]);
+
+  const updateSuspectTip = useCallback(
+    (clientX: number, clientY: number) => {
+      if (dragRef.current?.dragging) {
+        if (hoverTipRef.current) {
+          hoverTipRef.current = null;
+          setHoverTip(null);
+        }
+        return;
+      }
+      const { x, y } = clientToSvg(clientX, clientY);
+      const node = findSuspectGidAt(x, y);
+      if (!node?.gid) {
+        if (hoverTipRef.current) {
+          hoverTipRef.current = null;
+          setHoverTip(null);
+        }
+        return;
+      }
+      const lines = getSuspectReasonLines(node);
+      if (!lines.length) {
+        if (hoverTipRef.current) {
+          hoverTipRef.current = null;
+          setHoverTip(null);
+        }
+        return;
+      }
+      const next: SuspectHoverTip = {
+        nodeId: node.id,
+        gid: normalizeGid(node.gid),
+        lines,
+        clientX,
+        clientY,
+      };
+      const prev = hoverTipRef.current;
+      // 同节点仅更新位置时做轻量比较，减少无意义渲染
+      if (
+        prev &&
+        prev.nodeId === next.nodeId &&
+        prev.lines.join("\n") === next.lines.join("\n") &&
+        Math.abs(prev.clientX - next.clientX) < 2 &&
+        Math.abs(prev.clientY - next.clientY) < 2
+      ) {
+        return;
+      }
+      hoverTipRef.current = next;
+      setHoverTip(next);
+    },
+    [clientToSvg, findSuspectGidAt],
+  );
+
+  const clearSuspectTip = useCallback(() => {
+    if (!hoverTipRef.current) return;
+    hoverTipRef.current = null;
+    setHoverTip(null);
   }, []);
+
+  useEffect(() => {
+    const el = canvasWrapRef.current;
+    if (!el) return;
+
+    const onMove = (e: PointerEvent) => {
+      updateSuspectTip(e.clientX, e.clientY);
+    };
+    const onLeave = () => {
+      clearSuspectTip();
+    };
+
+    el.addEventListener("pointermove", onMove);
+    el.addEventListener("pointerleave", onLeave);
+    return () => {
+      el.removeEventListener("pointermove", onMove);
+      el.removeEventListener("pointerleave", onLeave);
+    };
+  }, [clearSuspectTip, updateSuspectTip]);
 
   useEffect(() => {
     const el = canvasWrapRef.current;
@@ -154,6 +304,7 @@ const GidGraphCanvas: FC<GidGraphCanvasProps> = ({
   useEffect(() => {
     if (!data || loading) {
       setLiveNodes([]);
+      setHoverTip(null);
       dragRef.current = null;
       pinnedRef.current = new Set();
       nodesRef.current = [];
@@ -228,7 +379,8 @@ const GidGraphCanvas: FC<GidGraphCanvasProps> = ({
   function isDraggableSuspectNode(node: GraphNode): node is GraphNode & {
     kind: "D";
   } {
-    return node.kind === "D";
+    // 临时插入未落库的节点不可拖拽，落库刷新后才可拖入中心族提交核实
+    return node.kind === "D" && !node.temporary;
   }
 
   const handleNodeClick = useCallback(
@@ -418,7 +570,7 @@ const GidGraphCanvas: FC<GidGraphCanvasProps> = ({
   }, [onPointerMoveWindow, onPointerUpWindow]);
 
   return (
-    <Box sx={{ position: "relative" }}>
+    <Box sx={{ position: "relative", overflow: "visible" }}>
       <Stack direction="row" spacing={1} flexWrap="wrap" sx={{ mb: 1 }}>
         {LEGEND.map((item) => (
           <Chip
@@ -437,6 +589,7 @@ const GidGraphCanvas: FC<GidGraphCanvasProps> = ({
       <Box
         ref={canvasWrapRef}
         sx={{
+          position: "relative",
           width: "100%",
           border: "1px solid",
           borderColor: "divider",
@@ -451,6 +604,8 @@ const GidGraphCanvas: FC<GidGraphCanvasProps> = ({
           height={canvasSize.h}
           viewBox={`0 0 ${canvasSize.w} ${canvasSize.h}`}
           preserveAspectRatio="xMidYMid meet"
+          onPointerMove={(e) => updateSuspectTip(e.clientX, e.clientY)}
+          onPointerLeave={clearSuspectTip}
         >
           <defs>
             <pattern
@@ -578,20 +733,22 @@ const GidGraphCanvas: FC<GidGraphCanvasProps> = ({
                         cy={node.y}
                         r={r}
                         fill={NODE_COLORS[node.kind]}
-                        fillOpacity={0.82}
+                        fillOpacity={node.temporary ? 0.55 : 0.82}
                         stroke={
                           focused
                             ? AUDIT_FOCUS_COLOR
                             : dragging
                               ? "#1565c0"
-                              : "#fff"
+                              : node.temporary
+                                ? "#ce93d8"
+                                : "#fff"
                         }
-                        strokeWidth={focused ? 3 : dragging ? 3 : 2}
-                      >
-                        {node.kind === "D" && node.ruleHints?.length ? (
-                          <title>{node.ruleHints.join("\n")}</title>
-                        ) : null}
-                      </circle>
+                        strokeWidth={
+                          focused ? 3 : dragging ? 3 : node.temporary ? 2.5 : 2
+                        }
+                        strokeDasharray={node.temporary ? "5 4" : undefined}
+                        pointerEvents="none"
+                      />
                     </g>
                   );
                 })}
@@ -701,6 +858,7 @@ const GidGraphCanvas: FC<GidGraphCanvasProps> = ({
 
                   if (node.kind === "E") {
                     const { hw, hh } = getENodeRect(node.label);
+                    const tempBlocked = Boolean(node.temporary);
                     return (
                       <rect
                         key={`hit-${node.id}`}
@@ -710,15 +868,17 @@ const GidGraphCanvas: FC<GidGraphCanvasProps> = ({
                         height={(hh + 4) * 2}
                         fill="transparent"
                         style={{
-                          cursor: readOnly
-                            ? "default"
+                          cursor: readOnly || tempBlocked
+                            ? tempBlocked
+                              ? "not-allowed"
+                              : "default"
                             : isCenter
                               ? "default"
                               : "pointer",
                           touchAction: "none",
                         }}
                         onPointerDown={
-                          readOnly
+                          readOnly || tempBlocked
                             ? undefined
                             : (e) => startNodePointer(node, e)
                         }
@@ -731,9 +891,11 @@ const GidGraphCanvas: FC<GidGraphCanvasProps> = ({
                     ? "default"
                     : draggable
                       ? "grab"
-                      : isCenter
-                        ? "default"
-                        : "pointer";
+                      : node.temporary
+                        ? "not-allowed"
+                        : isCenter
+                          ? "default"
+                          : "pointer";
 
                   return (
                     <circle
@@ -741,15 +903,26 @@ const GidGraphCanvas: FC<GidGraphCanvasProps> = ({
                       cx={node.x}
                       cy={node.y}
                       r={r}
-                      fill="transparent"
+                      fill="rgba(0,0,0,0.001)"
                       style={{
                         cursor,
                         touchAction: readOnly ? "auto" : "none",
                       }}
                       onPointerDown={
-                        readOnly ? undefined : (e) => startNodePointer(node, e)
+                        readOnly || node.temporary
+                          ? undefined
+                          : (e) => {
+                              clearSuspectTip();
+                              startNodePointer(node, e);
+                            }
                       }
-                    />
+                    >
+                      {getSuspectReasonLines(node).length ? (
+                        <title>
+                          {`${node.gid ?? node.label} · 可疑原因\n${getSuspectReasonLines(node).join("\n")}`}
+                        </title>
+                      ) : null}
+                    </circle>
                   );
                 })}
               </g>
@@ -770,13 +943,98 @@ const GidGraphCanvas: FC<GidGraphCanvasProps> = ({
         </svg>
       </Box>
 
+      {hoverTip ? (
+        <Paper
+          elevation={8}
+          sx={{
+            position: "fixed",
+            left: hoverTip.clientX + 14,
+            top: hoverTip.clientY + 14,
+            zIndex: 10000,
+            maxWidth: 320,
+            px: 1.25,
+            py: 1,
+            pointerEvents: "none",
+            bgcolor: "rgba(33, 33, 33, 0.94)",
+            color: "#fff",
+            boxShadow: "0 8px 24px rgba(0,0,0,0.35)",
+          }}
+        >
+          <Typography
+            variant="caption"
+            sx={{ fontWeight: 700, display: "block", mb: 0.25 }}
+          >
+            {hoverTip.gid} · 可疑原因
+          </Typography>
+          {hoverTip.lines.map((line, idx) => (
+            <Typography
+              key={`${idx}-${line}`}
+              variant="caption"
+              component="div"
+              sx={{
+                mt: 0.25,
+                whiteSpace: "pre-wrap",
+                wordBreak: "break-word",
+                lineHeight: 1.4,
+              }}
+            >
+              {line}
+            </Typography>
+          ))}
+        </Paper>
+      ) : null}
+
+      {/* Garfish / transform 祖先下 fixed 可能错位，同步挂一份到 body */}
+      {hoverTip
+        ? createPortal(
+            <Paper
+              elevation={8}
+              sx={{
+                position: "fixed",
+                left: hoverTip.clientX + 14,
+                top: hoverTip.clientY + 14,
+                zIndex: 2147483000,
+                maxWidth: 320,
+                px: 1.25,
+                py: 1,
+                pointerEvents: "none",
+                bgcolor: "rgba(33, 33, 33, 0.94)",
+                color: "#fff",
+              }}
+            >
+              <Typography
+                variant="caption"
+                sx={{ fontWeight: 700, display: "block", mb: 0.25 }}
+              >
+                {hoverTip.gid} · 可疑原因
+              </Typography>
+              {hoverTip.lines.map((line, idx) => (
+                <Typography
+                  key={`p-${idx}-${line}`}
+                  variant="caption"
+                  component="div"
+                  sx={{
+                    mt: 0.25,
+                    whiteSpace: "pre-wrap",
+                    wordBreak: "break-word",
+                    lineHeight: 1.4,
+                  }}
+                >
+                  {line}
+                </Typography>
+              ))}
+            </Paper>,
+            document.body,
+          )
+        : null}
+
       {data ? (
         <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5 }}>
           中心 GID：{data.centerGid} · 节点 {data.nodes.length} · 边{" "}
           {data.edges.length}
           {readOnly
             ? " · 审核模式：请在上方操作栏通过或驳回"
-            : ` · 点击切换中心 · 拖拽「${NODE_KIND_LABELS.D}」至虚线圈内提交核实`}
+            : ` · 点击切换中心 · 拖拽已落库「${NODE_KIND_LABELS.D}」至虚线圈内提交核实（临时节点不可拖）`}
         </Typography>
       ) : null}
     </Box>

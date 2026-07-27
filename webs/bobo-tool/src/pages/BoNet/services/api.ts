@@ -3,6 +3,7 @@ import { DEFAULT_GID_BOUNDARY, normalizeGid } from "../constants";
 import type {
   BoNetApplyListResult,
   ManualGidLink,
+  ManualRuleSuspect,
   MomoPlayerGid,
   PlayerGraphData,
 } from "../types";
@@ -153,6 +154,25 @@ export async function boNetAudit(body: {
   })) as ApiRes<ManualGidLink | null>;
   const data = await unwrap(res);
   return data ? normalizeLink(data) : null;
+}
+
+/** 手动写入 D 类规则疑似（ruleType=manual） */
+export async function boNetRuleSuspectAdd(body: {
+  sourceGid: string;
+  suspectGid: string;
+  memo: string;
+  visible?: boolean;
+}): Promise<ManualRuleSuspect> {
+  const res = (await request("/momoro/BoNetRuleSuspectAdd", {
+    method: "POST",
+    data: {
+      sourceGid: normalizeGid(body.sourceGid),
+      suspectGid: normalizeGid(body.suspectGid),
+      memo: body.memo,
+      visible: body.visible,
+    },
+  })) as ApiRes<ManualRuleSuspect>;
+  return await unwrap(res);
 }
 
 /** @deprecated 兼容旧调用，内部走 getBoNetApplyList */

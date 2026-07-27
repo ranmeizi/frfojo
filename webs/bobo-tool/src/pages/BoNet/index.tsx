@@ -1,4 +1,4 @@
-import { FC, useCallback, useEffect, useState } from "react";
+import { FC, useCallback, useEffect, useMemo, useState } from "react";
 import {
   Box,
   Button,
@@ -18,7 +18,9 @@ import GidGraphCanvas from "./components/GidGraphCanvas";
 import PlayerSearchSelect from "./components/PlayerSearchSelect";
 import ReviewPanel from "./components/ReviewPanel";
 import GraphAuditBar, { type AuditSession } from "./components/GraphAuditBar";
+import SuspectInjectPanel from "./components/SuspectInjectPanel";
 import { buildBoNetGraph } from "./services/buildGraph";
+import { injectTempSuspects } from "./services/injectTempSuspects";
 import { submitSuspectForReview } from "./services/submitSuspectForReview";
 import {
   DEFAULT_GID_BOUNDARY,
@@ -29,7 +31,12 @@ import {
   hasPermission,
   normalizeGid,
 } from "./constants";
-import type { BoNetGraphData, ManualGidLink, MomoPlayerGid } from "./types";
+import type {
+  BoNetGraphData,
+  ManualGidLink,
+  MomoPlayerGid,
+  TempSuspectInjection,
+} from "./types";
 
 type BoNetGraphBizMode = "apply" | "audit";
 
@@ -51,8 +58,14 @@ const BoNet: FC<BoNetProps> = () => {
     null,
   );
   const [centerGid, setCenterGid] = useState("");
-  const [graph, setGraph] = useState<BoNetGraphData | null>(null);
+  const [baseGraph, setBaseGraph] = useState<BoNetGraphData | null>(null);
+  const [tempSuspects, setTempSuspects] = useState<TempSuspectInjection[]>([]);
   const [loading, setLoading] = useState(false);
+
+  const graph = useMemo(
+    () => (baseGraph ? injectTempSuspects(baseGraph, tempSuspects) : null),
+    [baseGraph, tempSuspects],
+  );
 
   useEffect(() => {
     if (canTrial) return;
@@ -72,7 +85,8 @@ const BoNet: FC<BoNetProps> = () => {
         const normalized = normalizeGid(raw);
         const built = await buildBoNetGraph(normalized, DEFAULT_GID_BOUNDARY);
         setCenterGid(normalized);
-        setGraph(built);
+        setBaseGraph(built);
+        setTempSuspects([]);
       } catch (e) {
         message.error(e instanceof Error ? e.message : "加载关联图失败");
       } finally {
@@ -112,6 +126,36 @@ const BoNet: FC<BoNetProps> = () => {
         message.warning(res.message);
       }
       return false;
+    },
+    [centerGid, loadGraph],
+  );
+
+  const handleInjectTemps = useCallback((items: TempSuspectInjection[]) => {
+    setTempSuspects((prev) => {
+      const seen = new Set(prev.map((t) => normalizeGid(t.gid)));
+      const next = [...prev];
+      for (const item of items) {
+        const g = normalizeGid(item.gid);
+        if (seen.has(g)) continue;
+        seen.add(g);
+        next.push({ ...item, gid: g });
+      }
+      return next;
+    });
+  }, []);
+
+  const handleRemoveTemp = useCallback((gid: string) => {
+    const g = normalizeGid(gid);
+    setTempSuspects((prev) => prev.filter((t) => normalizeGid(t.gid) !== g));
+  }, []);
+
+  const handlePersisted = useCallback(
+    async (suspectGid: string) => {
+      const g = normalizeGid(suspectGid);
+      setTempSuspects((prev) => prev.filter((t) => normalizeGid(t.gid) !== g));
+      if (centerGid) {
+        await loadGraph(centerGid);
+      }
     },
     [centerGid, loadGraph],
   );
@@ -231,34 +275,46 @@ const BoNet: FC<BoNetProps> = () => {
                 onDone={handleAuditDone}
               />
             ) : (
-              <Paper sx={{ p: 2, mb: 2 }}>
-                <Stack
-                  direction={{ xs: "column", sm: "row" }}
-                  spacing={2}
-                  alignItems={{ sm: "center" }}
-                >
-                  <Chip label="申请" color="primary" size="small" />
-                  <PlayerSearchSelect
-                    value={selectedPlayer}
-                    onChange={setSelectedPlayer}
-                    disabled={loading}
-                  />
-                  <Button
-                    variant="contained"
-                    onClick={() => void loadGraph()}
-                    disabled={loading || !selectedPlayer}
+              <>
+                <Paper sx={{ p: 2, mb: 2 }}>
+                  <Stack
+                    direction={{ xs: "column", sm: "row" }}
+                    spacing={2}
+                    alignItems={{ sm: "center" }}
                   >
-                    查询并渲染
-                  </Button>
-                  <Typography variant="body2" color="text.secondary">
-                    {NODE_KIND_LABELS.A}/{NODE_KIND_LABELS.B}/
-                    {NODE_KIND_LABELS.C} 中心力布局，
-                    {NODE_KIND_LABELS.D} 外环 · 拖拽 {NODE_KIND_LABELS.D}{" "}
-                    至虚线圈内提交核实
-                    {!canApply ? "（当前无申请权限）" : ""}
-                  </Typography>
-                </Stack>
-              </Paper>
+                    <Chip label="申请" color="primary" size="small" />
+                    <PlayerSearchSelect
+                      value={selectedPlayer}
+                      onChange={setSelectedPlayer}
+                      disabled={loading}
+                    />
+                    <Button
+                      variant="contained"
+                      onClick={() => void loadGraph()}
+                      disabled={loading || !selectedPlayer}
+                    >
+                      查询并渲染
+                    </Button>
+                    <Typography variant="body2" color="text.secondary">
+                      {NODE_KIND_LABELS.A}/{NODE_KIND_LABELS.B}/
+                      {NODE_KIND_LABELS.C} 中心力布局，
+                      {NODE_KIND_LABELS.D} 外环 · 拖拽已落库{" "}
+                      {NODE_KIND_LABELS.D} 至虚线圈内提交核实
+                      {!canApply ? "（当前无申请权限）" : ""}
+                    </Typography>
+                  </Stack>
+                </Paper>
+
+                <SuspectInjectPanel
+                  centerGid={centerGid}
+                  tempSuspects={tempSuspects}
+                  disabled={loading}
+                  canApply={canApply}
+                  onInject={handleInjectTemps}
+                  onRemoveTemp={handleRemoveTemp}
+                  onPersisted={(gid) => void handlePersisted(gid)}
+                />
+              </>
             )}
 
             <Paper sx={{ p: 2, width: "100%" }}>

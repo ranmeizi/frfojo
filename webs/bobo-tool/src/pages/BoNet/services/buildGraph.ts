@@ -15,6 +15,10 @@ function formatRuleHint(
   centerGid: string,
   hit: RuleSuspectHit,
 ): string {
+  if (hit.memo?.trim()) {
+    return hit.memo.trim();
+  }
+
   if (hit.ruleType === 'name_similarity') {
     const meta = hit.meta as {
       nameA?: string;
@@ -33,6 +37,10 @@ function formatRuleHint(
         ? `${meta.nameA} ~ ${meta.nameB}`
         : 'name match';
     return `name ${names} (${meta?.algorithm ?? 'sim'} ${score})`;
+  }
+
+  if (hit.ruleType === 'manual') {
+    return '人工标记疑似关联';
   }
 
   const boundary = hit.boundary ?? 16;
