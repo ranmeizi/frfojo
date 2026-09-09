@@ -434,9 +434,6 @@
                 host.dataset.panelReady = "1";
             }
 
-            if (typeof Tesseract === "undefined") {
-                await loadScriptOnce("https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js");
-            }
             if (typeof window.initPronteraCards !== "function") {
                 await loadScriptOnce("card-collection.js");
             }

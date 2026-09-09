@@ -138,9 +138,13 @@
             </div>
             <div class="ocr-match-list" id="ocrMatchList"></div>
           </div>
-          <details class="ocr-raw-wrap">
-            <summary>查看识别出的原文（排查漏识时有用）</summary>
-            <div class="ocr-raw" id="ocrRaw"></div>
+          <details class="ocr-raw-wrap" open>
+            <summary>识别原文（可直接改字，再点下方重新匹配）</summary>
+            <p class="ocr-raw-tip">游戏像素字 OCR 经常乱码。改成正确卡名（每行一张）后点重新匹配，比调模糊阈值更准。</p>
+            <textarea class="ocr-raw" id="ocrRaw" rows="8" spellcheck="false" placeholder="识别结果会出现在这里，可手动改正…"></textarea>
+            <div class="ocr-raw-actions">
+              <button class="btn ghost" type="button" id="ocrRematch">用上面的文字重新匹配</button>
+            </div>
           </details>
         </div>
 
@@ -155,10 +159,17 @@
               <p>深色界面、字偏小、排版杂乱时，优先调这里。</p>
               <div class="ocr-params-grid">
                 <div class="ocr-field">
+                  <label>识别引擎 <span class="val" id="ocrEngineVal">PaddleOCR</span></label>
+                  <select id="ocrEngine">
+                    <option value="paddle" selected>PaddleOCR（推荐，浏览器端）</option>
+                    <option value="tesseract">Tesseract（旧，像素字较弱）</option>
+                  </select>
+                </div>
+                <div class="ocr-field">
                   <label>排版模式 <span class="val" id="ocrPsmVal">默认</span></label>
                   <select id="ocrPsm">
-                    <option value="6" selected>默认 · 整块文字</option>
-                    <option value="4">单列列表</option>
+                    <option value="6">默认 · 整块文字</option>
+                    <option value="4" selected>单列列表</option>
                     <option value="3">全自动</option>
                     <option value="11">文字较散</option>
                     <option value="12">文字较散（自动方向）</option>
@@ -166,12 +177,12 @@
                   </select>
                 </div>
                 <div class="ocr-field">
-                  <label>图片放大 <span class="val" id="ocrScaleVal">2.0x</span></label>
-                  <input id="ocrScale" type="range" min="1" max="3.5" step="0.1" value="2" />
+                  <label>图片放大 <span class="val" id="ocrScaleVal">4.0x</span></label>
+                  <input id="ocrScale" type="range" min="1" max="4.5" step="0.1" value="4" />
                 </div>
                 <div class="ocr-field">
-                  <label>对比度 <span class="val" id="ocrContrastVal">1.4</span></label>
-                  <input id="ocrContrast" type="range" min="0.8" max="2.5" step="0.1" value="1.4" />
+                  <label>对比度 <span class="val" id="ocrContrastVal">1.2</span></label>
+                  <input id="ocrContrast" type="range" min="0.8" max="2.5" step="0.1" value="1.2" />
                 </div>
                 <div class="ocr-field">
                   <label>黑白分界 <span class="val" id="ocrThreshVal">自动</span></label>
@@ -180,9 +191,12 @@
               </div>
               <div class="ocr-checks">
                 <label class="ocr-check"><input id="ocrInvert" type="checkbox" /> 反色（深色底、白字时勾选）</label>
-                <label class="ocr-check"><input id="ocrSharp" type="checkbox" checked /> 锐化边缘</label>
-                <label class="ocr-check"><input id="ocrOnlyChi" type="checkbox" /> 只认中文（更快，数字 ID 可能变弱）</label>
+                <label class="ocr-check"><input id="ocrSharp" type="checkbox" /> 锐化边缘（仅 Tesseract）</label>
+                <label class="ocr-check"><input id="ocrOnlyChi" type="checkbox" checked /> 只认中文（仅 Tesseract）</label>
+                <label class="ocr-check"><input id="ocrCropIcons" type="checkbox" checked /> 裁掉左侧图标（仓库列表推荐）</label>
+                <label class="ocr-check"><input id="ocrVocabRepair" type="checkbox" checked /> 词表纠错（仅唯一高置信，防近似误认）</label>
               </div>
+              <p class="ocr-engine-tip">PaddleOCR 首次会加载本地模型（约 15MB）与运行时，之后浏览器会缓存；神经网络一般不需要二值化。</p>
               <div class="ocr-param-actions">
                 <button class="btn ghost" type="button" id="ocrPreviewProc" disabled>预览处理后的图</button>
               </div>
@@ -190,27 +204,27 @@
 
             <div class="ocr-param-block">
               <h5>控制匹配严不严</h5>
-              <p>漏了很多卡就放宽；误认太多就收紧。短名如「狼」「鼬」默认更谨慎。</p>
+              <p>默认精准：只认完整卡名。OCR 漏字再把「差几个字 / 部分重合」调高；误认多就保持 0。</p>
               <div class="ocr-params-grid">
                 <div class="ocr-field">
-                  <label>匹配门槛（越高越严） <span class="val" id="ocrScoreVal">72</span></label>
-                  <input id="ocrScore" type="range" min="50" max="95" step="1" value="72" />
+                  <label>匹配门槛（越高越严） <span class="val" id="ocrScoreVal">95</span></label>
+                  <input id="ocrScore" type="range" min="50" max="100" step="1" value="95" />
                 </div>
                 <div class="ocr-field">
                   <label>最短卡名长度 <span class="val" id="ocrMinLenVal">2</span></label>
                   <input id="ocrMinLen" type="range" min="1" max="4" step="1" value="2" />
                 </div>
                 <div class="ocr-field">
-                  <label>允许差几个字 <span class="val" id="ocrFuzzyVal">1</span></label>
-                  <input id="ocrFuzzy" type="range" min="0" max="3" step="1" value="1" />
+                  <label>允许差几个字（0=关闭） <span class="val" id="ocrFuzzyVal">0</span></label>
+                  <input id="ocrFuzzy" type="range" min="0" max="3" step="1" value="0" />
                 </div>
                 <div class="ocr-field">
-                  <label>部分重合至少几字 <span class="val" id="ocrContainVal">2</span></label>
-                  <input id="ocrContain" type="range" min="1" max="5" step="1" value="2" />
+                  <label>部分重合至少几字（0=关闭） <span class="val" id="ocrContainVal">0</span></label>
+                  <input id="ocrContain" type="range" min="0" max="5" step="1" value="0" />
                 </div>
               </div>
               <div class="ocr-checks">
-                <label class="ocr-check"><input id="ocrMatchId" type="checkbox" checked /> 也按卡片编号匹配</label>
+                <label class="ocr-check"><input id="ocrMatchId" type="checkbox" /> 也按卡片编号匹配</label>
                 <label class="ocr-check"><input id="ocrStrictShort" type="checkbox" checked /> 短卡名必须完全一致</label>
               </div>
             </div>

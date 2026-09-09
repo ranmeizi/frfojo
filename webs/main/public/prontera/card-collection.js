@@ -113,21 +113,24 @@
     }
 
     /* ---------- OCR + 匹配调参 ---------- */
-    const OCR_PARAM_KEY = "prontera.card-collection.ocr-params.v1";
+    const OCR_PARAM_KEY = "prontera.card-collection.ocr-params.v5";
     const OCR_DEFAULTS = {
-      psm: "6",
-      scale: 2,
-      contrast: 1.4,
+      engine: "paddle",
+      psm: "4",
+      scale: 4,
+      contrast: 1.2,
       thresh: 0,
-      score: 72,
+      score: 95,
       minLen: 2,
-      fuzzy: 1,
-      contain: 2,
+      fuzzy: 0,
+      contain: 0,
       invert: false,
-      sharp: true,
-      onlyChi: false,
-      matchId: true,
+      sharp: false,
+      onlyChi: true,
+      matchId: false,
       strictShort: true,
+      cropIcons: true,
+      vocabRepair: true,
     };
 
     const ocrState = {
@@ -166,6 +169,7 @@
       steps: document.getElementById("ocrSteps"),
       previewProcBtn: document.getElementById("ocrPreviewProc"),
       resetParams: document.getElementById("ocrResetParams"),
+      engine: document.getElementById("ocrEngine"),
       psm: document.getElementById("ocrPsm"),
       scale: document.getElementById("ocrScale"),
       contrast: document.getElementById("ocrContrast"),
@@ -179,6 +183,10 @@
       onlyChi: document.getElementById("ocrOnlyChi"),
       matchId: document.getElementById("ocrMatchId"),
       strictShort: document.getElementById("ocrStrictShort"),
+      cropIcons: document.getElementById("ocrCropIcons"),
+      vocabRepair: document.getElementById("ocrVocabRepair"),
+      rematch: document.getElementById("ocrRematch"),
+      engineVal: document.getElementById("ocrEngineVal"),
       psmVal: document.getElementById("ocrPsmVal"),
       scaleVal: document.getElementById("ocrScaleVal"),
       contrastVal: document.getElementById("ocrContrastVal"),
@@ -196,6 +204,10 @@
       "11": "较散",
       "12": "较散+",
       multi: "多模式",
+    };
+    const ENGINE_LABEL = {
+      paddle: "PaddleOCR",
+      tesseract: "Tesseract",
     };
 
     function setOcrStep(step) {
@@ -215,6 +227,7 @@
 
     function readOcrParams() {
       return {
+        engine: (ocrEls.engine && ocrEls.engine.value) || "paddle",
         psm: ocrEls.psm.value,
         scale: Number(ocrEls.scale.value),
         contrast: Number(ocrEls.contrast.value),
@@ -228,10 +241,13 @@
         onlyChi: ocrEls.onlyChi.checked,
         matchId: ocrEls.matchId.checked,
         strictShort: ocrEls.strictShort.checked,
+        cropIcons: !!(ocrEls.cropIcons && ocrEls.cropIcons.checked),
+        vocabRepair: !!(ocrEls.vocabRepair && ocrEls.vocabRepair.checked),
       };
     }
 
     function applyOcrParamsToUi(p) {
+      if (ocrEls.engine) ocrEls.engine.value = p.engine || "paddle";
       ocrEls.psm.value = p.psm;
       ocrEls.scale.value = String(p.scale);
       ocrEls.contrast.value = String(p.contrast);
@@ -245,11 +261,14 @@
       ocrEls.onlyChi.checked = !!p.onlyChi;
       ocrEls.matchId.checked = !!p.matchId;
       ocrEls.strictShort.checked = !!p.strictShort;
+      if (ocrEls.cropIcons) ocrEls.cropIcons.checked = p.cropIcons !== false;
+      if (ocrEls.vocabRepair) ocrEls.vocabRepair.checked = p.vocabRepair !== false;
       syncOcrParamLabels();
     }
 
     function syncOcrParamLabels() {
       const p = readOcrParams();
+      if (ocrEls.engineVal) ocrEls.engineVal.textContent = ENGINE_LABEL[p.engine] || p.engine;
       ocrEls.psmVal.textContent = PSM_LABEL[p.psm] || p.psm;
       ocrEls.scaleVal.textContent = `${p.scale.toFixed(1)}x`;
       ocrEls.contrastVal.textContent = p.contrast.toFixed(1);
@@ -321,15 +340,42 @@
     function normalizeCardText(s) {
       return String(s || "")
         .toLowerCase()
-        .replace(/[●・·•．.\s\-_—–|/\\()（）\[\]【】「」『』<>《》'"`~，,。!！?？:：;；×xX]/g, "")
+        .replace(/[●・·•．.\s\-_—–|/\\()（）\[\]【】「」『』<>《》'"`~，,。!！?？:：;；×xX<>＜＞]/g, "")
+        .replace(/^[0-9０-９]+/, "")
         .replace(/莉/g, "利")
-        .replace(/波莉/g, "波利");
+        .replace(/波莉/g, "波利")
+        .replace(/卡是|卡睛|卡且|卡上|卡后|卡呈|卡所|卡卢|卡拍/g, "卡片");
+    }
+
+    /** 仓库截图常见 OCR 形近字修正（只作用于识别文本） */
+    function fixOcrConfusions(s) {
+      let t = String(s || "");
+      const pairs = [
+        [/全属|等属|尘属|竺属/g, "金属"],
+        [/沪利|淤利|闵刊|源刊|沪币/g, "波利"],
+        [/金属波利/g, "金属波利"],
+        [/波下利|波淤利|疲波利|流流利/g, "波波利"],
+        [/吸血幅由|吸血幅幅|吸血蜗幅|吸血丹旺|吸血蝙申/g, "吸血蝙蝠"],
+        [/菠青胰|节理胰|区青有|茅育荣|苦育荣|茅育菜/g, "茅膏菜"],
+        [/蜗昌己前于|蜗甲己前许|蜗甲己前隆|蝴晴己简手|畅晶弓贡手|蝙蝠弓贡手|申幅己前手/g, "蝙蝠弓箭手"],
+        [/旺旺|旺星|昱星|晨星/g, "螳螂"],
+        [/那隘咪迟|那豚品仓|收豚咪迟|那通战怪|政通则俘|邪能战俘/g, "邪骸战俘"],
+        [/卡利斯梧|卡刊其梧|卡刊斯局|卡利断格|卡刊斯格/g, "卡利斯格"],
+        [/平贡特\s*6?|平贡特|衬贡特\s*下?|衬帝特|名节特飞杰/g, "毕帝特飞龙"],
+        [/毕帝特飞龙飞龙/g, "毕帝特飞龙"],
+        [/并受性|避受星|突变星|避芝星|突变芝/g, "突变蛙"],
+        [/有区太|殖太|将及|梦帮|芭必|梦魔/g, "梦魇"],
+        [/去间|圭间|等章|黑手|黑白/g, "黑狐"],
+      ];
+      for (const [re, to] of pairs) t = t.replace(re, to);
+      return t;
     }
 
     function levenshtein(a, b) {
       if (a === b) return 0;
       if (!a.length) return b.length;
       if (!b.length) return a.length;
+      if (Math.abs(a.length - b.length) > 6) return 99;
       const row = Array.from({ length: b.length + 1 }, (_, i) => i);
       for (let i = 1; i <= a.length; i++) {
         let prev = i;
@@ -346,106 +392,218 @@
       return row[b.length];
     }
 
-    function extractOcrTokens(text) {
-      const lines = String(text || "")
-        .split(/\r?\n/)
-        .map((l) => l.trim())
-        .filter(Boolean);
-      const tokens = new Set();
-      for (const line of lines) {
-        tokens.add(line);
-        for (const part of line.split(/[\s|｜、,，;；]+/)) {
-          const p = part.trim();
-          if (p) tokens.add(p);
+    function lcsLen(a, b) {
+      if (!a || !b) return 0;
+      const m = a.length;
+      const n = b.length;
+      if (m * n > 4000) return 0;
+      const dp = new Array(n + 1).fill(0);
+      for (let i = 1; i <= m; i++) {
+        let prev = 0;
+        for (let j = 1; j <= n; j++) {
+          const tmp = dp[j];
+          dp[j] = a[i - 1] === b[j - 1] ? prev + 1 : Math.max(dp[j], dp[j - 1]);
+          prev = tmp;
         }
-        const idName = line.match(/^(\d{3,5})\s*[.．:：\-]?\s*(.+)$/);
-        if (idName) tokens.add(idName[2].trim());
-        const nameOnly = line.replace(/^\d{3,5}\s*/, "").trim();
-        if (nameOnly) tokens.add(nameOnly);
       }
-      return [...tokens];
+      return dp[n];
     }
 
-    function matchCardsFromOcrText(text, params) {
-      const p = params || readOcrParams();
-      const tokens = extractOcrTokens(text);
-      const normTokens = tokens
-        .map((t) => ({ raw: t, norm: normalizeCardText(t) }))
-        .filter((t) => t.norm.length >= p.minLen);
-      const blob = normalizeCardText(text);
-      const found = new Map();
-
-      // Excel 卡名无「卡片」后缀，游戏截图通常带；匹配时统一按「名称+卡片」比对
+    function buildCatalogRows(minLen) {
       const matchNameOf = (name) => {
         const raw = String(name || "");
         return /卡片$/.test(raw) ? raw : `${raw}卡片`;
       };
+      return DATA.cards
+        .map((card) => {
+          const displayName = matchNameOf(card.name);
+          return {
+            card,
+            nName: normalizeCardText(displayName),
+            nBase: normalizeCardText(card.name),
+          };
+        })
+        .filter((c) => c.nName && c.nBase.length >= minLen);
+    }
 
-      // 长名优先，减少短名误伤
-      const cards = [...DATA.cards].sort(
-        (a, b) =>
-          normalizeCardText(matchNameOf(b.name)).length -
-          normalizeCardText(matchNameOf(a.name)).length,
-      );
-
-      for (const card of cards) {
-        const displayName = matchNameOf(card.name);
-        const nName = normalizeCardText(displayName);
-        if (!nName || nName.length < p.minLen) continue;
-        let score = 0;
-        let why = "";
-        const isShort = normalizeCardText(card.name).length <= 2;
-
-                if (blob.includes(nName)) {
-          score = Math.max(score, 100);
-          why = "文中直接出现";
+    /** 词表纠错：只在「唯一明显更像某一张卡」时采纳，避免近似卡互抢 */
+    function repairTokenViaVocab(tokenNorm, catalog) {
+      const tokenBase = tokenNorm.replace(/卡片$/u, "");
+      if (tokenBase.length < 3) return null;
+      let best = null;
+      let secondRatio = 0;
+      for (const row of catalog) {
+        if (row.nBase.length < 3) continue;
+        if (Math.abs(tokenBase.length - row.nBase.length) > 3) continue;
+        const lcs = lcsLen(tokenBase, row.nBase);
+        const ratio = lcs / Math.max(tokenBase.length, row.nBase.length);
+        const dist = levenshtein(tokenBase, row.nBase);
+        const score = ratio * 100 - dist * 3;
+        if (!best || score > best.score) {
+          secondRatio = best ? best.ratio : 0;
+          best = { row, score, ratio, dist, lcs };
+        } else if (ratio > secondRatio) {
+          secondRatio = ratio;
         }
+      }
+      if (!best) return null;
+      const unique = best.ratio - secondRatio >= 0.2;
+      const strong =
+        (best.dist <= 1 && best.ratio >= 0.6) ||
+        (best.dist <= 2 && best.ratio >= 0.7 && unique) ||
+        (best.lcs >= 3 && best.ratio >= 0.5 && unique);
+      if (!strong) return null;
+      return {
+        card: best.row.card,
+        score: Math.min(99, 80 + Math.round(best.ratio * 15) - best.dist),
+        why: `词表纠错(${best.dist})`,
+      };
+    }
 
-        for (const t of normTokens) {
-          if (!t.norm) continue;
-          if (t.norm === nName) {
-            score = Math.max(score, 100);
-            why = `完全一致`;
+    function extractOcrTokens(text) {
+      const fixed = fixOcrConfusions(text);
+      const lines = String(fixed || "")
+        .split(/\r?\n/)
+        .map((l) => l.trim())
+        .filter(Boolean);
+      const tokens = new Set();
+      const noise = /^(个人仓库|消耗|商城|防具|武器|时装|投掷|其它|卡片|仓库)$/;
+
+      for (const line of lines) {
+        if (noise.test(line)) continue;
+        tokens.add(line);
+        const cardHits = line.match(/[\u4e00-\u9fffA-Za-z0-9]{2,16}卡片/g);
+        if (cardHits) for (const h of cardHits) tokens.add(h);
+        for (const part of line.split(/[\s|｜、,，;；<>＜＞]+/)) {
+          const p = part.trim().replace(/^[0-9０-９．.。]+/, "");
+          if (p && !noise.test(p)) tokens.add(p);
+        }
+        const nameOnly = line
+          .replace(/^[0-9０-９．.。\s]+/, "")
+          .replace(/卡片$/u, "")
+          .trim();
+        if (nameOnly.length >= 2) tokens.add(nameOnly);
+      }
+      return [...tokens];
+    }
+
+    function scoreNameAgainstToken(nName, nBase, tokenNorm, params) {
+      if (!tokenNorm) return { score: 0, why: "" };
+      const tokenBase = tokenNorm.replace(/卡片$/u, "");
+      // 默认只认全名 / 去「卡片」后缀后的全名，避免近似卡互相误伤
+      if (
+        tokenNorm === nName ||
+        tokenNorm === nBase ||
+        tokenBase === nBase ||
+        tokenBase === nName.replace(/卡片$/u, "")
+      ) {
+        return { score: 100, why: "完全一致" };
+      }
+
+      // 部分重合：默认关闭（contain=0）；开启时也要求几乎整段重合
+      if (params.contain > 0) {
+        for (const [a, b, label] of [
+          [tokenNorm, nName, "部分重合"],
+          [tokenBase, nBase, "名称重合"],
+        ]) {
+          if (!a || !b) continue;
+          if (!(a.includes(b) || b.includes(a))) continue;
+          const shorter = Math.min(a.length, b.length);
+          const longer = Math.max(a.length, b.length);
+          if (shorter >= params.contain && shorter / longer >= 0.9) {
+            return { score: 92, why: label };
+          }
+        }
+      }
+
+      // 模糊：默认 0；仅允许极少量字差，且长度必须接近
+      const fuzzyLimit = Math.max(0, params.fuzzy | 0);
+      if (fuzzyLimit > 0 && nBase.length >= 3 && tokenBase.length >= 3) {
+        let best = { score: 0, why: "" };
+        for (const target of [nName, nBase, nBase + "卡片"]) {
+          const dist = levenshtein(tokenNorm, target);
+          const distBase = levenshtein(tokenBase, target.replace(/卡片$/u, ""));
+          const d = Math.min(dist, distBase);
+          const maxLen = Math.max(tokenBase.length, target.replace(/卡片$/u, "").length);
+          if (Math.abs(tokenBase.length - target.replace(/卡片$/u, "").length) > fuzzyLimit) {
             continue;
           }
+          if (d > 0 && d <= fuzzyLimit && d / maxLen <= 0.25) {
+            const s = 90 - d * 8;
+            if (s > best.score) best = { score: s, why: `近似(${d})` };
+          }
+        }
+        return best;
+      }
+      return { score: 0, why: "" };
+    }
 
-          if (p.strictShort && isShort) continue;
+    function matchCardsFromOcrText(text, params) {
+      const p = params || readOcrParams();
+      const fixedText = fixOcrConfusions(text);
+      const tokens = extractOcrTokens(fixedText);
+      const normTokens = tokens
+        .map((t) => ({ raw: t, norm: normalizeCardText(t) }))
+        .filter((t) => t.norm.length >= p.minLen);
+      const found = new Map();
+      const catalog = buildCatalogRows(p.minLen);
 
-          const shorter = Math.min(t.norm.length, nName.length);
-          const longer = Math.max(t.norm.length, nName.length);
-          if (
-            shorter >= p.contain &&
-            (t.norm.includes(nName) || nName.includes(t.norm))
-          ) {
-            // 包含比例过低时降权
-            const ratio = shorter / longer;
-            if (ratio >= 0.5 || nName.length >= 4) {
-              const s = 68 + Math.min(25, shorter * 3);
-              if (s > score) {
-                score = s;
-                why = `部分重合`;
-              }
-            }
-          } else if (p.fuzzy > 0 && nName.length >= 3 && t.norm.length >= 3) {
-            const dist = levenshtein(t.norm, nName);
-            const maxLen = Math.max(t.norm.length, nName.length);
-            if (dist <= p.fuzzy && dist / maxLen <= 0.34) {
-              const s = 78 - dist * 8;
-              if (s > score) {
-                score = s;
-                why = `近似匹配`;
-              }
-            }
+      // 一词一卡：每个 OCR token 只取唯一最优卡，近似并列则丢弃（防「吸血蝙蝠/蝙蝠」类误认）
+      for (const t of normTokens) {
+        let best = null;
+        let secondScore = 0;
+        for (const row of catalog) {
+          const isShort = row.nBase.length <= 2;
+          if (p.strictShort && isShort && t.norm !== row.nName && t.norm !== row.nBase) {
+            continue;
+          }
+          const hit = scoreNameAgainstToken(row.nName, row.nBase, t.norm, p);
+          if (hit.score <= 0) continue;
+          if (!best || hit.score > best.score) {
+            secondScore = best ? best.score : 0;
+            best = { card: row.card, score: hit.score, why: hit.why };
+          } else if (hit.score > secondScore) {
+            secondScore = hit.score;
           }
         }
 
-        if (p.matchId && new RegExp(`(?:^|\\D)${card.id}(?:\\D|$)`).test(text)) {
-          score = Math.max(score, 95);
-          why = why || `编号 ${card.id}`;
+        if ((!best || best.score < p.score) && p.vocabRepair) {
+          const repaired = repairTokenViaVocab(t.norm, catalog);
+          if (repaired && repaired.score >= Math.min(p.score, 90)) {
+            best = repaired;
+            secondScore = 0;
+          }
         }
 
-        if (score >= p.score) {
-          found.set(card.id, { card, score, why });
+        if (!best || best.score < p.score) continue;
+        if (best.score < 100 && secondScore >= best.score - 5) continue;
+        const prev = found.get(best.card.id);
+        if (!prev || best.score > prev.score) {
+          found.set(best.card.id, best);
+        }
+      }
+
+      // 全文仅认「完整卡名+卡片」直出，不再用短名子串扫全文
+      const blob = normalizeCardText(fixedText);
+      for (const row of catalog) {
+        if (!blob.includes(row.nName)) continue;
+        const prev = found.get(row.card.id);
+        if (!prev || 100 > prev.score) {
+          found.set(row.card.id, { card: row.card, score: 100, why: "文中直接出现" });
+        }
+      }
+
+      if (p.matchId) {
+        for (const row of catalog) {
+          if (!new RegExp(`(?:^|\\D)${row.card.id}(?:\\D|$)`).test(fixedText)) continue;
+          const prev = found.get(row.card.id);
+          if (!prev || 95 > prev.score) {
+            found.set(row.card.id, {
+              card: row.card,
+              score: 95,
+              why: `编号 ${row.card.id}`,
+            });
+          }
         }
       }
 
@@ -478,7 +636,18 @@
           thr = i;
         }
       }
-      return thr;
+      // 白底黑字图 Otsu 偶发得到 0，会导致整图洗白
+      return Math.min(230, Math.max(40, thr));
+    }
+
+    function pickThreshold(gray, manual) {
+      if (manual > 0) return manual;
+      let sum = 0;
+      for (let i = 0; i < gray.length; i++) sum += gray[i];
+      const mean = sum / gray.length;
+      // 已经很亮的仓库截图：用固定高阈值更稳，不走极端 Otsu
+      if (mean >= 200) return 190;
+      return otsuThreshold(gray);
     }
 
     async function loadImageSource(file) {
@@ -497,37 +666,97 @@
       });
     }
 
-    async function preprocessImage(file, params) {
+    function detectIconCropX(gray, w, h) {
+      // 找左侧图标列结束后的空隙，避免数量数字干扰 OCR
+      const ink = new Float32Array(w);
+      for (let x = 0; x < w; x++) {
+        let n = 0;
+        for (let y = 0; y < h; y++) {
+          if (gray[y * w + x] < 200) n += 1;
+        }
+        ink[x] = n / h;
+      }
+      let start = -1;
+      for (let x = 0; x < w; x++) {
+        if (ink[x] > 0.04) {
+          start = x;
+          break;
+        }
+      }
+      if (start < 0) return 0;
+      let gap = -1;
+      let gapRun = 0;
+      for (let x = start + 4; x < Math.min(w, start + Math.floor(w * 0.55)); x++) {
+        if (ink[x] < 0.015) {
+          gapRun += 1;
+          if (gapRun >= Math.max(3, Math.floor(w * 0.015))) {
+            gap = x - gapRun + 1;
+            break;
+          }
+        } else {
+          gapRun = 0;
+        }
+      }
+      if (gap < 0) return Math.min(Math.floor(w * 0.22), Math.floor(w * 0.4));
+      return Math.min(w - 8, gap + 2);
+    }
+
+    async function preprocessImage(file, params, mode) {
       const p = params || readOcrParams();
+      const forPaddle = mode === "paddle" || (!mode && p.engine === "paddle");
       const bmp = await loadImageSource(file);
       const srcW = bmp.width;
       const srcH = bmp.height;
-      const targetScale = p.scale;
-      const maxW = 2200;
+      // Paddle 神经网络：轻度放大即可；Tesseract 需要更大放大 + 二值化
+      const targetScale = forPaddle
+        ? Math.max(1.5, Math.min(3, p.scale))
+        : Math.max(1, p.scale);
+      const maxW = forPaddle ? 1600 : 2400;
       let scale = targetScale;
       if (srcW * scale > maxW) scale = maxW / srcW;
-      const w = Math.max(1, Math.round(srcW * scale));
-      const h = Math.max(1, Math.round(srcH * scale));
+      const w0 = Math.max(1, Math.round(srcW * scale));
+      const h0 = Math.max(1, Math.round(srcH * scale));
+      const full = document.createElement("canvas");
+      full.width = w0;
+      full.height = h0;
+      const fctx = full.getContext("2d", { willReadFrequently: true });
+      fctx.imageSmoothingEnabled = false;
+      fctx.drawImage(bmp, 0, 0, w0, h0);
+      if (typeof bmp.close === "function") bmp.close();
+
+      const fullImg = fctx.getImageData(0, 0, w0, h0);
+      const fd = fullImg.data;
+      const gray0 = new Uint8ClampedArray(w0 * h0);
+      const c = forPaddle ? Math.min(1.35, Math.max(1, p.contrast)) : p.contrast;
+      for (let i = 0, j = 0; i < fd.length; i += 4, j++) {
+        let g = 0.299 * fd[i] + 0.587 * fd[i + 1] + 0.114 * fd[i + 2];
+        g = (g - 128) * c + 128;
+        if (p.invert) g = 255 - g;
+        gray0[j] = Math.max(0, Math.min(255, g));
+      }
+
+      let cropX = 0;
+      if (p.cropIcons) {
+        cropX = detectIconCropX(gray0, w0, h0);
+      }
+      const w = Math.max(1, w0 - cropX);
+      const h = h0;
       const canvas = document.createElement("canvas");
       canvas.width = w;
       canvas.height = h;
       const ctx = canvas.getContext("2d", { willReadFrequently: true });
-      ctx.imageSmoothingEnabled = true;
-      ctx.drawImage(bmp, 0, 0, w, h);
-      if (typeof bmp.close === "function") bmp.close();
-
-      const img = ctx.getImageData(0, 0, w, h);
+      const img = ctx.createImageData(w, h);
       const d = img.data;
       const gray = new Uint8ClampedArray(w * h);
-      const c = p.contrast;
-      for (let i = 0, j = 0; i < d.length; i += 4, j++) {
-        let g = 0.299 * d[i] + 0.587 * d[i + 1] + 0.114 * d[i + 2];
-        g = (g - 128) * c + 128;
-        if (p.invert) g = 255 - g;
-        gray[j] = Math.max(0, Math.min(255, g));
+      for (let y = 0; y < h; y++) {
+        for (let x = 0; x < w; x++) {
+          const src = y * w0 + (x + cropX);
+          const dst = y * w + x;
+          gray[dst] = gray0[src];
+        }
       }
 
-      if (p.sharp) {
+      if (!forPaddle && p.sharp) {
         const copy = gray.slice();
         for (let y = 1; y < h - 1; y++) {
           for (let x = 1; x < w - 1; x++) {
@@ -543,11 +772,30 @@
         }
       }
 
-      const thr = p.thresh > 0 ? p.thresh : otsuThreshold(gray);
-      for (let i = 0, j = 0; i < d.length; i += 4, j++) {
-        const v = gray[j] >= thr ? 255 : 0;
-        d[i] = d[i + 1] = d[i + 2] = v;
-        d[i + 3] = 255;
+      if (forPaddle) {
+        // 保留灰度层次，供神经网络识别
+        for (let i = 0, j = 0; i < d.length; i += 4, j++) {
+          const v = gray[j];
+          d[i] = d[i + 1] = d[i + 2] = v;
+          d[i + 3] = 255;
+        }
+      } else {
+        const thr = pickThreshold(gray, p.thresh);
+        let black = 0;
+        for (let i = 0, j = 0; i < d.length; i += 4, j++) {
+          const v = gray[j] >= thr ? 255 : 0;
+          if (v === 0) black += 1;
+          d[i] = d[i + 1] = d[i + 2] = v;
+          d[i + 3] = 255;
+        }
+        if (black / gray.length < 0.005) {
+          const fallback = 200;
+          for (let i = 0, j = 0; i < d.length; i += 4, j++) {
+            const v = gray[j] >= fallback ? 255 : 0;
+            d[i] = d[i + 1] = d[i + 2] = v;
+            d[i + 3] = 255;
+          }
+        }
       }
       ctx.putImageData(img, 0, 0);
       ocrState.lastCanvas = canvas;
@@ -587,6 +835,67 @@
 
     let ocrWorker = null;
     let ocrWorkerLang = "";
+    let paddleOcrService = null;
+    let paddleOcrLoading = null;
+
+    function paddleModelUrl(fileName) {
+      return new URL(`paddle-ocr-models/${fileName}`, window.location.href).href;
+    }
+
+    async function ensurePaddleOcr(onStatus) {
+      if (paddleOcrService) return paddleOcrService;
+      if (paddleOcrLoading) return paddleOcrLoading;
+      paddleOcrLoading = (async () => {
+        if (onStatus) onStatus("加载 PaddleOCR 运行时…");
+        const mod = await import(
+          "https://cdn.jsdelivr.net/npm/ppu-paddle-ocr@6.5.1/web/+esm"
+        );
+        if (onStatus) onStatus("加载本地识别模型（约 15MB，首次稍慢）…");
+        const service = new mod.PaddleOcrService({
+          model: {
+            detection: paddleModelUrl("PP-OCRv4_mobile_det.onnx"),
+            recognition: paddleModelUrl("PP-OCRv4_mobile_rec.onnx"),
+            charactersDictionary: paddleModelUrl("ppocrv4_dict.txt"),
+          },
+          recognition: {
+            mainThreadYieldMs: 16,
+          },
+          session: {
+            executionProviders: ["wasm"],
+            graphOptimizationLevel: "all",
+          },
+        });
+        await service.initialize();
+        paddleOcrService = service;
+        return service;
+      })();
+      try {
+        return await paddleOcrLoading;
+      } finally {
+        paddleOcrLoading = null;
+      }
+    }
+
+    async function recognizeWithPaddle(canvas, onStatus) {
+      const service = await ensurePaddleOcr(onStatus);
+      if (onStatus) onStatus("PaddleOCR 识别中…");
+      const blob = await new Promise((resolve, reject) => {
+        canvas.toBlob(
+          (b) => (b ? resolve(b) : reject(new Error("无法导出识别图"))),
+          "image/png",
+        );
+      });
+      const buf = await blob.arrayBuffer();
+      const result = await service.recognize(buf, { flatten: true });
+      if (result && typeof result.text === "string") return result.text;
+      if (Array.isArray(result?.results)) {
+        return result.results
+          .map((r) => (r && (r.text || r.label)) || "")
+          .filter(Boolean)
+          .join("\n");
+      }
+      return "";
+    }
 
     async function getOcrWorker(lang, onProgress) {
       if (ocrWorker && ocrWorkerLang === lang) {
@@ -598,6 +907,15 @@
         } catch {}
         ocrWorker = null;
       }
+      if (typeof Tesseract === "undefined") {
+        await new Promise((resolve, reject) => {
+          const s = document.createElement("script");
+          s.src = "https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js";
+          s.onload = resolve;
+          s.onerror = () => reject(new Error("Tesseract 加载失败"));
+          document.head.appendChild(s);
+        });
+      }
       ocrWorker = await Tesseract.createWorker(lang, 1, {
         logger: onProgress,
       });
@@ -605,21 +923,42 @@
       return ocrWorker;
     }
 
+    function buildOcrWhitelist() {
+      const set = new Set("卡片");
+      for (const card of DATA.cards || []) {
+        for (const ch of String(card.name || "")) set.add(ch);
+      }
+      return [...set].join("");
+    }
+
     async function recognizeOnce(canvas, lang, psm, onProgress) {
       const worker = await getOcrWorker(lang, onProgress);
-      await worker.setParameters({
+      const params = {
         tessedit_pageseg_mode: String(psm),
         preserve_interword_spaces: "1",
-      });
+      };
+      const wl = buildOcrWhitelist();
+      if (wl.length >= 8 && wl.length < 800) {
+        params.tessedit_char_whitelist = wl;
+      }
+      await worker.setParameters(params);
       return worker.recognize(canvas);
+    }
+
+    function rematchFromRawText() {
+      const params = readOcrParams();
+      const text = ocrEls.raw && "value" in ocrEls.raw ? ocrEls.raw.value : ocrEls.raw.textContent;
+      const matches = matchCardsFromOcrText(text || "", params);
+      renderOcrMatches(matches);
+      toast(
+        matches.length
+          ? `按修改后的文字找到 ${matches.length} 张`
+          : "仍没有匹配到卡名，请检查原文是否写对",
+      );
     }
 
     async function runOcr() {
       if (!ocrState.file || ocrState.running) return;
-      if (typeof Tesseract === "undefined") {
-        toast("识别库未加载，请检查网络后刷新页面");
-        return;
-      }
       const params = readOcrParams();
       saveOcrParams();
       ocrState.running = true;
@@ -632,45 +971,66 @@
       setOcrStep(2);
 
       try {
-        const canvas = await preprocessImage(ocrState.file, params);
+        const engine = params.engine === "tesseract" ? "tesseract" : "paddle";
+        const canvas = await preprocessImage(ocrState.file, params, engine);
         showProcessedPreview(canvas);
-        const lang = params.onlyChi ? "chi_sim" : "chi_sim+eng";
-        const modes =
-          params.psm === "multi" ? ["6", "4", "11"] : [params.psm];
-        const texts = [];
-        for (let i = 0; i < modes.length; i++) {
-          const mode = modes[i];
-          ocrEls.status.textContent =
-            modes.length > 1
-              ? `正在识别文字（${i + 1}/${modes.length}）…`
-              : "正在识别文字…";
-          const result = await recognizeOnce(canvas, lang, mode, (m) => {
-            if (m.status === "loading tesseract core") {
-              ocrEls.status.textContent = "首次使用：加载识别引擎…";
-            } else if (m.status === "loading language traineddata") {
-              ocrEls.status.textContent = "首次使用：下载中文识别包…";
-            } else if (m.status === "initializing api" || m.status === "initialized api") {
-              ocrEls.status.textContent = "准备识别…";
-            } else if (m.status === "recognizing text") {
-              ocrEls.status.textContent =
-                modes.length > 1
-                  ? `正在识别文字（${i + 1}/${modes.length}）…`
-                  : "正在识别文字…";
-            } else if (m.status) {
-              ocrEls.status.textContent = "识别进行中…";
-            }
-            if (typeof m.progress === "number") {
-              const base = i / modes.length;
-              const pct = Math.round((base + m.progress / modes.length) * 100);
-              ocrEls.pct.textContent = `${pct}%`;
-              ocrEls.bar.style.width = `${pct}%`;
-            }
+        ocrEls.pct.textContent = "15%";
+        ocrEls.bar.style.width = "15%";
+
+        let text = "";
+        if (engine === "paddle") {
+          text = await recognizeWithPaddle(canvas, (msg) => {
+            ocrEls.status.textContent = msg;
           });
-          const t = (result && result.data && result.data.text) || "";
-          if (t.trim()) texts.push(t);
+          ocrEls.pct.textContent = "90%";
+          ocrEls.bar.style.width = "90%";
+        } else {
+          if (typeof Tesseract === "undefined") {
+            ocrEls.status.textContent = "加载 Tesseract…";
+          }
+          const lang = params.onlyChi ? "chi_sim" : "chi_sim+eng";
+          const modes =
+            params.psm === "multi" ? ["6", "4", "11"] : [params.psm];
+          const texts = [];
+          for (let i = 0; i < modes.length; i++) {
+            const mode = modes[i];
+            ocrEls.status.textContent =
+              modes.length > 1
+                ? `正在识别文字（${i + 1}/${modes.length}）…`
+                : "正在识别文字…";
+            const result = await recognizeOnce(canvas, lang, mode, (m) => {
+              if (m.status === "loading tesseract core") {
+                ocrEls.status.textContent = "首次使用：加载识别引擎…";
+              } else if (m.status === "loading language traineddata") {
+                ocrEls.status.textContent = "首次使用：下载中文识别包…";
+              } else if (m.status === "initializing api" || m.status === "initialized api") {
+                ocrEls.status.textContent = "准备识别…";
+              } else if (m.status === "recognizing text") {
+                ocrEls.status.textContent =
+                  modes.length > 1
+                    ? `正在识别文字（${i + 1}/${modes.length}）…`
+                    : "正在识别文字…";
+              } else if (m.status) {
+                ocrEls.status.textContent = "识别进行中…";
+              }
+              if (typeof m.progress === "number") {
+                const base = i / modes.length;
+                const pct = Math.round(20 + (base + m.progress / modes.length) * 70);
+                ocrEls.pct.textContent = `${pct}%`;
+                ocrEls.bar.style.width = `${pct}%`;
+              }
+            });
+            const t = (result && result.data && result.data.text) || "";
+            if (t.trim()) texts.push(t);
+          }
+          text = texts.join("\n");
         }
-        const text = texts.join("\n");
-        ocrEls.raw.textContent = text.trim() || "（没有读出文字，试试换排版模式或开反色）";
+
+        if (ocrEls.raw && "value" in ocrEls.raw) {
+          ocrEls.raw.value = text.trim() || "";
+        } else {
+          ocrEls.raw.textContent = text.trim() || "（没有读出文字）";
+        }
         const matches = matchCardsFromOcrText(text, params);
         renderOcrMatches(matches);
         ocrEls.status.textContent = "识别完成";
@@ -679,11 +1039,18 @@
         toast(
           matches.length
             ? `找到 ${matches.length} 张，请确认后加入`
-            : "没有匹配到卡名，可展开微调后再试",
+            : "自动识别较差时：改上面原文后再点「重新匹配」",
         );
       } catch (err) {
         console.error(err);
-        toast(err instanceof Error ? `识别失败：${err.message}` : "识别失败");
+        const msg = err instanceof Error ? err.message : String(err);
+        toast(
+          /Failed to fetch|paddle-ocr-models|404/i.test(msg)
+            ? "Paddle 模型未找到：请确认 paddle-ocr-models/ 已下载"
+            : err instanceof Error
+              ? `识别失败：${err.message}`
+              : "识别失败",
+        );
         ocrEls.status.textContent = "识别失败";
       } finally {
         ocrState.running = false;
@@ -694,6 +1061,7 @@
     // 参数控件
     loadOcrParams();
     for (const el of [
+      ocrEls.engine,
       ocrEls.psm,
       ocrEls.scale,
       ocrEls.contrast,
@@ -707,7 +1075,9 @@
       ocrEls.onlyChi,
       ocrEls.matchId,
       ocrEls.strictShort,
-    ]) {
+      ocrEls.cropIcons,
+      ocrEls.vocabRepair,
+    ].filter(Boolean)) {
       el.addEventListener("input", () => {
         syncOcrParamLabels();
         saveOcrParams();
@@ -716,6 +1086,9 @@
         syncOcrParamLabels();
         saveOcrParams();
       });
+    }
+    if (ocrEls.rematch) {
+      ocrEls.rematch.addEventListener("click", () => rematchFromRawText());
     }
     ocrEls.resetParams.addEventListener("click", () => {
       applyOcrParamsToUi(OCR_DEFAULTS);
@@ -727,7 +1100,8 @@
       try {
         ocrEls.status.textContent = "生成处理后预览…";
         ocrEls.progress.style.display = "block";
-        const canvas = await preprocessImage(ocrState.file, readOcrParams());
+        const params = readOcrParams();
+        const canvas = await preprocessImage(ocrState.file, params, params.engine);
         showProcessedPreview(canvas);
         ocrEls.status.textContent = "处理后预览已更新";
         toast("已更新处理后预览");
