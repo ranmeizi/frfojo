@@ -113,14 +113,14 @@
     }
 
     /* ---------- OCR + 匹配调参 ---------- */
-    const OCR_PARAM_KEY = "prontera.card-collection.ocr-params.v5";
+    const OCR_PARAM_KEY = "prontera.card-collection.ocr-params.v6";
     const OCR_DEFAULTS = {
       engine: "paddle",
       psm: "4",
       scale: 4,
       contrast: 1.2,
       thresh: 0,
-      score: 95,
+      score: 100,
       minLen: 2,
       fuzzy: 0,
       contain: 0,
@@ -130,7 +130,7 @@
       matchId: false,
       strictShort: true,
       cropIcons: true,
-      vocabRepair: true,
+      vocabRepair: false,
     };
 
     const ocrState = {
@@ -262,7 +262,7 @@
       ocrEls.matchId.checked = !!p.matchId;
       ocrEls.strictShort.checked = !!p.strictShort;
       if (ocrEls.cropIcons) ocrEls.cropIcons.checked = p.cropIcons !== false;
-      if (ocrEls.vocabRepair) ocrEls.vocabRepair.checked = p.vocabRepair !== false;
+      if (ocrEls.vocabRepair) ocrEls.vocabRepair.checked = !!p.vocabRepair;
       syncOcrParamLabels();
     }
 
@@ -547,12 +547,16 @@
         .filter((t) => t.norm.length >= p.minLen);
       const found = new Map();
       const catalog = buildCatalogRows(p.minLen);
+      // 长名优先：避免短名「飞龙」抢在「毕帝特飞龙」之前被错误比较
+      const catalogByLen = [...catalog].sort(
+        (a, b) => b.nBase.length - a.nBase.length || Number(a.card.id) - Number(b.card.id),
+      );
 
-      // 一词一卡：每个 OCR token 只取唯一最优卡，近似并列则丢弃（防「吸血蝙蝠/蝙蝠」类误认）
+      // 只认完整卡名（token === 卡名 / 卡名卡片）。默认不做包含、模糊。
       for (const t of normTokens) {
         let best = null;
         let secondScore = 0;
-        for (const row of catalog) {
+        for (const row of catalogByLen) {
           const isShort = row.nBase.length <= 2;
           if (p.strictShort && isShort && t.norm !== row.nName && t.norm !== row.nBase) {
             continue;
@@ -568,7 +572,7 @@
         }
 
         if ((!best || best.score < p.score) && p.vocabRepair) {
-          const repaired = repairTokenViaVocab(t.norm, catalog);
+          const repaired = repairTokenViaVocab(t.norm, catalogByLen);
           if (repaired && repaired.score >= Math.min(p.score, 90)) {
             best = repaired;
             secondScore = 0;
@@ -583,15 +587,7 @@
         }
       }
 
-      // 全文仅认「完整卡名+卡片」直出，不再用短名子串扫全文
-      const blob = normalizeCardText(fixedText);
-      for (const row of catalog) {
-        if (!blob.includes(row.nName)) continue;
-        const prev = found.get(row.card.id);
-        if (!prev || 100 > prev.score) {
-          found.set(row.card.id, { card: row.card, score: 100, why: "文中直接出现" });
-        }
-      }
+      // 不再用 blob.includes：否则「飞龙卡片」会误中「毕帝特飞龙卡片」
 
       if (p.matchId) {
         for (const row of catalog) {

@@ -194,7 +194,7 @@
                 <label class="ocr-check"><input id="ocrSharp" type="checkbox" /> 锐化边缘（仅 Tesseract）</label>
                 <label class="ocr-check"><input id="ocrOnlyChi" type="checkbox" checked /> 只认中文（仅 Tesseract）</label>
                 <label class="ocr-check"><input id="ocrCropIcons" type="checkbox" checked /> 裁掉左侧图标（仓库列表推荐）</label>
-                <label class="ocr-check"><input id="ocrVocabRepair" type="checkbox" checked /> 词表纠错（仅唯一高置信，防近似误认）</label>
+                <label class="ocr-check"><input id="ocrVocabRepair" type="checkbox" /> 词表纠错（默认关；OCR 差一字时可开）</label>
               </div>
               <p class="ocr-engine-tip">PaddleOCR 首次会加载本地模型（约 15MB）与运行时，之后浏览器会缓存；神经网络一般不需要二值化。</p>
               <div class="ocr-param-actions">
@@ -204,11 +204,11 @@
 
             <div class="ocr-param-block">
               <h5>控制匹配严不严</h5>
-              <p>默认精准：只认完整卡名。OCR 漏字再把「差几个字 / 部分重合」调高；误认多就保持 0。</p>
+              <p>默认只认完整卡名（「飞龙」不会当成「毕帝特飞龙」）。Paddle 已准时保持差字/重合为 0。</p>
               <div class="ocr-params-grid">
                 <div class="ocr-field">
-                  <label>匹配门槛（越高越严） <span class="val" id="ocrScoreVal">95</span></label>
-                  <input id="ocrScore" type="range" min="50" max="100" step="1" value="95" />
+                  <label>匹配门槛（越高越严） <span class="val" id="ocrScoreVal">100</span></label>
+                  <input id="ocrScore" type="range" min="50" max="100" step="1" value="100" />
                 </div>
                 <div class="ocr-field">
                   <label>最短卡名长度 <span class="val" id="ocrMinLenVal">2</span></label>
