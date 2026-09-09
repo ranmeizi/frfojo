@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>普隆德拉数据库</title>
+        <link rel="stylesheet" href="card-collection.css">
+        <style>
+        :root {
+            --bg-color: #F5F5F7;
+            --container-bg: #FFFFFF;
+            --text-primary: #1D1D1F;
+            --text-secondary: #86868B;
+            --accent-blue: #0071E3;
+            --accent-blue-hover: #0077ED;
+            --border-color: #D2D2D7;
+            --input-bg: #F5F5F7;
+        }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", "Helvetica Neue", Arial, sans-serif; 
+            background-color: var(--container-bg); 
+            margin: 0; 
+            padding: 0; 
+            color: var(--text-primary); 
+            -webkit-font-smoothing: antialiased;
+        }
+        .container { 
+            width: 100%;
+            margin: 0; 
+            background: var(--container-bg); 
+        }
+        .global-sticky-header {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 12px;
+        }
+        
+        .header-section {
+            padding: 16px 24px 0 24px;
+            position: relative;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .main-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 24px;
+        }
+        h1 { 
+            text-align: center; 
+            font-weight: 600; 
+            font-size: 1.5em; 
+            letter-spacing: -0.02em; 
+            margin: 0 0 12px 0;
+        }
+        .nav-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            margin-bottom: 12px;
+        }
+        
+                        .tabs { 
+            display: flex; 
+            background-color: #E3E3E8; 
+            padding: 4px; 
+            border-radius: 12px; 
+            width: max-content;
+        }
+        .tab { 
+            padding: 8px 24px; 
+            cursor: pointer; 
+            font-weight: 500; 
+            color: var(--text-secondary); 
+            border-radius: 8px; 
+            transition: all 0.2s ease; 
+            font-size: 0.95em;
+        }
+        .tab.active { 
+            background-color: #FFFFFF; 
+            color: var(--text-primary); 
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06); 
+        }
+        .tab:hover:not(.active) { color: var(--text-primary); }
+        .tab-content { 
+            display: none; 
+            flex-direction: column;
+        }
+        .tab-content.active { 
+            display: flex; 
+            animation: fadeIn 0.3s ease; 
+        }
+        #cards.cards-embed {
+            display: none;
+        }
+        #cards.cards-embed.active {
+            display: block;
+        }
+        #cards.cards-embed .cards-root {
+            width: 100%;
+        }
+        
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        
+        input[type="text"], select { 
+            padding: 12px 16px; 
+            width: 320px; 
+            background-color: var(--input-bg);
+            border: 1px solid transparent; 
+            border-radius: 12px; 
+            margin-right: 12px; 
+            margin-bottom: 20px;
+            font-size: 1em;
+            color: var(--text-primary);
+            transition: all 0.2s ease;
+            outline: none;
+            box-sizing: border-box;
+        }
+        input[type="text"]:focus, select:focus {
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 0 4px rgba(0, 113, 227, 0.2);
+            background-color: #FFFFFF;
+        }
+        input::placeholder { color: var(--text-secondary); }
+        
+        button { 
+            padding: 12px 24px; 
+            background-color: var(--accent-blue); 
+            color: white; 
+            border: none; 
+            border-radius: 12px; 
+            font-size: 1em;
+            font-weight: 500;
+            cursor: pointer; 
+            transition: all 0.2s ease; 
+        }
+        button:hover { background-color: var(--accent-blue-hover); transform: scale(1.02); }
+        button:active { transform: scale(0.98); }
+        
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { 
+            padding: 16px; 
+            text-align: left; 
+            border-bottom: 1px solid var(--border-color); 
+        }
+        th { 
+            color: var(--text-secondary); 
+            font-weight: 500; 
+            font-size: 0.9em; 
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            border-bottom: 2px solid var(--border-color);
+        }
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background-color: #F9F9FA; }
+        
+                        .item-icon { 
+            width: 36px; 
+            height: 36px; 
+            vertical-align: middle; 
+            margin-right: 12px; 
+            object-fit: contain; 
+            image-rendering: pixelated; 
+            filter: drop-shadow(0 2px 3px rgba(0,0,0,0.15));
+            background: transparent;
+        }
+        
+        .tree-node { margin-left: 24px; position: relative; }
+        .tree-node::before { content: ''; position: absolute; left: -14px; top: 0; bottom: 0; border-left: 2px solid #E5E5EA; }
+        .tree-node-item { display: flex; align-items: center; padding: 8px 0; position: relative; }
+        .tree-node-item::before { content: ''; position: absolute; left: -14px; top: 26px; width: 14px; border-top: 2px solid #E5E5EA; }
+        .tree-root { margin-left: 0; font-weight: 600; font-size: 1.15em; padding: 16px 0; border-bottom: 1px solid var(--border-color);}
+        .tree-root::before { display: none; }
+        .tree-root > .tree-node-item::before { display: none; }
+
+        .tree-toggle { 
+            cursor: pointer; 
+            display: inline-flex; 
+            align-items: center;
+            justify-content: center;
+            width: 22px; 
+            height: 22px; 
+            border-radius: 50%; 
+            margin-right: 10px; 
+            font-weight: bold; 
+            background: #F2F2F7; 
+            color: var(--text-secondary);
+            user-select: none; 
+            font-size: 14px;
+            transition: all 0.2s ease;
+        }
+        .tree-toggle:hover { background: #E5E5EA; color: var(--text-primary); }
+        .tree-children { display: none; }
+        .tree-children.expanded { display: block; }
+        
+        .clickable-item { cursor: pointer; color: var(--accent-blue); text-decoration: none; font-weight: 500; transition: color 0.2s; }
+        .clickable-item:hover { text-decoration: underline; color: var(--accent-blue-hover); }
+        .controls { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            flex-wrap: wrap; 
+            gap: 16px;
+            padding: 0 24px; 
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .controls-left, .controls-right { 
+            display: flex; 
+            align-items: center; 
+            gap: 10px; 
+        }
+        
+        /* Make form elements smaller and perfectly aligned inside controls */
+        .controls input[type="text"] {
+            margin-bottom: 0;
+            padding: 8px 12px;
+            height: 36px;
+            font-size: 0.9em;
+            border-radius: 8px;
+            width: 240px;
+        }
+        .controls button {
+            padding: 0 16px;
+            height: 36px;
+            font-size: 0.9em;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .toggle-btn { 
+            background-color: #E5E5EA; 
+            color: var(--text-primary); 
+            border: 1px solid transparent;
+        }
+        .toggle-btn.active { 
+            background-color: var(--text-primary); 
+            color: white; 
+        }
+        
+        /* The expand all button inline styles overrides need to be fixed in HTML but we can target it here */
+        #expandAllBtn {
+            margin-left: 0 !important;
+            padding: 0 12px !important;
+            background-color: var(--accent-blue) !important;
+            color: white;
+            font-size: 0.85em !important;
+        }
+        
+        .empty-state { text-align: center; color: var(--text-secondary); padding: 60px; font-size: 1.1em; }
+        
+        .badge { 
+            background-color: #FF3B30; 
+            color: white; 
+            padding: 4px 8px; 
+            border-radius: 12px; 
+            font-size: 0.75em; 
+            font-weight: 600;
+            margin-left: 8px; 
+        }
+        .badge.info { background-color: var(--accent-blue); }
+        
+        .usage-item { display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border-color); padding: 12px 0; }
+        .reverse-search-title { 
+            font-size: 1.3em; 
+            font-weight: 600; 
+            margin: 30px 0 16px 0; 
+            padding-bottom: 8px; 
+            border-bottom: 2px solid var(--border-color); 
+            display: flex; 
+            align-items: center;
+        }
+        
+                                #homeBtn {
+            position: absolute; 
+            left: 0; 
+            padding: 6px 12px;
+            font-size: 0.85em;
+            background-color: var(--input-bg); 
+            color: var(--text-primary);
+            font-weight: 600;
+            z-index: 100;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        #homeBtn:hover {
+            background-color: #E5E5EA;
+        }
+    </style>
+</head>
+<body>
+    <div class="global-sticky-header">
+        <div class="header-section">
+            <h1>普隆德拉数据库</h1>
+            <div class="nav-row">
+                <button id="homeBtn" onclick="resetHgSearch()">返回首页</button>
+                <div class="tabs">
+                    <div class="tab active" onclick="switchTab('headgear')">头饰制作材料</div>
+                    <div class="tab" onclick="switchTab('pet')">宠物属性</div>
+                    <div class="tab" onclick="switchTab('cards')">集卡完成度</div>
+                </div>
+            </div>
+        </div>
+        
+        <div id="hg-controls" class="controls">
+            <div class="controls-left">
+                <input type="text" id="hgSearch" placeholder="输入头饰名、材料名、属性或物品ID..." onkeyup="if(event.key === 'Enter') searchHeadgear()">
+                <button onclick="searchHeadgear()">查询</button>
+                <button id="expandAllBtn" onclick="toggleExpandAll()" style="margin-left:10px; padding:2px 8px; font-size:12px; background-color:#3498db;">展开全部</button>
+            </div>
+            <div class="controls-right">
+                <span style="font-size: 0.9em; color: #7f8c8d;">显示模式:</span>
+                <button id="btnHierarchical" class="toggle-btn active" onclick="setDisplayMode('hierarchical')">层级显示</button>
+                <button id="btnFlat" class="toggle-btn" onclick="setDisplayMode('flat')">扁平显示 (总计)</button>
+            </div>
+        </div>
+
+        <div id="pet-controls" class="controls" style="display: none;">
+            <input type="text" id="petSearch" placeholder="宠物名或物品ID..." onkeyup="searchPet()">
+        </div>
+    </div>
+    
+    <div class="main-content">
+        <div id="headgear" class="tab-content active">
+            <div id="hgResult"></div>
+        </div>
+
+        <div id="pet" class="tab-content">
+            <table id="petTable">
+                <thead>
+                    <tr>
+                        <th>图标</th>
+                        <th>宠物</th>
+                        <th>宠物ID</th>
+                        <th>诱饵</th>
+                        <th>抓捕道具ID</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+
+        <div id="cards" class="tab-content cards-embed">
+            <div id="cardsMount" class="cards-loading" style="padding:24px;color:#86868B;">点击此标签加载集卡模块…</div>
+        </div>
+    </div>
+    <script>
+        const petData = [{"name": "波利", "attr": "luk+2，cri+4", "id": 1002, "item": "青苹果", "item_id": 619}, {"name": "土波利", "attr": "hit+20，atk+10", "id": 1113, "item": "浓缩柳橙汁", "item_id": 620}, {"name": "波波利", "attr": "毒属性抗性+10%，对毒属性物理魔法伤害+10%", "id": 1031, "item": "苦味草", "item_id": 621}, {"name": "疯兔", "attr": "cri+4，atk+10", "id": 1063, "item": "彩色红萝卜", "item_id": 622}, {"name": "小鸡", "attr": "str+2，atk+10", "id": 1049, "item": "变态蚯蚓", "item_id": 623}, {"name": "苍蝇", "attr": "agi+2，flee+20", "id": 1011, "item": "腐臭之鱼", "item_id": 624}, {"name": "绿苍蝇", "attr": "flee+40", "id": 1042, "item": "锈铁", "item_id": 625}, {"name": "赤苍蝇", "attr": "完全回避+8", "id": 1035, "item": "魔物饮料", "item_id": 626}, {"name": "小野猪", "attr": "vit+2，mhp+400", "id": 1167, "item": "魔物牛奶", "item_id": 627}, {"name": "沙漠幼狼", "attr": "int+1，msp+60", "id": 1107, "item": "营养大骨", "item_id": 628}, {"name": "蝗虫", "attr": "治疗恢复效果+20%", "id": 1052, "item": "呢喃花", "item_id": 629}, {"name": "魔菇", "attr": "hit+40", "id": 1014, "item": "青苔", "item_id": 630}, {"name": "毒魔菇", "attr": "str+4", "id": 1077, "item": "青嫩毒草", "item_id": 631}, {"name": "大嘴鸟", "attr": "mhp+800", "id": 1019, "item": "营养蚯蚓", "item_id": 632}, {"name": "狸猫", "attr": "agi+2，完全回避+4", "id": 1056, "item": "魔物番薯", "item_id": 633}, {"name": "溜溜猴", "attr": "cri+8", "id": 1057, "item": "魔物香蕉", "item_id": 634}, {"name": "兽人战士", "attr": "atk+20", "id": 1023, "item": "魔物之证", "item_id": 635}, {"name": "僵尸", "attr": "int+4", "id": 1026, "item": "魔物信件", "item_id": 636}, {"name": "土人", "attr": "matk+4%", "id": 1110, "item": "魔物扫把", "item_id": 637}, {"name": "鬼女", "attr": "str+2，dex+2", "id": 1170, "item": "纯洁银刃", "item_id": 638}, {"name": "蛇女伊丝", "attr": "atk+4%", "id": 1029, "item": "驯服手镯", "item_id": 639}, {"name": "毕帝特地龙", "attr": "aspd+4%", "id": 1155, "item": "闪烁之石", "item_id": 640}, {"name": "小恶魔", "attr": "atk/matk+2%", "id": 1109, "item": "黑暗合约书", "item_id": 641}, {"name": "小巴风特", "attr": "def/mdef+2", "id": 1101, "item": "恶魔召唤书", "item_id": 642}, {"name": "妖道", "attr": "vit+4", "id": 1188, "item": "心爱女人之回忆", "item_id": 659}, {"name": "艾斯恩魔女", "attr": "对人形系魔法伤害+20%", "id": 1200, "item": "红色蜡烛", "item_id": 660}, {"name": "爱丽丝女仆", "attr": "人形系抗性+20%", "id": 1275, "item": "摇曳的围裙", "item_id": 661}, {"name": "刺刀哥布灵", "attr": "水属性抗性+10%，对水属性物理魔法伤害+10%", "id": 1122, "item": "刺刀哥布灵的戒指", "item_id": 14569}, {"name": "链锤哥布灵", "attr": "暗属性抗性+10%，对暗属性物理魔法伤害+10%", "id": 1123, "item": "链锤哥布灵的戒指", "item_id": 14570}, {"name": "榔头哥布灵", "attr": "圣属性抗性+10%，对圣属性物理魔法伤害+10%", "id": 1125, "item": "榔头哥布灵的戒指", "item_id": 14571}, {"name": "七彩地龙", "attr": "念属性抗性+10%，对念属性物理魔法伤害+10%", "id": 1385, "item": "火珠", "item_id": 14572}, {"name": "赤焰小恶魔", "attr": "风属性抗性+10%，对风属性物理魔法伤害+10%", "id": 1382, "item": "烧红的石头", "item_id": 14573}, {"name": "邪骸浪人", "attr": "agi+3，dex+1", "id": 1208, "item": "浪人的遗骨", "item_id": 14574}, {"name": "狐仙", "attr": "msp+80", "id": 1513, "item": "徐风魔扇", "item_id": 12358}, {"name": "群叶猫", "attr": "不死属性抗性+10%，对不死属性物理魔法伤害+10%", "id": 1586, "item": "光滑柔软草", "item_id": 12359}, {"name": "银月魔女", "attr": "mhp+16%", "id": 1505, "item": "红色果汁", "item_id": 12360}, {"name": "傀儡娃娃", "attr": "sp恢复力+40%", "id": 1143, "item": "恋慕雪花冰", "item_id": 12361}, {"name": "火忍西怒毕", "attr": "agi+2，str+2", "id": 1401, "item": "黑梦魔剑", "item_id": 12362}, {"name": "白幽灵", "attr": "无属性抗性+10%，对无属性物理魔法伤害+10%", "id": 1179, "item": "橡木棺", "item_id": 12363}, {"name": "哥布灵首领", "attr": "对人形系物理伤害+20%", "id": 1299, "item": "领袖手杖", "item_id": 12364}, {"name": "妖仙女", "attr": "msp+40，sp恢复力+10%", "id": 1416, "item": "赏心悦目的莲花", "item_id": 12365}, {"name": "米雅毕", "attr": "吟唱时间-20%", "id": 1404, "item": "恐怖女娃娃", "item_id": 12366}, {"name": "无颅武士", "attr": "暴击伤害+10%", "id": 1504, "item": "高级洋酒瓶", "item_id": 12367}, {"name": "米杜沙", "attr": "免疫石化", "id": 1148, "item": "美艳手镜", "item_id": 12368}, {"name": "石炮火树", "attr": "地属性抗性+10%，对地属性物理魔法伤害+10%", "id": 1495, "item": "油棕椰子", "item_id": 12369}, {"name": "恶魔侍者", "attr": "msp+8%", "id": 1374, "item": "少女的纯情", "item_id": 12370}, {"name": "巨石怪", "attr": "def+4", "id": 1040, "item": "魔力石板", "item_id": 12371}, {"name": "七彩梦魇", "attr": "免疫睡眠", "id": 1379, "item": "地域契约", "item_id": 12372}, {"name": "恶魔女仆", "attr": "10%机率吸血5%", "id": 1370, "item": "少年的纯情", "item_id": 12373}, {"name": "熔岩魔", "attr": "火属性抗性+10%，对火属性物理魔法伤害+10%", "id": 1837, "item": "火焰冰", "item_id": 12374}];
+        const headgearData = [{"name": "甜饼人帽子", "position": "上", "slot": "改1洞", "attr": "agi+1，完全回避+5，暴击伤害+5%", "materials": [{"name": "软呢帽[1]", "id": 5120, "qty": 1}, {"name": "淘气妖精耳朵", "id": 5402, "qty": 1}, {"name": "姜饼", "id": 538, "qty": 200}, {"name": "拐杖糖", "id": 530, "qty": 200}], "id": 5260}, {"name": "爱丽丝女仆娃娃[1]", "position": "上", "slot": "1", "attr": "str+1，对人形系伤害+10%", "materials": [{"name": "傀儡娃娃[1]", "id": 5141, "qty": 1}, {"name": "爱丽丝的围裙", "id": 7047, "qty": 1000}], "id": 5137}, {"name": "皇帝的月季冠", "position": "上", "slot": "改1洞", "attr": "all+1", "materials": [{"name": "甜饼人帽子", "id": 5260, "qty": 1}, {"name": "爱丽丝女仆娃娃[1]", "id": 5137, "qty": 1}, {"name": "卡仑之牙", "id": 7036, "qty": 50}], "id": 5205}, {"name": "新娘的发带", "position": "上", "slot": "改1洞", "attr": "all+2，人形系抗性+10%，受攻击概率治愈术lv5", "materials": [{"name": "皇帝的月季冠", "id": 5205, "qty": 1}, {"name": "太阳神头盔", "id": 5022, "qty": 1}, {"name": "柔软的绸缎布", "id": 7166, "qty": 1000}], "id": 5801}, {"name": "进化的兽人英雄帽子", "position": "上", "slot": "改1洞", "attr": "str+2，vit+1，mhp+10%", "materials": [{"name": "兽人头盔[1]", "id": 5157, "qty": 1}, {"name": "兽人英雄之证", "id": 968, "qty": 50}], "id": 5224}, {"name": "跳跃的小鸡", "position": "上", "slot": "改1洞", "attr": "hp/sp+50，luk+2，学会二刀连击lv2", "materials": [{"name": "小鸡宠物蛋", "id": 9005, "qty": 1}, {"name": "羽毛", "id": 916, "qty": 500}, {"name": "柔毛", "id": 949, "qty": 500}], "id": 5283}, {"name": "拉面帽子", "position": "上", "slot": "改1洞", "attr": "dex+4", "materials": [{"name": "苹果头饰", "id": 2285, "qty": 5}, {"name": "欧拉欧拉", "id": 701, "qty": 50}], "id": 5293}, {"name": "2周年派对帽", "position": "上", "slot": "改1洞", "attr": "all+3", "materials": [{"name": "新娘的发带", "id": 5801, "qty": 1}, {"name": "进化的兽人英雄帽子", "id": 5224, "qty": 1}, {"name": "跳跃的小鸡", "id": 5283, "qty": 1}, {"name": "拉面帽子", "id": 5293, "qty": 1}, {"name": "虎掌", "id": 1030, "qty": 50}], "id": 5201}, {"name": "天使羽翼", "position": "上", "slot": "改1洞", "attr": "agi+1，int+1，aspd+3%，咏唱时间-3%", "materials": [{"name": "天使发圈", "id": 2254, "qty": 1}, {"name": "天使翅膀耳饰", "id": 5074, "qty": 1}, {"name": "羽毛", "id": 916, "qty": 1000}], "id": 5210}, {"name": "恶魔波利帽子", "position": "上", "slot": "1", "attr": "对全阶级伤害+2%，matk+2%，经验+2%", "materials": [{"name": "恶魔发圈", "id": 2255, "qty": 1}, {"name": "恶魔翅膀耳饰", "id": 5068, "qty": 1}, {"name": "恶魔女仆的角", "id": 5066, "qty": 1}, {"name": "恶魔侍者的角", "id": 5072, "qty": 1}, {"name": "小恶魔翅膀", "id": 1039, "qty": 1000}], "id": 5254}, {"name": "七彩大嘴鸟翅膀", "position": "上", "slot": "改1洞", "attr": "移动速度+25%，aspd+5%，咏唱时间-5%", "materials": [{"name": "粉纱发圈", "id": 2250, "qty": 1}, {"name": "天使羽翼", "id": 5210, "qty": 1}, {"name": "七彩大嘴鸟之羽", "id": 7101, "qty": 1000}], "id": 5286}, {"name": "修咖巴殿的黑帽耳朵", "position": "上", "slot": "1", "attr": "暴击伤害+10%，暴击+3，flee+10", "materials": [{"name": "猫耳发圈", "id": 2213, "qty": 1}, {"name": "红色羽毛", "id": 7440, "qty": 200}, {"name": "蓝色羽毛", "id": 7441, "qty": 200}, {"name": "黑色染料", "id": 983, "qty": 30}], "id": 5360}, {"name": "单眼帽[1]", "position": "上", "slot": "1", "attr": "物攻5%吸血8%，1%吸魔4%", "materials": [{"name": "眼珠戒指[1]", "id": 2783, "qty": 5}, {"name": "慧眼", "id": 1007, "qty": 500}, {"name": "古魔法书", "id": 1006, "qty": 500}], "id": 5208}, {"name": "小青蛇帽子[1]", "position": "上", "slot": "1", "attr": "学会二刀连击lv5", "materials": [{"name": "蛇饰发箍", "id": 10006, "qty": 1}, {"name": "蛇鳞", "id": 926, "qty": 500}, {"name": "发亮鳞片", "id": 954, "qty": 500}], "id": 5388}, {"name": "飞空艇船长之帽[1]", "position": "上", "slot": "1", "attr": "dex+1，mhp+100，远程伤害+7%", "materials": [{"name": "海盗船长帽[1]", "id": 5163, "qty": 1}, {"name": "天使指环", "id": 2743, "qty": 1}, {"name": "魔力之角", "id": 6023, "qty": 500}], "id": 5359}, {"name": "诅咒的恶魔发带[1]", "position": "上", "slot": "1", "attr": "sp+120", "materials": [{"name": "恶魔发圈", "id": 2255, "qty": 1}, {"name": "诅咒红宝石", "id": 724, "qty": 200}, {"name": "被诅咒的印", "id": 7442, "qty": 500}], "id": 5376}, {"name": "安毕斯头盔", "position": "上", "slot": "改1洞", "attr": "首领魔物抗性+10%，被治愈量+10%", "materials": [{"name": "亡者发箍", "id": 2274, "qty": 1}, {"name": "圣殿士面具", "id": 1045, "qty": 1000}], "id": 5490}, {"name": "神奇小猫帽子[1]", "position": "上", "slot": "改1洞", "attr": "int+1，matk+3%，延迟-3%，msp+3%", "materials": [{"name": "后冠[1]", "id": 5164, "qty": 1}, {"name": "黑猫娃娃", "id": 7206, "qty": 500}, {"name": "猫眼石", "id": 7263, "qty": 500}], "id": 5372}, {"name": "气球帽[1]", "position": "上", "slot": "1", "attr": "matk+(2+精炼度/2)%", "materials": [{"name": "王冠[1]", "id": 5165, "qty": 1}, {"name": "忍者卷轴", "id": 5362, "qty": 1}, {"name": "布里刊", "id": 7054, "qty": 500}], "id": 5379}, {"name": "卡浩之角", "position": "上", "slot": "可开洞", "attr": "str/int+5，vit/agi+10，luk+20", "materials": [{"name": "2周年派对帽", "id": 5201, "qty": 1}, {"name": "组织的团结力", "id": 658, "qty": 1}, {"name": "玛瑙", "id": 7291, "qty": 100}, {"name": "绿松石", "id": 7294, "qty": 100}], "id": 5013}, {"name": "RWC冠军[1]", "position": "上", "slot": "1", "attr": "all+3，aspd+10%", "materials": [{"name": "2周年派对帽", "id": 5201, "qty": 1}, {"name": "花冠", "id": 5008, "qty": 1}, {"name": "七彩大嘴鸟翅膀", "id": 5286, "qty": 1}, {"name": "天使羽翼", "id": 5210, "qty": 1}], "id": 5451}, {"name": "RTC冠军[1]", "position": "上", "slot": "1", "attr": "all+3，对人形系伤害+5%", "materials": [{"name": "2周年派对帽", "id": 5201, "qty": 1}, {"name": "骨制盔甲的碎片", "id": 7450, "qty": 50}, {"name": "安毕斯头盔", "id": 5490, "qty": 1}, {"name": "恶魔波利帽子", "id": 5254, "qty": 1}], "id": 5603}, {"name": "大嘴鸟的翅膀耳饰", "position": "中", "slot": "可开洞", "attr": "agi+1", "materials": [{"name": "哈比的羽毛", "id": 7115, "qty": 500}, {"name": "柔毛", "id": 949, "qty": 500}, {"name": "柔软的羽毛", "id": 7063, "qty": 200}], "id": 5358}, {"name": "调皮假面", "position": "中", "slot": "可开洞", "attr": "移动速度+25%", "materials": [{"name": "哥布灵首领假面", "id": 5090, "qty": 1}, {"name": "无表情的假面", "id": 5087, "qty": 1}, {"name": "吓坏眼的假面", "id": 5088, "qty": 1}, {"name": "讨厌的假面", "id": 5089, "qty": 1}], "id": 5203}, {"name": "机械电眼", "position": "中", "slot": "可开洞", "attr": "对全阶级伤害+2%，matk+2%，dex+1", "materials": [{"name": "望远镜", "id": 2296, "qty": 1}, {"name": "恶魔翅膀耳饰", "id": 5068, "qty": 1}, {"name": "天使翅膀耳饰", "id": 5074, "qty": 1}, {"name": "大嘴鸟的翅膀耳饰", "id": 5358, "qty": 1}, {"name": "调皮假面", "id": 5203, "qty": 1}], "id": 5325}, {"name": "淘气妖精耳朵", "position": "中", "slot": "可开洞", "attr": "完全回避+5", "materials": [{"name": "整人面具", "id": 2288, "qty": 1}, {"name": "妖精长耳朵饰", "id": 2286, "qty": 1}, {"name": "巨大杰勒比结晶", "id": 7126, "qty": 300}], "id": 5402}, {"name": "恶魔小兽角", "position": "中", "slot": "可开洞", "attr": "atk/matk+5%，mhp/msp+10%", "materials": [{"name": "机械电眼", "id": 5325, "qty": 1}, {"name": "闪亮的枪锤", "id": 7109, "qty": 1}, {"name": "噩梦之石", "id": 7020, "qty": 1}, {"name": "小树枝", "id": 7018, "qty": 1}, {"name": "恶魔角", "id": 923, "qty": 1000}], "id": 18503}, {"name": "忍者卷轴", "position": "下", "slot": "可开洞", "attr": "matk+1%", "materials": [{"name": "忍服 血樱[1]", "id": 2359, "qty": 1}, {"name": "火忍西怒毕的腰带", "id": 2654, "qty": 5}, {"name": "撕裂的卷轴", "id": 7118, "qty": 500}], "id": 5362}, {"name": "彩虹口罩", "position": "下", "slot": "可开洞", "attr": "matk+1%，int+1", "materials": [{"name": "忍者卷轴", "id": 5362, "qty": 1}, {"name": "刺客口罩", "id": 5096, "qty": 1}, {"name": "红色染料", "id": 975, "qty": 30}, {"name": "黄色染料", "id": 976, "qty": 30}, {"name": "蓝色染料", "id": 978, "qty": 30}], "id": 5463}, {"name": "进化的烟斗", "position": "下", "slot": "可开洞", "attr": "vit+1，动物系抗性+5%", "materials": [{"name": "烟斗", "id": 2268, "qty": 1}, {"name": "燃烧一半的木材", "id": 7068, "qty": 500}], "id": 5220}, {"name": "船长烟斗", "position": "下", "slot": "可开洞", "attr": "远程伤害+船长帽精炼度%", "materials": [{"name": "进化的烟斗", "id": 5220, "qty": 1}, {"name": "海盗船长帽[1]", "id": 5163, "qty": 1}], "id": 5657}, {"name": "爸爸的白色胡子", "position": "下", "slot": "可开洞", "attr": "atk+20", "materials": [{"name": "老妖精胡须", "id": 1040, "qty": 1000}, {"name": "触须", "id": 962, "qty": 500}, {"name": "白色染料", "id": 982, "qty": 30}], "id": 5155}, {"name": "神圣的音乐帽子[1]", "position": "上", "slot": "1", "attr": "str+2，被攻击3%天使之障壁lv5和0.1%圣母之祈福，眩晕抗性+10%，服事系列时，使用治愈术100%天使之怒lv1", "materials": [{"name": "神圣之帽[1]", "id": 5158, "qty": 1}, {"name": "缠线筒", "id": 7217, "qty": 500}, {"name": "龙鳞", "id": 6073, "qty": 500}], "id": 5225}, {"name": "小天使头饰", "position": "上", "slot": "改1洞", "attr": "dex+3，被攻击3%圣十字审判lv3", "materials": [{"name": "红蝶发带[1]", "id": 5348, "qty": 1}, {"name": "魔女之星沙", "id": 1061, "qty": 500}, {"name": "蜻蜓的翅膀", "id": 7064, "qty": 500}, {"name": "毛线", "id": 7038, "qty": 500}], "id": 5324}, {"name": "巨大山羊头盔", "position": "上", "slot": "改1洞", "attr": "对人形系物理伤害+12%，基础攻击力+职业等级*2/7", "materials": [{"name": "软呢帽[1]", "id": 5120, "qty": 1}, {"name": "无颅武士的头盔", "id": 7209, "qty": 500}, {"name": "龙皮", "id": 7123, "qty": 500}], "id": 5374}, {"name": "大型山羊头盔", "position": "上", "slot": "改1洞", "attr": "对人形系物理伤害+12%，基础攻击力+职业等级*2/7", "materials": [{"name": "软呢帽[1]", "id": 5120, "qty": 1}, {"name": "无颅武士的盔甲一角", "id": 7210, "qty": 500}, {"name": "龙皮", "id": 7123, "qty": 500}], "id": 5518}, {"name": "双绒球圣诞帽[1]", "position": "上", "slot": "1", "attr": "luk+3，诅咒抗性+20%，咏唱时间-10%，aspd+4%，杀怪2%掉落小蛋糕、糖果、拐杖糖，物理攻击0.5%在10秒内cri+50", "materials": [{"name": "首领冠冕", "id": 5002, "qty": 1}, {"name": "领导者头箍", "id": 5007, "qty": 1}, {"name": "凡贝尔克卡片", "id": 4411, "qty": 5}, {"name": "彩色袜子", "id": 7219, "qty": 500}], "id": 5384}, {"name": "神圣宝石头冠[1]", "position": "上", "slot": "1", "attr": "dex+3，vit+1，对不死系、不死属性物理伤害+5%", "materials": [{"name": "黄金帽[1]", "id": 5159, "qty": 1}, {"name": "宝石原石", "id": 7300, "qty": 5}], "id": 5396}, {"name": "波利蛋糕帽子", "position": "上", "slot": "改1洞", "attr": "暴击/flee/完全回避+5，aspd+5%，咏唱时间/延迟时间-5%", "materials": [{"name": "波利帽", "id": 5035, "qty": 1}, {"name": "蛋糕帽", "id": 5024, "qty": 1}, {"name": "巨大叶子", "id": 7198, "qty": 500}, {"name": "朱毕雷", "id": 7312, "qty": 500}, {"name": "黑暗的结晶体", "id": 7799, "qty": 500}], "id": 5415}, {"name": "趴趴公鸡[1]", "position": "上", "slot": "1", "attr": "物理攻击3%大声呐喊，aspd+5%", "materials": [{"name": "印地安发箍", "id": 5010, "qty": 1}, {"name": "小鸡宠物蛋", "id": 9005, "qty": 1}, {"name": "柔软的草叶", "id": 7194, "qty": 500}, {"name": "植物梗", "id": 905, "qty": 500}], "id": 5431}, {"name": "素贞娃娃头饰", "position": "上", "slot": "改1洞", "attr": "int+2，学会圣母颂歌lv5", "materials": [{"name": "傀儡娃娃[1]", "id": 5141, "qty": 1}, {"name": "红色流苏", "id": 7301, "qty": 500}], "id": 5464}, {"name": "天龙帽子", "position": "上", "slot": "改1洞", "attr": "str/int/dex+2，对龙系物理伤害+20%，攻击3%天龙恐惧lv1", "materials": [{"name": "天使头盔", "id": 5025, "qty": 1}, {"name": "多头龙的首级", "id": 7443, "qty": 50}, {"name": "龙牙", "id": 1035, "qty": 500}, {"name": "龙鳞", "id": 1036, "qty": 500}], "id": 5467}, {"name": "出游帽子[1]", "position": "上", "slot": "1", "attr": "延迟时间-5%，每精炼+1，延迟时间-1%", "materials": [{"name": "绅士帽", "id": 2245, "qty": 1}, {"name": "回忆帽", "id": 2247, "qty": 1}, {"name": "牛仔帽", "id": 2248, "qty": 1}, {"name": "粉纱发圈", "id": 2250, "qty": 1}], "id": 5468}, {"name": "勇士之帽", "position": "上", "slot": "改1洞", "attr": "dex/flee+3，精炼+7时，flee+3，远程伤害+3%，精炼+9时，flee+4，远程伤害+2%", "materials": [{"name": "超级初学者之帽[1]", "id": 5119, "qty": 1}, {"name": "苹果头饰", "id": 2285, "qty": 1}, {"name": "舞狮之角", "id": 7265, "qty": 500}], "id": 5469}, {"name": "托尔之力", "position": "上", "slot": "1", "attr": "int/dex+1，风属性抗性+7%，精炼+8时，物理攻击0.5%魔法攻击5%在6秒内，atk/matk+40", "materials": [{"name": "恶魔翅膀耳饰", "id": 5068, "qty": 1}, {"name": "天使翅膀耳饰", "id": 5074, "qty": 1}, {"name": "亚卡祖母的拐棒", "id": 7762, "qty": 500}, {"name": "魔幻拉链", "id": 7167, "qty": 500}], "id": 5495}, {"name": "兔子魔法帽", "position": "上", "slot": "改1洞", "attr": "dex/agi+2，aspd+5%，延迟时间-5%，msp+50，受攻击2%火箭/冰箭/雷击lv1", "materials": [{"name": "魔术无边帽", "id": 5122, "qty": 1}, {"name": "神奇小猫帽子[1]", "id": 5372, "qty": 1}, {"name": "疯狂兔娃娃", "id": 740, "qty": 500}, {"name": "老旧魔法图", "id": 7099, "qty": 500}], "id": 5503}, {"name": "可爱蓝色睡帽[1]", "position": "上", "slot": "改1洞", "attr": "atk/matk+5%", "materials": [{"name": "猫耳贝雷帽[1]", "id": 18600, "qty": 1}, {"name": "气球帽[1]", "id": 5379, "qty": 1}, {"name": "柔软的绸缎布", "id": 7166, "qty": 500}, {"name": "蓝色龙珠", "id": 7446, "qty": 500}], "id": 5506}, {"name": "趴趴小野猫[1]", "position": "上", "slot": "1", "attr": "agi+3", "materials": [{"name": "软呢帽[1]", "id": 5120, "qty": 1}, {"name": "黑猫娃娃", "id": 7206, "qty": 100}], "id": 5557}, {"name": "朱诺之眼", "position": "上", "slot": "1", "attr": "无/水属性抗性+job/14%，剑士/商人/盗贼系列：agi/vit+2；魔法师/服事/弓箭手系列：int/dex+2", "materials": [{"name": "光环", "id": 2282, "qty": 1}, {"name": "猫眼石", "id": 7263, "qty": 500}, {"name": "眼泪结晶", "id": 6075, "qty": 500}, {"name": "强韧鳞梗", "id": 7012, "qty": 500}], "id": 5595}, {"name": "神圣礼仪之帽[1]", "position": "上", "slot": "1", "attr": "str+2，int/dex+1，matk+2%，精炼+7，治愈力+5%，精炼+9，matk+5%", "materials": [{"name": "神圣之帽[1]", "id": 5158, "qty": 1}, {"name": "神奇小猫帽子[1]", "id": 5372, "qty": 1}, {"name": "恐怖的纸刃", "id": 7112, "qty": 500}, {"name": "黄晶沙", "id": 7043, "qty": 500}], "id": 5654}, {"name": "墨蛇君之帽", "position": "上", "slot": "改1洞", "attr": "int/agi+2，dex-2，魔法攻击5%在5秒内咏唱时间-100%，flee+30", "materials": [{"name": "学士帽[1]", "id": 5347, "qty": 1}, {"name": "黑色水晶碎片", "id": 7315, "qty": 500}, {"name": "片云", "id": 7162, "qty": 500}], "id": 5655}, {"name": "骷髅黑帽[1]", "position": "上", "slot": "1", "attr": "matk+4%，精炼+5，matk+3%，精炼+7，matk+3%", "materials": [{"name": "气球帽[1]", "id": 5379, "qty": 1}, {"name": "骷髅戒指[1]", "id": 2715, "qty": 10}, {"name": "黑色染料", "id": 983, "qty": 20}], "id": 18539}, {"name": "猫耳贝雷帽[1]", "position": "上", "slot": "改1洞", "attr": "atk+5%，精炼+6起，对人形系物理伤害+1%，人形系抗性+1%", "materials": [{"name": "猫耳发圈", "id": 2213, "qty": 1}, {"name": "贝雷帽", "id": 5172, "qty": 1}, {"name": "恶魔波利帽子", "id": 5254, "qty": 1}, {"name": "彩色外皮", "id": 7009, "qty": 500}, {"name": "柔软的草叶", "id": 7194, "qty": 500}], "id": 18600}, {"name": "黑无常帽", "position": "上", "slot": "1", "attr": "int/dex/agi+2", "materials": [{"name": "恶魔女仆的角", "id": 5066, "qty": 1}, {"name": "恶魔侍者的角", "id": 5072, "qty": 1}, {"name": "扭曲的自画像", "id": 7223, "qty": 500}, {"name": "爬虫类舌头", "id": 903, "qty": 500}], "id": 18613}, {"name": "力量戒指2[1]", "position": "装饰品", "slot": "1", "attr": "STR+2", "id": 79001, "materials": [{"name": "力量戒指[1]", "id": 2621, "qty": 5}, {"name": "粘稠液体", "id": 938, "qty": 300}, {"name": "杰勒比结晶", "id": 909, "qty": 300}, {"name": "三叶幸运草", "id": 705, "qty": 300}, {"name": "毛", "id": 914, "qty": 300}]}, {"name": "修咖巴殿的黑尾巴", "position": "装饰品", "slot": "1", "attr": "攻击速度增加3%，CRI+7。", "id": 2855, "materials": [{"name": "敏捷别针2[1]", "id": 79005, "qty": 2}, {"name": "幸运珠链2[1]", "id": 79006, "qty": 2}, {"name": "疯兔卡片", "id": 4006, "qty": 2}]}, {"name": "魔力之石戒指", "position": "装饰品", "slot": "1", "attr": "Atk+2%, Str+1, Vit+1", "id": 2789, "materials": [{"name": "力量戒指2[1]", "id": 79001, "qty": 2}, {"name": "体力项链2[1]", "id": 79003, "qty": 2}, {"name": "小鸡卡片", "id": 4008, "qty": 2}]}, {"name": "魔力之石耳环", "position": "装饰品", "slot": "1", "attr": "Matk+2%, Int+1, Dex+1", "id": 2788, "materials": [{"name": "智力耳环2[1]", "id": 79002, "qty": 2}, {"name": "防御手套2[1]", "id": 79004, "qty": 2}, {"name": "沙漠幼狼卡片", "id": 4023, "qty": 2}]}, {"name": "智力耳环2[1]", "position": "装饰品", "slot": "1", "attr": "INT+2", "id": 79002, "materials": [{"name": "智力耳环[1]", "id": 2622, "qty": 5}, {"name": "空瓶", "id": 713, "qty": 300}, {"name": "柔毛", "id": 949, "qty": 300}, {"name": "蝗虫后腿", "id": 940, "qty": 300}, {"name": "坚硬外壳", "id": 935, "qty": 300}]}, {"name": "幸运珠链2[1]", "position": "装饰品", "slot": "1", "attr": "LUK+2", "id": 79006, "materials": [{"name": "幸运珠链[1]", "id": 2626, "qty": 5}, {"name": "亡者指甲", "id": 957, "qty": 300}, {"name": "蝴蝶翅膀粉末", "id": 924, "qty": 300}, {"name": "植物梗", "id": 905, "qty": 300}, {"name": "鳞片梗", "id": 906, "qty": 300}]}, {"name": "敏捷别针2[1]", "position": "装饰品", "slot": "1", "attr": "AGI+2", "id": 79005, "materials": [{"name": "敏捷别针[1]", "id": 2625, "qty": 5}, {"name": "天地树枝", "id": 1066, "qty": 300}, {"name": "粘稠的蹼", "id": 918, "qty": 300}, {"name": "昆虫外壳", "id": 955, "qty": 300}, {"name": "香菇芽孢", "id": 921, "qty": 300}]}, {"name": "防御手套2[1]", "position": "装饰品", "slot": "1", "attr": "DEX+2", "id": 79004, "materials": [{"name": "防御手套[1]", "id": 2624, "qty": 5}, {"name": "鸟指甲", "id": 917, "qty": 300}, {"name": "树根", "id": 902, "qty": 300}, {"name": "智慧树枝", "id": 1067, "qty": 300}, {"name": "世界树枝", "id": 1068, "qty": 300}]}, {"name": "体力项链2[1]", "position": "装饰品", "slot": "1", "attr": "VIT+2", "id": 79003, "materials": [{"name": "体力项链[1]", "id": 2623, "qty": 5}, {"name": "蜂针", "id": 939, "qty": 300}, {"name": "蝙蝠牙", "id": 913, "qty": 300}, {"name": "蛹壳", "id": 915, "qty": 300}, {"name": "羽毛", "id": 916, "qty": 300}]}];
+
+        // Build item map for easy lookup
+        const itemMap = {};
+        const headgearMap = {};
+        
+        headgearData.forEach(hg => {
+            headgearMap[hg.name] = hg;
+            if (hg.id) {
+                itemMap[hg.id] = { name: hg.name, id: hg.id, isHeadgear: true };
+                headgearMap[hg.id] = hg; // allow lookup by id
+            }
+        });
+
+        // Add materials to item map
+        headgearData.forEach(hg => {
+            hg.materials.forEach(mat => {
+                if (mat.id && !itemMap[mat.id]) {
+                    itemMap[mat.id] = { name: mat.name, id: mat.id, isHeadgear: !!headgearMap[mat.name] };
+                }
+            });
+        });
+
+        let currentDisplayMode = 'hierarchical'; // 'hierarchical' or 'flat'
+
+                function getIconUrl(id) {
+                        const iconOverrides = {
+                79001: 2621,
+                79002: 2622,
+                79003: 2623,
+                79004: 2624,
+                79005: 2625,
+                79006: 2626
+            };
+            const iconId = iconOverrides[id] || id;
+            return iconId ? `https://static.divine-pride.net/images/items/item/${iconId}.png` : 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="%23ccc"><rect width="24" height="24"/></svg>';
+        }
+
+        function getIconImg(id, name) {
+            return `<img src="${getIconUrl(id)}" class="item-icon" alt="${name}" onerror="this.style.opacity=0;">`;
+        }
+
+        function loadScriptOnce(src) {
+            return new Promise((resolve, reject) => {
+                const existed = document.querySelector(`script[data-src="${src}"]`);
+                if (existed) {
+                    if (existed.dataset.loaded === "1") resolve();
+                    else existed.addEventListener("load", () => resolve(), { once: true });
+                    return;
+                }
+                const s = document.createElement("script");
+                s.src = src;
+                s.dataset.src = src;
+                s.onload = () => {
+                    s.dataset.loaded = "1";
+                    resolve();
+                };
+                s.onerror = () => reject(new Error("脚本加载失败: " + src));
+                document.body.appendChild(s);
+            });
+        }
+
+        async function ensureCardsPanel() {
+            const host = document.getElementById("cards");
+            const mount = document.getElementById("cardsMount");
+            if (!host || !mount) return;
+
+            if (!host.dataset.panelReady) {
+                mount.textContent = "加载集卡面板…";
+                const html = await fetch("card-collection.panel.html").then((r) => {
+                    if (!r.ok) throw new Error("无法加载 card-collection.panel.html");
+                    return r.text();
+                });
+                mount.outerHTML = html; // replace placeholder with panel root
+                host.dataset.panelReady = "1";
+            }
+
+            if (typeof Tesseract === "undefined") {
+                await loadScriptOnce("https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js");
+            }
+            if (typeof window.initPronteraCards !== "function") {
+                await loadScriptOnce("card-collection.js");
+            }
+            await window.initPronteraCards();
+        }
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            
+            // Toggle controls in the sticky header
+            document.getElementById('hg-controls').style.display = 'none';
+            document.getElementById('pet-controls').style.display = 'none';
+            
+            document.querySelector(`.tab[onclick="switchTab('${tabId}')"]`).classList.add('active');
+            document.getElementById(tabId).classList.add('active');
+            
+            if (tabId === 'headgear') {
+                document.getElementById('hg-controls').style.display = 'flex';
+            } else if (tabId === 'pet') {
+                document.getElementById('pet-controls').style.display = 'flex';
+            }
+            
+            if(tabId === 'pet' && document.getElementById('petTable').querySelector('tbody').children.length === 0) {
+                renderPets(petData);
+            }
+
+            if (tabId === 'cards') {
+                ensureCardsPanel().catch((err) => {
+                    console.error(err);
+                    const host = document.getElementById("cards");
+                    if (host) {
+                        host.innerHTML = `<p style="padding:24px;color:#FF3B30;">集卡模块加载失败：${err.message || err}</p>`;
+                    }
+                });
+            }
+        }
+
+        function setDisplayMode(mode) {
+            currentDisplayMode = mode;
+            document.getElementById('btnHierarchical').classList.toggle('active', mode === 'hierarchical');
+            document.getElementById('btnFlat').classList.toggle('active', mode === 'flat');
+            searchHeadgear();
+        }
+
+        function renderPets(data) {
+            const tbody = document.getElementById('petTable').querySelector('tbody');
+            tbody.innerHTML = '';
+            data.forEach(pet => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td><img src="https://static.divine-pride.net/images/mobs/png/${pet.id}.png" class="item-icon" alt="pet" onerror="this.style.display='none'"></td>
+                        <td>${pet.name}</td>
+                        <td>${pet.id}</td>
+                        <td>${pet.attr}</td>
+                        <td>${getIconImg(pet.item_id, pet.item)} ${pet.item} ${pet.item_id ? '<span style="color:#95a5a6;font-size:0.8em">['+pet.item_id+']</span>' : ''}</td>
+                    </tr>
+                `;
+            });
+        }
+
+        function searchPet() {
+            const q = document.getElementById('petSearch').value.toLowerCase();
+            const filtered = petData.filter(p => 
+                p.name.toLowerCase().includes(q) || 
+                p.attr.toLowerCase().includes(q) || 
+                p.item.toLowerCase().includes(q) ||
+                p.id.toString() === q
+            );
+            renderPets(filtered);
+        }
+
+        function toggleTree(btn, id) {
+            const children = document.getElementById(id);
+            if (children.classList.contains('expanded')) {
+                children.classList.remove('expanded');
+                btn.innerHTML = '+';
+            } else {
+                children.classList.add('expanded');
+                btn.innerHTML = '-';
+            }
+        }
+
+        
+        function toggleTree(btn, id) {
+            const children = document.getElementById(id);
+            if (children.classList.contains('expanded')) {
+                children.classList.remove('expanded');
+                btn.innerHTML = '+';
+            } else {
+                children.classList.add('expanded');
+                btn.innerHTML = '-';
+            }
+        }
+
+        let treeIdCounter = 0;
+        
+        let isExpandedAll = false;
+        function toggleExpandAll() {
+            isExpandedAll = !isExpandedAll;
+            const btn = document.getElementById('expandAllBtn');
+            btn.innerText = isExpandedAll ? '收起全部' : '展开全部';
+            
+            const toggles = document.querySelectorAll('.tree-toggle');
+            toggles.forEach(t => {
+                const id = t.getAttribute('onclick').match(/'([^']+)'/)[1];
+                const children = document.getElementById(id);
+                if (isExpandedAll) {
+                    children.classList.add('expanded');
+                    t.innerHTML = '-';
+                } else {
+                    children.classList.remove('expanded');
+                    t.innerHTML = '+';
+                }
+            });
+        }
+        
+        
+        function getMaterialTreeHTML(itemName, requiredQty, currentDepth = 0) {
+            const hg = headgearMap[itemName];
+            const itemInfo = Object.values(itemMap).find(i => i.name === itemName) || { id: hg ? hg.id : null };
+            const id = itemInfo.id;
+            
+            let html = `<div class="tree-node ${currentDepth === 0 ? 'tree-root' : ''}">`;
+            html += `<div class="tree-node-item">`;
+            
+            const hasChildren = hg && hg.materials && hg.materials.length > 0;
+            const childrenId = 'tree-children-' + (++treeIdCounter);
+            
+            if (hasChildren) {
+                html += `<span class="tree-toggle" onclick="toggleTree(this, '${childrenId}')">+</span>`;
+            } else {
+                html += `<span style="display:inline-block; width: 23px;"></span>`;
+            }
+            
+            html += getIconImg(id, itemName);
+            html += `<span class="clickable-item" onclick="document.getElementById('hgSearch').value='${itemName}'; searchHeadgear();">${itemName}</span> ${id ? '<span style="color:#95a5a6;font-size:0.8em">['+id+']</span>' : ''} <span class="badge info">x${requiredQty}</span>`;
+            
+            if (hg && currentDepth === 0) {
+                 html += `<span style="font-size:0.8em; color:#7f8c8d; margin-left:10px;">[位置:${hg.position}] [洞:${hg.slot}] [属性: ${hg.attr}]</span>`;
+            }
+            html += `</div>`;
+            
+            if (hasChildren) {
+                html += `<div id="${childrenId}" class="tree-children" style="margin-left: ${currentDepth === 0 ? '0' : '20px'}">`;
+                hg.materials.forEach(mat => {
+                    html += getMaterialTreeHTML(mat.name, mat.qty * requiredQty, currentDepth + 1);
+                });
+                html += `</div>`;
+            }
+            html += `</div>`;
+            return html;
+        }
+
+        function getFlatMaterialsHTML(itemName, qtyMultiplier = 1) {
+            const hg = headgearMap[itemName];
+            if (!hg) return `<div class="tree-node-item">${getIconImg(null, itemName)} ${itemName} <span class="badge info">x${qtyMultiplier}</span> - 无配方</div>`;
+            
+            const reqs = {};
+            function traverse(name, qty) {
+                const h = headgearMap[name];
+                if (h && h.materials && h.materials.length > 0) {
+                    h.materials.forEach(m => traverse(m.name, m.qty * qty));
+                } else {
+                    reqs[name] = (reqs[name] || 0) + qty;
+                }
+            }
+            traverse(itemName, qtyMultiplier);
+            
+            let html = `<div class="tree-node tree-root">`;
+            html += `<div class="tree-node-item" style="margin-bottom: 5px;">`;
+            html += getIconImg(hg.id, itemName);
+            html += `<span class="clickable-item" onclick="document.getElementById('hgSearch').value='${itemName}'; searchHeadgear();">${itemName}</span> ${hg.id ? '<span style="color:#95a5a6;font-size:0.8em">['+hg.id+']</span>' : ''} <span class="badge info">x${qtyMultiplier}</span> - 扁平总需材料`;
+            html += `<span style="font-size:0.8em; color:#7f8c8d; margin-left:10px;">[位置:${hg.position}] [洞:${hg.slot}] [属性: ${hg.attr}]</span></div>`;
+            
+            html += `<table class="flat-table"><thead><tr><th>材料名称</th><th>总需数量</th></tr></thead><tbody>`;
+            Object.keys(reqs).sort((a,b)=>reqs[b]-reqs[a]).forEach(mName => {
+                const mData = Object.values(itemMap).find(i => i.name === mName) || {id: null};
+                html += `<tr><td>${getIconImg(mData.id, mName)} <span class="clickable-item" onclick="document.getElementById('hgSearch').value='${mName}'; searchHeadgear();">${mName}</span> ${mData.id ? '<span style="color:#95a5a6;font-size:0.8em">['+mData.id+']</span>' : ''}</td><td>x${reqs[mName]}</td></tr>`;
+            });
+            html += `</tbody></table></div>`;
+            return html;
+        }
+
+        function getReverseTreeHTML(itemName, requiredQty = 1, currentDepth = 0) {
+            const usages = [];
+            headgearData.forEach(hg => {
+                const mat = hg.materials.find(m => m.name === itemName);
+                if (mat) {
+                    usages.push({ hg: hg, qty: mat.qty });
+                }
+            });
+            
+            const itemInfo = Object.values(itemMap).find(i => i.name === itemName) || headgearMap[itemName] || { id: null };
+            const id = itemInfo.id || (headgearMap[itemName] ? headgearMap[itemName].id : null);
+            
+            let html = `<div class="tree-node ${currentDepth === 0 ? 'tree-root' : ''}">`;
+            html += `<div class="tree-node-item">`;
+            
+            const hasChildren = usages.length > 0;
+            const childrenId = 'rev-tree-children-' + (++treeIdCounter);
+            
+            if (hasChildren) {
+                html += `<span class="tree-toggle" onclick="toggleTree(this, '${childrenId}')">+</span>`;
+            } else {
+                html += `<span style="display:inline-block; width: 23px;"></span>`;
+            }
+            
+            html += getIconImg(id, itemName);
+            html += `<span class="clickable-item" onclick="document.getElementById('hgSearch').value='${itemName}'; searchHeadgear();">${itemName}</span> ${id ? '<span style="color:#95a5a6;font-size:0.8em">['+id+']</span>' : ''}`;
+            
+            if (currentDepth > 0) {
+                 html += ` <span style="color:#e74c3c; font-size:0.9em; margin-left: 10px;">← 制作1件需前方材料 x${requiredQty}</span>`;
+            } else {
+                 html += ` <span style="color:#e74c3c; font-size:0.9em; margin-left: 10px;">(目标材料)</span>`;
+            }
+            html += `</div>`;
+            
+            if (hasChildren) {
+                html += `<div id="${childrenId}" class="tree-children" style="margin-left: ${currentDepth === 0 ? '0' : '20px'}">`;
+                usages.forEach(u => {
+                    html += getReverseTreeHTML(u.hg.name, u.qty, currentDepth + 1);
+                });
+                html += `</div>`;
+            }
+            html += `</div>`;
+            return html;
+        }
+
+        function renderReverseSearch(targetItem) {
+            let html = `<div style="margin-top: 26px; padding-top: 15px; border-top: 2px dashed #bdc3c7;">`;
+            const isFlat = currentDisplayMode === 'flat';
+            html += `<h4 style="color: #e74c3c; margin-top:0;">⚠️ 反向查询 (${isFlat ? '扁平-所有依赖汇总' : '层级-反向溯源树'}): [ ${targetItem} ]</h4>`;
+            
+            if (isFlat) {
+                const usages = [];
+                headgearData.forEach(hg => {
+                    if (hg.name === targetItem) return;
+                    let needed = 0;
+                    function traverse(name, qty) {
+                        if (name === targetItem) { needed += qty; return; }
+                        const h = headgearMap[name];
+                        if (h && h.materials) {
+                            h.materials.forEach(m => traverse(m.name, m.qty * qty));
+                        }
+                    }
+                    traverse(hg.name, 1);
+                    if (needed > 0) {
+                        usages.push({ hg: hg, qty: needed });
+                    }
+                });
+                usages.sort((a,b) => b.qty - a.qty);
+                
+                if (usages.length === 0) return '';
+                
+                html += `<table class="flat-table"><thead><tr><th>最终制作头饰</th><th>每件共需 [ ${targetItem} ] 数量</th></tr></thead><tbody>`;
+                usages.forEach(u => {
+                    html += `<tr>`;
+                    html += `<td>${getIconImg(u.hg.id, u.hg.name)} <strong class="clickable-item" onclick="document.getElementById('hgSearch').value='${u.hg.name}'; searchHeadgear();">${u.hg.name}</strong> ${u.hg.id ? '<span style="color:#95a5a6;font-size:0.8em">['+u.hg.id+']</span>' : ''}</td>`;
+                    html += `<td>x${u.qty}</td>`;
+                    html += `</tr>`;
+                });
+                html += `</tbody></table>`;
+            } else {
+                html += `<div style="background: #fff8f8; padding: 15px; border-radius: 5px; border-left: 4px solid #e74c3c;">`;
+                html += getReverseTreeHTML(targetItem, 1, 0);
+                html += `</div>`;
+            }
+            html += `</div>`;
+            return html;
+        }
+
+        function resetHgSearch() {
+            document.getElementById('hgSearch').value = '';
+            searchHeadgear();
+        }
+
+        function searchHeadgear() {
+            isExpandedAll = false;
+            const eBtn = document.getElementById('expandAllBtn');
+            if (eBtn) eBtn.innerText = '展开全部';
+
+            const q = document.getElementById('hgSearch').value.trim().toLowerCase();
+            const resDiv = document.getElementById('hgResult');
+            
+            let html = '';
+            
+            if (!q) {
+                // Display all headgears by default
+                html += `<h3>所有头饰配方列表 (${headgearData.length}个)</h3>`;
+                headgearData.forEach(hg => {
+                    if (currentDisplayMode === 'hierarchical') {
+                        html += getMaterialTreeHTML(hg.name, 1);
+                    } else {
+                        html += getFlatMaterialsHTML(hg.name, 1);
+                    }
+                });
+                resDiv.innerHTML = html;
+                return;
+            }
+            
+            // 1. Is it a headgear name exactly or partially? (Forward search)
+            const matchedHgs = headgearData.filter(hg => 
+                hg.name.toLowerCase().includes(q) || 
+                (hg.id && hg.id.toString() === q) ||
+                (hg.attr && hg.attr.toLowerCase().includes(q))
+            );
+            
+            if (matchedHgs.length > 0) {
+                html += `<h3>正向查询结果 (${matchedHgs.length}个配方)</h3>`;
+                matchedHgs.forEach(hg => {
+                    if (currentDisplayMode === 'hierarchical') {
+                        html += getMaterialTreeHTML(hg.name, 1);
+                    } else {
+                        html += getFlatMaterialsHTML(hg.name, 1);
+                    }
+                });
+            }
+            
+            // 2. Is it a material? (Reverse search)
+            // Try to identify the item being searched
+            let targetItems = [];
+            const isId = !isNaN(q) && q.length > 0;
+            
+            if (isId) {
+                const item = itemMap[parseInt(q)];
+                if (item) targetItems.push(item);
+            } else {
+                // Find all materials matching name
+                const matchedNames = new Set();
+                headgearData.forEach(hg => {
+                    hg.materials.forEach(m => {
+                        if (m.name.toLowerCase().includes(q)) {
+                            matchedNames.add(m.name);
+                        }
+                    });
+                });
+                
+                matchedNames.forEach(name => {
+                    const item = Object.values(itemMap).find(i => i.name === name) || { name: name, id: null };
+                    targetItems.push(item);
+                });
+            }
+            
+            if (targetItems.length > 0) {
+                targetItems.forEach(target => {
+                    const revHtml = renderReverseSearch(target.name);
+                    if (revHtml.includes("<table") || revHtml.includes("tree-children")) { html += revHtml; }
+                });
+            }
+            
+            if (!html) {
+                html = '<div class="empty-state">未找到匹配的头饰或材料</div>';
+            }
+            
+            resDiv.innerHTML = html;
+        }
+
+        // Init
+        renderPets(petData);
+        searchHeadgear();
+    </script>
+</body>
+</html>

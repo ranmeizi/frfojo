@@ -1,0 +1,235 @@
+<div class="cards-root">
+<div class="shell">
+    <header class="hero">
+      <h1 class="brand">集卡完成度</h1>
+      <p class="lead">先录入已有卡片，再看每个卡组进度与加成。凑齐一组即可点亮对应效果。</p>
+    </header>
+
+    <section class="stats" id="stats"></section>
+
+    <section class="entry" aria-labelledby="entryTitle">
+      <div class="entry-copy">
+        <h2 id="entryTitle">录入已有卡片</h2>
+        <p>截一张背包 / 仓库的卡名列表，本地识别后勾选入库。也可以在下方卡组里手动勾选。</p>
+      </div>
+      <div class="entry-actions">
+        <button class="btn primary" id="btnOcr" type="button" title="用背包/仓库截图快速勾选卡片">截图录入</button>
+        <div class="entry-tools">
+          <button class="btn ghost" id="btnExport" type="button" title="下载进度备份">导出</button>
+          <button class="btn ghost" id="btnCopy" type="button" title="复制进度到剪贴板">复制</button>
+          <button class="btn ghost" id="btnImport" type="button" title="从备份文件恢复">导入</button>
+          <button class="btn danger ghost" id="btnReset" type="button">清空</button>
+        </div>
+      </div>
+      <input id="importFile" type="file" accept="application/json,.json" hidden />
+      <input id="ocrFile" type="file" accept="image/*" hidden />
+    </section>
+    <p class="save-hint" id="saveHint">进度保存在本机浏览器，换设备前请先导出备份。</p>
+
+    <section class="bonus-preview" id="bonusPreview">
+      <div class="bonus-preview-hd">
+        <div>
+          <h2>加成一览</h2>
+          <p class="sub" id="bonusCountLabel">暂无解锁</p>
+        </div>
+        <button class="btn primary" type="button" id="btnBonusDrawer">查看全部</button>
+      </div>
+      <div class="bonus-preview-bd">
+        <div class="bonus-rail" id="bonusRail"></div>
+      </div>
+    </section>
+
+    <section class="list-tools">
+      <input class="search" id="search" type="search" placeholder="搜索卡片名、ID 或加成效果…" />
+      <div class="filters" id="filters">
+        <button class="chip active" data-filter="all" type="button">全部</button>
+        <button class="chip" data-filter="incomplete" type="button">未完成</button>
+        <button class="chip" data-filter="almost" type="button">接近完成</button>
+        <button class="chip" data-filter="complete" type="button">已完成</button>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-hd">
+        <h2>我的卡组</h2>
+        <span id="groupCountLabel"></span>
+      </div>
+      <div class="groups" id="groups"></div>
+    </section>
+
+    <p class="foot">数据来自集卡卡组表 · 共 <span id="dataMeta"></span> · 仅保存在本机</p>
+  </div>
+  <div class="toast" id="toast"></div>
+
+  <div class="drawer-mask" id="bonusDrawerMask" aria-hidden="true"></div>
+  <aside class="drawer" id="bonusDrawer" aria-hidden="true" role="dialog" aria-labelledby="bonusDrawerTitle">
+    <div class="drawer-hd">
+      <div>
+        <h3 id="bonusDrawerTitle">全部加成</h3>
+        <p class="sub" id="bonusDrawerSub">已解锁与接近解锁的卡组加成</p>
+      </div>
+      <button class="modal-x" type="button" id="bonusDrawerClose" aria-label="关闭">×</button>
+    </div>
+    <div class="drawer-body" id="bonusDrawerBody"></div>
+    <div class="drawer-ft">
+      <button class="btn" type="button" id="bonusDrawerClose2" style="width:100%">收起</button>
+    </div>
+  </aside>
+
+  <div class="modal-mask" id="ocrModal" aria-hidden="true">
+    <div class="modal" role="dialog" aria-labelledby="ocrTitle">
+      <div class="modal-scroll">
+        <div class="modal-hd">
+          <div>
+            <h3 id="ocrTitle">截图录入</h3>
+            <p class="sub">把背包或仓库里的卡名列表截出来，本地识别后勾选入库。图片不会上传；首次使用会下载一次识别包。</p>
+          </div>
+          <button class="modal-x" type="button" id="ocrCloseX" aria-label="关闭">×</button>
+        </div>
+
+        <div class="ocr-steps" id="ocrSteps">
+          <div class="ocr-step on" data-step="1"><div class="n">第一步</div><div class="t">放入截图</div></div>
+          <div class="ocr-step" data-step="2"><div class="n">第二步</div><div class="t">识别卡名</div></div>
+          <div class="ocr-step" data-step="3"><div class="n">第三步</div><div class="t">确认入库</div></div>
+        </div>
+
+        <div class="dropzone" id="ocrDrop">
+          <div>
+            <div class="dz-title" id="ocrDropTitle">点击选择图片，或拖到这里</div>
+            <div class="dz-hint" id="ocrDropHint">也可以先打开本窗口，再按 Ctrl / ⌘ + V 粘贴剪贴板截图</div>
+          </div>
+          <button class="btn ghost" type="button" id="ocrChangeImg" style="display:none">更换图片</button>
+        </div>
+
+        <div class="ocr-tips">
+          <span class="ocr-tip">尽量只截卡名区域</span>
+          <span class="ocr-tip">字越大越清晰越好</span>
+          <span class="ocr-tip">深色底白字可开「反色」</span>
+        </div>
+
+        <div class="ocr-preview-row">
+          <div class="ocr-preview-box" id="ocrPreviewOrig">
+            <div class="cap"><span>原图</span></div>
+            <img id="ocrPreviewImg" alt="原图预览" />
+          </div>
+          <div class="ocr-preview-box" id="ocrPreviewProcBox">
+            <div class="cap"><span>处理后（送入识别）</span></div>
+            <canvas id="ocrProcCanvas"></canvas>
+          </div>
+        </div>
+
+        <div class="ocr-progress" id="ocrProgress">
+          <div class="meta" style="display:flex;justify-content:space-between;gap:8px">
+            <span id="ocrStatus">准备中…</span>
+            <span id="ocrPct">0%</span>
+          </div>
+          <div class="bar"><i id="ocrBar" style="width:0%"></i></div>
+        </div>
+
+        <div class="ocr-results" id="ocrResults">
+          <div>
+            <div class="ocr-result-hd">
+              <h4>识别到这些卡片</h4>
+              <span class="meta-line" id="ocrMatchCount">0 张待确认</span>
+            </div>
+            <div class="ocr-result-tools">
+              <button class="btn ghost" type="button" id="ocrSelectAll">全选</button>
+              <button class="btn ghost" type="button" id="ocrSelectNone">全不选</button>
+            </div>
+            <div class="ocr-match-list" id="ocrMatchList"></div>
+          </div>
+          <details class="ocr-raw-wrap">
+            <summary>查看识别出的原文（排查漏识时有用）</summary>
+            <div class="ocr-raw" id="ocrRaw"></div>
+          </details>
+        </div>
+
+        <details class="ocr-params" id="ocrParams">
+          <summary>
+            识别不准？展开微调
+            <span class="hint">一般不用改；改完会记住，下次自动沿用</span>
+          </summary>
+          <div class="ocr-param-blocks">
+            <div class="ocr-param-block">
+              <h5>让文字更容易被认出</h5>
+              <p>深色界面、字偏小、排版杂乱时，优先调这里。</p>
+              <div class="ocr-params-grid">
+                <div class="ocr-field">
+                  <label>排版模式 <span class="val" id="ocrPsmVal">默认</span></label>
+                  <select id="ocrPsm">
+                    <option value="6" selected>默认 · 整块文字</option>
+                    <option value="4">单列列表</option>
+                    <option value="3">全自动</option>
+                    <option value="11">文字较散</option>
+                    <option value="12">文字较散（自动方向）</option>
+                    <option value="multi">多模式合并（更慢更全）</option>
+                  </select>
+                </div>
+                <div class="ocr-field">
+                  <label>图片放大 <span class="val" id="ocrScaleVal">2.0x</span></label>
+                  <input id="ocrScale" type="range" min="1" max="3.5" step="0.1" value="2" />
+                </div>
+                <div class="ocr-field">
+                  <label>对比度 <span class="val" id="ocrContrastVal">1.4</span></label>
+                  <input id="ocrContrast" type="range" min="0.8" max="2.5" step="0.1" value="1.4" />
+                </div>
+                <div class="ocr-field">
+                  <label>黑白分界 <span class="val" id="ocrThreshVal">自动</span></label>
+                  <input id="ocrThresh" type="range" min="0" max="220" step="1" value="0" />
+                </div>
+              </div>
+              <div class="ocr-checks">
+                <label class="ocr-check"><input id="ocrInvert" type="checkbox" /> 反色（深色底、白字时勾选）</label>
+                <label class="ocr-check"><input id="ocrSharp" type="checkbox" checked /> 锐化边缘</label>
+                <label class="ocr-check"><input id="ocrOnlyChi" type="checkbox" /> 只认中文（更快，数字 ID 可能变弱）</label>
+              </div>
+              <div class="ocr-param-actions">
+                <button class="btn ghost" type="button" id="ocrPreviewProc" disabled>预览处理后的图</button>
+              </div>
+            </div>
+
+            <div class="ocr-param-block">
+              <h5>控制匹配严不严</h5>
+              <p>漏了很多卡就放宽；误认太多就收紧。短名如「狼」「鼬」默认更谨慎。</p>
+              <div class="ocr-params-grid">
+                <div class="ocr-field">
+                  <label>匹配门槛（越高越严） <span class="val" id="ocrScoreVal">72</span></label>
+                  <input id="ocrScore" type="range" min="50" max="95" step="1" value="72" />
+                </div>
+                <div class="ocr-field">
+                  <label>最短卡名长度 <span class="val" id="ocrMinLenVal">2</span></label>
+                  <input id="ocrMinLen" type="range" min="1" max="4" step="1" value="2" />
+                </div>
+                <div class="ocr-field">
+                  <label>允许差几个字 <span class="val" id="ocrFuzzyVal">1</span></label>
+                  <input id="ocrFuzzy" type="range" min="0" max="3" step="1" value="1" />
+                </div>
+                <div class="ocr-field">
+                  <label>部分重合至少几字 <span class="val" id="ocrContainVal">2</span></label>
+                  <input id="ocrContain" type="range" min="1" max="5" step="1" value="2" />
+                </div>
+              </div>
+              <div class="ocr-checks">
+                <label class="ocr-check"><input id="ocrMatchId" type="checkbox" checked /> 也按卡片编号匹配</label>
+                <label class="ocr-check"><input id="ocrStrictShort" type="checkbox" checked /> 短卡名必须完全一致</label>
+              </div>
+            </div>
+          </div>
+          <div class="ocr-param-actions">
+            <button class="btn ghost" type="button" id="ocrResetParams">恢复默认</button>
+          </div>
+        </details>
+      </div>
+
+      <div class="modal-actions">
+        <div class="left">
+          <button class="btn ghost" type="button" id="ocrClose">关闭</button>
+        </div>
+        <div class="right">
+          <button class="btn" type="button" id="ocrRun" disabled>开始识别</button>
+          <button class="btn primary" type="button" id="ocrApply" disabled>加入已拥有</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
