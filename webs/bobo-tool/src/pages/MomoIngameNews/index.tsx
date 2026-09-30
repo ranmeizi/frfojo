@@ -17,7 +17,7 @@ import MvpMonthlyTop10 from "./views/mvpMonthlyTop10";
 import MvpSubjectObjectDetail from "./views/mvpSubjectObjectDetail";
 
 export default function MomoIngameNews() {
-  const [active, setActive] = useState(0);
+  const [active, setActive] = useState(3);
 
   const view = useMemo(() => {
     switch (active) {
