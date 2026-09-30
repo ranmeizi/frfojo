@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-30T09:22:15.711Z",
+  "generatedAt": "2026-09-30T09:30:57.157Z",
   "publicBase": "/momo-ingame-news/rms-assets",
   "mapIds": [
     "abbey02",
@@ -49,16 +49,46 @@
     "xmas_fild01"
   ],
   "mobGifNames": [
-    "1647.gif",
-    "1648.gif",
-    "1649.gif",
-    "1650.gif",
-    "1651.gif"
+    "1038.gif",
+    "1039.gif",
+    "1046.gif",
+    "1059.gif",
+    "1086.gif",
+    "1087.gif",
+    "1112.gif",
+    "1115.gif",
+    "1147.gif",
+    "1150.gif",
+    "1157.gif",
+    "1159.gif",
+    "1190.gif",
+    "1251.gif",
+    "1252.gif",
+    "1272.gif",
+    "1312.gif",
+    "1389.gif",
+    "1418.gif",
+    "1492.gif",
+    "1511.gif",
+    "1583.gif",
+    "1623.gif",
+    "1630.gif",
+    "1658.gif",
+    "1685.gif",
+    "1688.gif",
+    "1719.gif",
+    "1734.gif",
+    "1751.gif",
+    "1768.gif",
+    "1785.gif",
+    "1832.gif",
+    "1871.gif",
+    "1874.gif"
   ],
   "stats": {
     "ok": 3,
-    "skipped": 47,
+    "skipped": 77,
     "failed": 0,
-    "total": 50
+    "total": 80
   }
 }

@@ -52,8 +52,7 @@ function collectMapIdsFromMvpSource(text) {
 
 function collectMobUrlsFromMvpSource(text) {
   const set = new Set();
-  const re = /imgUrl:\s*'(https:\/\/file5s\.ratemyserver\.net\/mobs\/\d+\.gif)'/g;
-  console.log('test collectMobUrlsFromMvpSource',text,re.exec(text))
+  const re = /imgUrl:\s*"(https:\/\/file5s\.ratemyserver\.net\/mobs\/\d+\.gif)"/g;
   let m;
   while ((m = re.exec(text)) !== null) set.add(m[1]);
   return [...set].sort();
