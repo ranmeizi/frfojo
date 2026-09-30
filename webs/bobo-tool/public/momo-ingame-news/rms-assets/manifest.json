@@ -1,7 +1,9 @@
 {
-  "generatedAt": "2026-09-30T07:30:43.178Z",
+  "generatedAt": "2026-09-30T09:22:15.711Z",
   "publicBase": "/momo-ingame-news/rms-assets",
   "mapIds": [
+    "abbey02",
+    "abbey03",
     "abyss_03",
     "ama_dun03",
     "anthell01",
@@ -38,6 +40,7 @@
     "ra_fild03",
     "ra_fild04",
     "ra_san05",
+    "thor_v03",
     "treasure02",
     "tur_dun04",
     "ve_fild01",
@@ -53,9 +56,9 @@
     "1651.gif"
   ],
   "stats": {
-    "ok": 6,
-    "skipped": 41,
+    "ok": 3,
+    "skipped": 47,
     "failed": 0,
-    "total": 47
+    "total": 50
   }
 }
