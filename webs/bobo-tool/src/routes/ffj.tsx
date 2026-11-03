@@ -5,6 +5,7 @@ import AHKTesting from "@/pages/AHKTesting";
 import MomoIngameNews from "@/pages/MomoIngameNews";
 import RoCalculator from "@/pages/RoCalculator";
 import BoNet from "@/pages/BoNet";
+import Filedrop from "@/pages/Filedrop";
 import { LayoutMenu } from "@frfojo/components";
 
 const routes: RouteObject[] = [
@@ -34,6 +35,10 @@ const routes: RouteObject[] = [
       {
         path: "/ffj/bonet",
         element: <BoNet />,
+      },
+      {
+        path: "/ffj/filedrop",
+        element: <Filedrop />,
       },
       {
         path: "/ffj/*",
