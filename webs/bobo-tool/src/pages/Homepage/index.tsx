@@ -185,6 +185,19 @@ const Homepage: FC = () => {
                 >
                   抛出测试错误
                 </Button>
+                <Button
+                  variant="outlined"
+                  color="error"
+                  onClick={() => {
+                    // Send a log before throwing the error
+                    Sentry.logger.info("User triggered test error", {
+                      action: "test_error_button_click",
+                    });
+                    throw new Error("This is your first error!");
+                  }}
+                >
+                  Break the world
+                </Button>
               </Paper>
             </Box>
           </Stack>
