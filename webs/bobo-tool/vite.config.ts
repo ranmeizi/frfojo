@@ -5,10 +5,13 @@ import path from "path";
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [react({ jsxRuntime: "automatic" }), sentryVitePlugin({
-    org: "bomon",
-    project: "frfojo"
-  })],
+  plugins: [
+    react({ jsxRuntime: "automatic" }),
+    sentryVitePlugin({
+      org: "bomon",
+      project: "frfojo",
+    }),
+  ],
 
   // plugins: [react()],
   resolve: {
@@ -32,6 +35,6 @@ export default defineConfig({
   },
 
   build: {
-    sourcemap: true
-  }
+    sourcemap: false,
+  },
 });
