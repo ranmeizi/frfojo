@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "pnpm -F main dev",
     "build": "pnpm -F main build",
-    "build:all": "pnpm build:common && pnpm build:components && pnpm build && pnpm build:dota && pnpm build:tool",
+    "build:all": "pnpm build:common && pnpm build:components && pnpm build && pnpm build:dota",
     "dev:dota": "pnpm -F opendota dev",
     "build:dota": "pnpm -F opendota build",
     "dev:tool": "pnpm -F bobo-tool dev",
@@ -14,6 +14,7 @@
     "build:user": "pnpm -F user-center build",
     "build:common": "pnpm -F @frfojo/common build",
     "build:components": "pnpm -F @frfojo/components build",
+    "build:boss": "pnpm -F @frfojo/boss build",
     "tauri:start": "cargo tauri dev",
     "tauri:build": "cargo tauri build"
   },

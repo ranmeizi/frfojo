@@ -1,0 +1,29 @@
+{
+  "name": "@frfojo/boss",
+  "version": "1.0.0",
+  "private": true,
+  "description": "在 webs 工程内发布/拉取 OSS 产物的 CLI",
+  "type": "module",
+  "bin": {
+    "boss": "./dist/boss.js"
+  },
+  "main": "./dist/boss.js",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "boss": "tsx src/boss.ts"
+  },
+  "dependencies": {
+    "ali-oss": "^6.23.0",
+    "dotenv": "^16.5.0",
+    "tar": "^7.4.3"
+  },
+  "devDependencies": {
+    "@types/ali-oss": "^6.16.11",
+    "@types/node": "^22.15.21",
+    "tsx": "^4.19.4",
+    "typescript": "^5.8.3"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
