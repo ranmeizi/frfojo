@@ -1,5 +1,14 @@
 import { FC } from "react";
-import { Box, Container, Paper, Stack, styled, Typography } from "@mui/material";
+import {
+  Box,
+  Button,
+  Container,
+  Paper,
+  Stack,
+  styled,
+  Typography,
+} from "@mui/material";
+import * as Sentry from "@sentry/react";
 import MenuCard from "./components/MenuCard";
 import { LayoutMenu, useAccess } from "@frfojo/components";
 import { PERM_BONET_TRIAL, hasPermission } from "../BoNet/constants";
@@ -147,6 +156,37 @@ const Homepage: FC = () => {
                 </Paper>
               </Box>
             ))}
+
+            <Box>
+              <Stack
+                direction="row"
+                spacing={1}
+                alignItems="baseline"
+                sx={{ mb: 1.5 }}
+              >
+                <Typography variant="subtitle1" fontWeight={700}>
+                  调试
+                </Typography>
+                <Typography variant="caption" color="text.secondary">
+                  用于验证 Sentry 上报
+                </Typography>
+              </Stack>
+              <Paper sx={{ padding: "20px 24px" }}>
+                <Button
+                  variant="outlined"
+                  color="error"
+                  onClick={() => {
+                    const err = new Error(
+                      "Sentry test error from bobo-tool homepage",
+                    );
+                    Sentry.captureException(err);
+                    throw err;
+                  }}
+                >
+                  抛出测试错误
+                </Button>
+              </Paper>
+            </Box>
           </Stack>
         </Container>
       </Root>
