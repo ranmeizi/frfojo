@@ -10,18 +10,19 @@
   "main": "./dist/boss.js",
   "scripts": {
     "build": "tsc -p tsconfig.json",
+    "prepare": "pnpm build",
     "boss": "tsx src/boss.ts"
   },
   "dependencies": {
     "ali-oss": "^6.23.0",
     "dotenv": "^16.5.0",
-    "tar": "^7.4.3"
+    "tar": "^7.4.3",
+    "typescript": "^5.8.3"
   },
   "devDependencies": {
     "@types/ali-oss": "^6.16.11",
     "@types/node": "^22.15.21",
-    "tsx": "^4.19.4",
-    "typescript": "^5.8.3"
+    "tsx": "^4.19.4"
   },
   "keywords": [],
   "author": "",

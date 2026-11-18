@@ -15,6 +15,7 @@
     "build:common": "pnpm -F @frfojo/common build",
     "build:components": "pnpm -F @frfojo/components build",
     "build:boss": "pnpm -F @frfojo/boss build",
+    "postinstall": "pnpm -F @frfojo/boss build",
     "tauri:start": "cargo tauri dev",
     "tauri:build": "cargo tauri build"
   },
