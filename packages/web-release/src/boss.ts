@@ -24,6 +24,7 @@ import {
 import { formatOssError } from "./errors.js";
 import { extractArchive } from "./pack.js";
 import { publishProject } from "./publish.js";
+import { runRamTest } from "./ramTest.js";
 import {
   ensureCacheDir,
   getCacheDir,
@@ -36,6 +37,7 @@ function printUsage(): void {
   console.log(`用法（在 webs/<工程> 目录下执行）:
   pnpm boss -- publish [--skip-build]
   pnpm boss -- upload
+  pnpm boss -- ram-test
   pnpm boss -- pull [--v <版本戳>]
   pnpm boss -- -v | pnpm boss -- versions
   pnpm boss -- use [<文件名|版本戳>] [--dir <dist目录>]
@@ -49,7 +51,8 @@ function printUsage(): void {
                  boss use --v 20261118-185202
 
   publish    build → 删 map → 上传 OSS（最多保留 ${MAX_RELEASE_VERSIONS} 版）
-  upload     测试上传（不 build）
+  upload     测试上传（长期 AK，不 build）
+  ram-test   测试 ECS 实例 RAM 角色 STS 连通性（强制 ecs，读 OSS）
 
 环境变量:
   BOSS_PROJECT / OSS_REGION / OSS_BUCKET
@@ -59,7 +62,14 @@ function printUsage(): void {
 `);
 }
 
-type Command = "publish" | "upload" | "versions" | "pull" | "use" | "help";
+type Command =
+  | "publish"
+  | "upload"
+  | "ram-test"
+  | "versions"
+  | "pull"
+  | "use"
+  | "help";
 
 type BossArgs = {
   command: Command;
@@ -144,11 +154,13 @@ function parseArgs(argv: string[]): BossArgs {
       !command &&
       (a === "publish" ||
         a === "upload" ||
+        a === "ram-test" ||
+        a === "ram" ||
         a === "pull" ||
         a === "use" ||
         a === "help")
     ) {
-      command = a;
+      command = a === "ram" ? "ram-test" : a;
       continue;
     }
     // use 的文件名 / 版本戳
@@ -221,6 +233,14 @@ async function main(): Promise<void> {
       skipBuild: parsed.skipBuild,
       testUpload: parsed.command === "upload",
       keepArchive: parsed.keepArchive,
+      projectOverride: parsed.project,
+    });
+    return;
+  }
+
+  if (parsed.command === "ram-test") {
+    await runRamTest({
+      cwd,
       projectOverride: parsed.project,
     });
     return;

@@ -8,6 +8,10 @@ export type ResolvedCredentials = {
   accessKeyId: string;
   accessKeySecret: string;
   stsToken?: string;
+  /** ECS RAM 角色名（仅 ecs 模式） */
+  roleName?: string;
+  /** STS 过期时间（ISO，仅 ecs 模式） */
+  expiration?: string;
 };
 
 export type CredentialSource =
@@ -92,6 +96,8 @@ export async function fetchEcsStsCredentials(
     accessKeyId: data.AccessKeyId,
     accessKeySecret: data.AccessKeySecret,
     stsToken: data.SecurityToken,
+    roleName: role,
+    expiration: data.Expiration,
   };
 }
 

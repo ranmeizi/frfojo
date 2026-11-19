@@ -58,7 +58,8 @@ export type OssConfig = {
   credentials: CredentialSource;
 };
 
-function resolveAuthMode(): "static" | "ecs" {
+function resolveAuthMode(force?: "static" | "ecs"): "static" | "ecs" {
+  if (force) return force;
   const explicit = process.env.OSS_AUTH?.trim().toLowerCase();
   if (explicit === "ecs" || explicit === "sts" || explicit === "ram") {
     return "ecs";
@@ -71,10 +72,13 @@ function resolveAuthMode(): "static" | "ecs" {
   return "static";
 }
 
-export function getOssConfig(): OssConfig {
+export function getOssConfig(options?: {
+  /** 强制认证方式（如 ram-test 强制 ecs） */
+  forceAuth?: "static" | "ecs";
+}): OssConfig {
   const region = process.env.OSS_REGION?.trim();
   const bucket = process.env.OSS_BUCKET?.trim();
-  const mode = resolveAuthMode();
+  const mode = resolveAuthMode(options?.forceAuth);
 
   const missingBase = [
     !region && "OSS_REGION",
