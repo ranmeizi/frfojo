@@ -6,6 +6,7 @@ import { useAppTheme } from "./theme";
 import { useEffect, useState } from "react";
 import { SnackbarProvider, useMethodPopup } from "@frfojo/components/popup";
 import { AccessProvider } from "@frfojo/components";
+import * as Sentry from "@sentry/react";
 
 const router = createBrowserRouter(routes, {
   basename: window.__GARFISH__ ? "/m/sub/bobo-tool" : "",
@@ -68,7 +69,17 @@ export const SubApp = function (props: {
   useEffect(() => {
     // Garfish 注入的 props 在 rootComponent 入参；须显式挂到 window，页面里才能读到
     setPermissions(syncHostAuthProps(props));
+
+    sentryGetMainUser();
   }, [props]);
+
+  function sentryGetMainUser() {
+    const user = window.__FFJ_USER__;
+
+    if (user) {
+      Sentry.setUser(user);
+    }
+  }
 
   useEffect(() => {
     function onResize() {

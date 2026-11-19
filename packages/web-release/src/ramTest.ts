@@ -1,12 +1,16 @@
 import { basename } from "node:path";
 import { getBossProject, getOssConfig } from "./config.js";
 import { projectDirPrefix } from "./constants.js";
-import { fetchEcsStsCredentials } from "./credentials.js";
+import {
+  fetchEcsStsCredentials,
+  probeEcsMetadata,
+} from "./credentials.js";
 import { listVersions } from "./oss.js";
 
 /**
  * 强制用 ECS 实例 RAM 角色（STS）测连通性：
- * 1) 从 10.10.10.10 取临时凭证
+ * 0) 探测 10.10.10.10 元数据
+ * 1) 取临时凭证
  * 2) 用 STS 列 OSS 工程目录
  */
 export async function runRamTest(options?: {
@@ -28,7 +32,21 @@ export async function runRamTest(options?: {
   );
   console.log(`   prefix:  ${projectDirPrefix(oss.prefix, project)}/`);
 
-  console.log("\n① 从 ECS 元数据获取 STS …");
+  console.log("\n① 探测 ECS 元数据 http://10.10.10.10/ …");
+  const probe = await probeEcsMetadata();
+  console.log(`   reachable: ${probe.reachable}`);
+  console.log(`   IMDSv2:    ${probe.imdsToken ? "token ok" : "fallback/无"}`);
+  console.log(`   ${probe.detail}`);
+  if (!probe.reachable) {
+    throw new Error(probe.detail);
+  }
+  if (probe.roles.length === 0 && oss.credentials.mode === "ecs" && !oss.credentials.roleName) {
+    throw new Error(
+      "未发现实例 RAM 角色。请在 ECS 控制台绑定角色，或在 .env 设置 OSS_ECS_RAM_ROLE"
+    );
+  }
+
+  console.log("\n② 获取 STS …");
   const roleHint =
     oss.credentials.mode === "ecs" ? oss.credentials.roleName : undefined;
   const sts = await fetchEcsStsCredentials(roleHint);
@@ -37,7 +55,7 @@ export async function runRamTest(options?: {
   console.log(`   expiration: ${sts.expiration || "-"}`);
   console.log(`   stsToken:   ${sts.stsToken ? "有" : "无"}`);
 
-  console.log("\n② 用 STS 列出 OSS 发布包 …");
+  console.log("\n③ 用 STS 列出 OSS 发布包 …");
   const versions = await listVersions(oss, project);
   if (versions.length === 0) {
     console.log("   (空) 目录可读，但还没有发布包");
