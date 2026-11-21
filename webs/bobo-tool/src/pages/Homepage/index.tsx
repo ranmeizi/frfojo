@@ -11,7 +11,11 @@ import {
 import * as Sentry from "@sentry/react";
 import MenuCard from "./components/MenuCard";
 import { LayoutMenu, useAccess } from "@frfojo/components";
-import { PERM_BONET_TRIAL, hasPermission } from "../BoNet/constants";
+import {
+  PERM_BONET_TRIAL,
+  hasPermission,
+  PERM_MOMORO_ENTRY,
+} from "../BoNet/constants";
 
 const IconMomoro = new URL("@/assets/momoro.jpeg", import.meta.url).href;
 // const IconAHKTesting = new URL("@/assets/testing.jpeg", import.meta.url).href;
@@ -46,12 +50,14 @@ const menuGroups: MenuGroup[] = [
         desciption: "测试版",
         img: IconMomoro,
         path: "/ffj/2048",
+        require: PERM_MOMORO_ENTRY,
       },
       {
         title: "MomoIngameNews",
         desciption: "MomoRo数据统计",
         img: IconMomotu,
         path: "/ffj/momo-ingamenews",
+        require: PERM_MOMORO_ENTRY,
       },
       {
         title: "RO计算器",

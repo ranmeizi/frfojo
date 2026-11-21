@@ -51,6 +51,9 @@ export const PERM_BONET_AUDIT = "A_WEB_BONET_AUDIT";
 /** BoNet 入口试用 / 访问权限 */
 export const PERM_BONET_TRIAL = "F_WEB_BONET_TRIAL";
 
+/** MomoR0 入口试用 / 访问权限 */
+export const PERM_MOMORO_ENTRY = "B_WEB_MVP_DEATH_NOTE";
+
 /** 读取主应用下发的权限列表 */
 export function getUserPermissions(): string[] {
   const g = globalThis as {
