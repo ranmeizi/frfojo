@@ -7,16 +7,22 @@ import {
   Typography,
 } from "@mui/material";
 import { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Ranking from "./views/ranking";
 import Search from "./views/search";
 import Group from "./views/group";
-import { LayoutMenu } from "@frfojo/components";
+import { LayoutMenu, message, useAccess } from "@frfojo/components";
 import Spawning from "./views/spawning";
 import StatObjectSubjectRank from "./views/statObjectSubjectRank";
 import MvpMonthlyTop10 from "./views/mvpMonthlyTop10";
 import MvpSubjectObjectDetail from "./views/mvpSubjectObjectDetail";
+import { PERM_MOMORO_ENTRY, hasPermission } from "../BoNet/constants";
 
 export default function MomoIngameNews() {
+  const navigate = useNavigate();
+  const { permissions } = useAccess();
+  const canEntry =
+    permissions.includes(PERM_MOMORO_ENTRY) || hasPermission(PERM_MOMORO_ENTRY);
   const [active, setActive] = useState(3);
 
   const view = useMemo(() => {
@@ -54,6 +60,12 @@ export default function MomoIngameNews() {
   useEffect(() => {
     getSerch();
   }, []);
+
+  useEffect(() => {
+    if (canEntry) return;
+    message.warning("为止，禁止进入");
+    navigate("/ffj/homepage", { replace: true });
+  }, [canEntry, navigate]);
 
   const sidebar = (
     <List>
@@ -94,6 +106,10 @@ export default function MomoIngameNews() {
       </ListItem>
     </List>
   );
+
+  if (!canEntry) {
+    return null;
+  }
 
   return (
     <LayoutMenu
